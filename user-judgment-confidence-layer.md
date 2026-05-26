@@ -8,18 +8,18 @@ scope: fde-user-judgment-confidence
 tags: [fde, judgment, confidence, user-signal, adoption-gate]
 ---
 
-# User Judgment Confidence Layer
+# ユーザー判断 confidence layer
 
 obsidian_check: not_checked
 scope_route: top / fde-user-judgment-confidence
 closure_rule: active
 
-## Premise
+## 前提
 
 - [ユーザー指摘] ユーザーが判断軸について「これはおかしい」「これはこうして」と明示した内容は、判断軸として採用度・信用度を高く扱ってよい。
 - [判断] 外部AIレビュー / 一般論 / runtime推測より、ユーザー明示判断は高優先の `human_judgment_signal` として採否gateに入れる。
 
-## Proposed Field
+## 提案 field
 
 ```yaml
 human_judgment_signal:
@@ -32,7 +32,7 @@ human_judgment_signal:
   verification_needed: yes / no
 ```
 
-## Rule
+## ルール
 
 - [判断] `confidence: high` は、ユーザーが「おかしい」「こうして」「前に言った」「それは違う」など、運用判断や目的に関する明示補正をした時に付ける。
 - [判断] local fact と矛盾しない限り、外部AIレビューの `optional` や `推測` より優先する。

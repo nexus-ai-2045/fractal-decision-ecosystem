@@ -1,50 +1,47 @@
-# Operational Guarantee
+# 運用保証
 
-Status: guaranteed for private-repository operation
+状態: private repository 運用として保証済み
 
-## Scope
+## 対象範囲
 
-This guarantee covers the current private repository package for Fractal
-Decision Ecosystem（FDE）:
+この保証は、Fractal Decision Ecosystem（FDE）の現在の private repository package を対象にします。
 
 - repository content
-- local validation scripts
-- local tests
+- local validation script
+- local test
 - GitHub Actions validation
-- repository metadata and operating settings
-- private-handle and personal-path checks
+- repository metadata と operating setting
+- private handle と personal path の確認
 
-It does not authorize making the repository public.
+この保証は repository の public 化を承認しません。
 
-## Residuals
+## 残務
 
-Implementation residual: none
+実装残務: なし
 
-Operational residual: none
+運用残務: なし
 
-Public-release residual: human approval required
+public release 残務: 人間承認が必要
 
-Current visibility: private
+現在の visibility: private
 
-## Required Verification
+## 必須検証
 
-The package is considered operational only when all checks below pass:
+この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
 - `python scripts/public_ready_check.py`
 - `python -m pytest -q`
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
-- Git history author and committer use `Nexus AI <noreply@nexus-ai.local>`
-- repository visibility remains private until explicit publication approval
-- external review failures carry `failure_kind` and `postmortem_action`
+- Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
+- 明示的な publication approval まで repository visibility が private のままである
+- 外部 review 失敗には `failure_kind` と `postmortem_action` がある
 
-## Enforcement
+## 強制チェック
 
-`scripts/public_ready_check.py` enforces required files, local links, private
-handle patterns, personal absolute paths, draft status, Git history author
-metadata, this guarantee file, external review failure fields, and the GitHub
-Actions workflow contract.
+`scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
+personal absolute path、draft status、Git history author metadata、この保証 file、
+外部 review 失敗 field、GitHub Actions workflow contract を検証します。
 
-GitHub branch protection and GitHub native secret scanning are not available for
-this private repository on the current plan. The repository compensates with the
-local readiness check and CI workflow.
+現在の plan では、この private repository に GitHub branch protection と GitHub native secret scanning はありません。
+その代わりに、local readiness check と CI workflow で補完します。

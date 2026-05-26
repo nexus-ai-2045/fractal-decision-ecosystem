@@ -22,7 +22,7 @@ scope_route: 経過 report 化 (= 資料 / CEO 明示依頼) / no SSOT edit / no
 fact_tags_used: yes
 ---
 
-# FDE Research lane round trail (= 2026-05-12)
+# FDE research lane round trail（2026-05-12）
 
 ## §0 概要
 
@@ -63,7 +63,7 @@ fact_tags_used: yes
 | adopted 後の quarantine / rollback | Claude | §8 / §9 |
 | browser AI 聞き先 = Research project 面既定 | CEO / cmux 実測 | `external-ai-route-registry.md` |
 
-### Hold (= 3 件)
+### 保留（3件）
 
 - `user-stop` を validation failure 兼用 → `user-stop` は CEO 明示停止に限定 / `unknown-or-conflict` に寄せる
 - 全 routing failure を `human-stop` と呼ぶ → drift 防止で却下 / 既存 `unknown-or-conflict` 利用

@@ -11,7 +11,7 @@ related:
   - search-orchestration.md
 ---
 
-# FDE operating card
+# FDE 運用カード
 
 毎 turn の最小起動カード。長い FDE 本文を読む代わりに、まずこれだけを見る。
 
@@ -107,7 +107,7 @@ external_ssot_closure_gate:
 - action: use_internal_snapshot | read_external_authority | type1_review | ignore | cleanup | close_duplicate_proposal
 ```
 
-#### Absorbed Duplicate Proposal Gate
+#### 吸収済み重複提案 gate
 
 Type1 / FDE 採用提案を起票する前に、同じ内容が operating-card / FDE 正本へ吸収済みか確認する。吸収済みの場合は、CEO 判断を増やさず `already-adopted` として閉じる。
 
@@ -150,7 +150,7 @@ absorbed_duplicate_proposal_gate:
 - 速度が必要でも rank 1-3 は省略しない。省略する場合は `not_checked` ではなく `held` または `reroute` にする。
 - 重要順位を間違えたら、反省ではなく `route_failure` として該当 gate を補強する。
 
-#### Sales / Content Type1 Audit
+#### sales / content Type1 audit
 
 sales / content の外部送信・納品・公開候補を扱う時は、実行前に `ADR-0139-sales-content-type1-gate-required.md` と `sales_content_type1_gate_lint.py` を Type1 audit として見る。
 
@@ -788,4 +788,3 @@ next_collect:
 同じ注意を 2 回受けたら、返答だけで閉じず `core.md` / `search-orchestration.md` / playbook / registry のどれかを直す。
 
 closure_rule: active
-

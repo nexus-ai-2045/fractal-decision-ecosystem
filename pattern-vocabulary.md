@@ -11,7 +11,7 @@ related:
 tags: [fractal-decision-ecosystem, pattern, vocabulary, alias, search]
 ---
 
-# Fractal Decision Ecosystem Pattern Vocabulary
+# Fractal Decision Ecosystem パターン語彙
 
 会話・Obsidian 検索・playbook / lesson / idea から出てくる語を、Fractal Decision Ecosystem の判断軸へ吸わせるための語彙表。
 
@@ -42,9 +42,9 @@ next_link:
 target_file:
 ```
 
-## Pattern Vocabulary
+## pattern 語彙
 
-## Layer Vocabulary Guard
+## layer 語彙 guard
 
 source: `dependency-registry:layer-vocabulary-synthesis`
 
@@ -114,7 +114,7 @@ closure_rule:
 | storage / SSOT | SSOT, pointer, target_file, cache, decision, report | WHERE | 保存先で意味を固定する | brain, decisions, reports, handoffs, inbox, ideas | knowledge graph, archive policy | `term -> target_file -> pointer` |
 | trace / evidence | evidence, source, log, line, trace, fact, unknown | WITHWHAT | 事実性を支える | source path, log, test result, screenshot, [事実] | audit trail, provenance | `claim -> evidence -> confidence` |
 
-## Method Chains
+## method chain
 
 ### 検証系
 
@@ -158,7 +158,7 @@ MECE -> first-match -> exception priority -> target
 AI作文っぽい -> original voice missing -> content lane rule
 ```
 
-## Search Seeds
+## search seed
 
 Obsidian / vault 検索で関連語を広げる時の seed。
 
@@ -175,7 +175,7 @@ scope boundary force_level contract Type1
 abstract concrete 中小 具体 3x3 3視点 3レイヤー
 ```
 
-## Entry Protocols
+## entry protocol
 
 Provenance: Claude proposal 由来。採用履歴は source history に残し、入口別固定 chain の意味だけをここで扱う。
 
@@ -193,7 +193,7 @@ Provenance: Claude proposal 由来。採用履歴は source history に残し、
 
 入口競合: 文中で先に出現した入口を採用 (first-match)。
 
-## Placement Rule
+## 配置ルール
 
 - 語彙・alias・連想 chain はこの file に足す。
 - 軸の定義そのものは `axis-registry.md` に置く。

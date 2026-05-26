@@ -10,7 +10,7 @@ related:
 tags: [layer-context, source, pointer, ssot]
 ---
 
-# Fractal Decision Ecosystem Source Pointers
+# Fractal Decision Ecosystem 出典ポインタ
 
 `root-router.md` の元議論ポインタ集。root router 本文には要約だけ置き、詳細はここから辿る。
 

@@ -12,13 +12,13 @@ related:
   - Documents/reports/2026-05-21-provider-facts-table-official-url.md
 ---
 
-# External AI Route Registry
+# 外部AI route registry
 
 外部 AI / browser AI / API route の用途別 registry。料金・無料枠・提供 model は変動するため、実行直前に確認する。
 
 - [事実: `Documents/reports/2026-05-21-provider-facts-table-official-url.md`] Provider facts table は 2026-05-21 に公式 URL のみで取得済み。`free_or_included_candidate` / `paid_explicit_required` の分類は同 report を参照する。FDE 本文採用、account / key / billing / smoke / 外部送信は未実施。
 
-## routes
+## route
 
 | route | 種別 | 得意 | file upload | file download | 既定用途 | 状態 |
 |---|---|---|---|---|---|---|
@@ -32,7 +32,7 @@ related:
 | Google AI Platform | API | 大量処理 / Google 文脈 | n/a | n/a | batch / evaluator | candidate |
 | Hugging Face / GitHub Models / OpenRouter / Cerebras | API/router | 無料枠 / model 比較 / fallback / 高速推論 | n/a | n/a | smoke bench | candidate |
 
-## existing local assets
+## 既存 local asset
 
 新規実装前に以下を確認する。
 
@@ -60,7 +60,7 @@ related:
 |---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---|
 ```
 
-## route score axes
+## route score 軸
 
 5 点満点。実測がないものは `unknown` と書き、推測で固定しない。
 
@@ -134,7 +134,7 @@ Grok primary route:
 | secondary | Research workspace browser AI | 即時性より調査深度 / provider 比較 / Research 協調が必要な時 | candidate |
 | avoid-default | API client | secret / quota / billing / key 管理が必要な時 | 現時点非推奨。Type1 + smoke まで hold |
 
-## Gemini web-search routing
+## Gemini web search routing
 
 ### Gemini route taxonomy
 
@@ -202,7 +202,7 @@ Research prompt -> Grok coding/design reply -> Codex classify -> small patch or 
 
 最初の smoke は「小さい既存 script / doc tool / browser helper」に限定する。Grok に repository 全体の write 権限や secret を渡さない。
 
-## Cost policy
+## cost policy
 
 | class | rule |
 |---|---|
@@ -307,14 +307,14 @@ unknown:
 
 Research は料金・無料枠が変動するものを固定せず、公式 source と取得日を残す。
 
-## freshness notes
+## freshness note
 
 - [事実: xAI Grok page 2026-05-08 browse] Grok は realtime search / X trends / document understanding を product capability として掲げている。
 - [事実: X Help Grok 2026-05-08 browse] Grok on X は、回答時に X public posts search と real-time web search を使うか判断できる。
 - [事実: OpenAI Help ChatGPT Search 2026-05-08 browse] ChatGPT Search は timely answers with web sources を提供する。
 - [推測] X の反応・トレンド・世論系は Grok route の freshness が高い可能性がある。実運用では smoke で測る。
 
-## rules
+## ルール
 
 - browser AI は「外部作業面」。Codex-main の context 節約を目的に使う。
 - route 評価は推測で固定しない。file upload / download / quota / speed は smoke で測る。
@@ -322,7 +322,7 @@ Research は料金・無料枠が変動するものを固定せず、公式 sour
 - secret / private credential / production data は投げない。
 - 外部送信に Type1 リスクがある材料は CEO GO を取る。
 
-## first smoke set
+## 初回 smoke set
 
 | smoke | route | input | expected output | owner | status |
 |---|---|---|---|---|---|

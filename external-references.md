@@ -12,7 +12,7 @@ related:
   - external-ai-route-registry.md
 ---
 
-# FDE external references
+# FDE 外部参照
 
 FDE の外部参照・browser AI review・外部 best practice はここから辿る。
 

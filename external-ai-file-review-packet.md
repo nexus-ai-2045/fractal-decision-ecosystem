@@ -11,7 +11,7 @@ related:
   - external-ai-route-registry.md
 ---
 
-# External AI File Review Packet Template
+# 外部AI file review packet template
 
 ```markdown
 ---

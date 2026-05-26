@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Public readiness checks for Fractal Decision Ecosystem."""
+"""Fractal Decision Ecosystem の公開準備チェック。"""
 
 from __future__ import annotations
 
@@ -78,22 +78,25 @@ def check_readme_name(errors: list[str]) -> None:
         return
     text = readme.read_text(encoding="utf-8")
     if "Fractal Decision Ecosystem" not in text:
-        errors.append("README.md must name Fractal Decision Ecosystem")
+        errors.append("README.md に Fractal Decision Ecosystem の明記が必要です")
+    for phrase in ("## 言語方針", "人間が読む本文", "schema field"):
+        if phrase not in text:
+            errors.append(f"README.md に言語方針の必須文言がありません: {phrase}")
 
 
 def check_operational_guarantee(errors: list[str]) -> None:
     text = (ROOT / "OPERATIONAL_GUARANTEE.md").read_text(encoding="utf-8")
     required_phrases = (
-        "Implementation residual: none",
-        "Operational residual: none",
-        "Public-release residual: human approval required",
-        "Current visibility: private",
+        "実装残務: なし",
+        "運用残務: なし",
+        "public release 残務: 人間承認が必要",
+        "現在の visibility: private",
         "failure_kind",
         "postmortem_action",
     )
     for phrase in required_phrases:
         if phrase not in text:
-            errors.append(f"OPERATIONAL_GUARANTEE.md missing phrase: {phrase}")
+            errors.append(f"OPERATIONAL_GUARANTEE.md に必須文言がありません: {phrase}")
 
 
 def check_failure_postmortem_contract(errors: list[str]) -> None:
@@ -116,11 +119,11 @@ def check_failure_postmortem_contract(errors: list[str]) -> None:
         text = (ROOT / name).read_text(encoding="utf-8")
         for term in required_terms[:2]:
             if term not in text:
-                errors.append(f"{name} missing external review failure term: {term}")
+                errors.append(f"{name} に外部 review 失敗の必須用語がありません: {term}")
         if name in {"core.md", "search-orchestration.md", "operating-card.md"}:
             for term in required_terms[2:]:
                 if term not in text:
-                    errors.append(f"{name} missing failure_kind value: {term}")
+                    errors.append(f"{name} に failure_kind の値がありません: {term}")
 
 
 def check_workflow_contract(errors: list[str]) -> None:
@@ -137,7 +140,7 @@ def check_workflow_contract(errors: list[str]) -> None:
     )
     for term in required_terms:
         if term not in text:
-            errors.append(f"workflow missing required term: {term}")
+            errors.append(f"workflow に必須用語がありません: {term}")
 
 
 def check_forbidden_patterns(errors: list[str]) -> None:
@@ -148,7 +151,7 @@ def check_forbidden_patterns(errors: list[str]) -> None:
         rel = path.relative_to(ROOT).as_posix()
         for label, pattern in FORBIDDEN_PATTERNS.items():
             if pattern.search(text):
-                errors.append(f"{rel}: forbidden {label}")
+                errors.append(f"{rel}: 禁止 pattern が見つかりました: {label}")
 
 
 def check_local_markdown_links(errors: list[str]) -> None:
@@ -166,7 +169,7 @@ def check_local_markdown_links(errors: list[str]) -> None:
             if target.startswith("<") and target.endswith(">"):
                 target = target[1:-1]
             if not (path.parent / target).exists():
-                errors.append(f"{path.relative_to(ROOT).as_posix()}: missing local link: {raw}")
+                errors.append(f"{path.relative_to(ROOT).as_posix()}: local link の参照先がありません: {raw}")
 
 
 def check_git_history(errors: list[str]) -> None:
@@ -186,7 +189,7 @@ def check_git_history(errors: list[str]) -> None:
     pattern = FORBIDDEN_PATTERNS["private handle"]
     for line in result.stdout.splitlines():
         if pattern.search(line):
-            errors.append("git history contains a private handle/email")
+            errors.append("git history に private handle/email が含まれています")
             return
 
 

@@ -13,9 +13,9 @@ source:
   - Documents/inbox/2026-05-13-fde-gemini-post-grok-implementation-review.md
 ---
 
-# FDE v1 Browser AI Review Synthesis
+# FDE v1 browser AI review 統合
 
-## Route
+## route
 
 正式レビュー名は `browser AI review` / `browser AI debut` とする。`multi-AI` は実装名として残っていても、運用語としては使わない。
 
@@ -28,7 +28,7 @@ source:
 | ChatGPT | Content / surface:24 | 先行回答あり | yes, fallback evidence |
 | Grok | Main / Top / surface:110 | 添付あり回答あり (2026-05-13) | yes, final external evidence |
 
-## Adopted Fixes
+## 採用済み修正
 
 | 指摘 | source | 反映先 |
 |---|---|---|
@@ -47,7 +47,7 @@ source:
 | `fde_lint.py` を CI に常駐させる | Gemini post-Grok review | `.github/workflows/fde-lint.yml` |
 | CMUX browser 添付で Desktop staging だけに依存せず、file dialog から対象 folder を開いて全 file 選択する | Grok attached review follow-up / user correction | `shared/scripts/cmux_browser_attach_file.py --folder` / `cmux_ops.py review-attach --folder` |
 
-## Held
+## 保留
 
 | 指摘 | 理由 |
 |---|---|
@@ -80,7 +80,7 @@ source:
 - [事実: local note] Gemini から取得済みの `ready` は、本文/evidence digest route または実装差分レビューとして扱う。FDE folder 添付が成功し、添付内容を Gemini が読んだことの証跡とは分ける。
 - [判断] Gemini file-attached review は `external_review_state: held`。次に進める時は、添付chip / attached file list / Gemini回答内の attachment_read 相当を delivery evidence に含める。
 
-## Current Verdict
+## 現在の判定
 
 判定: `ready -> reflected`
 

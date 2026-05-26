@@ -14,7 +14,7 @@ related:
   - dependency-registry:source-routing-budget
 ---
 
-# FDE search orchestration
+# FDE 検索 orchestration
 
 検索は Codex 本体が全部読む作業ではない。広い探索は sidecar / subagent / 外部AI に逃がし、Codex 本体は問いの切り方、採否、diff、検証、正本反映に集中する。
 
@@ -346,4 +346,3 @@ E2E 例: `FDE bundle review -> pointer meaning transform -> 4 browser send -> co
 - `return_to` がない。
 
 closure_rule: active
-

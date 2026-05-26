@@ -13,7 +13,7 @@ related:
   - lifecycle-operating-pattern.md
 ---
 
-# Fractal Decision Ecosystem core
+# Fractal Decision Ecosystem 中核
 
 FDE は **Fractal Decision Ecosystem** の略。人間向け本文では初出を `Fractal Decision Ecosystem（FDE）` と展開する。
 
@@ -193,4 +193,3 @@ Done when:
 | 過去知見 / report | `dependency-registry:reports` / `dependency-registry:lessons` |
 
 closure_rule: active
-

@@ -15,7 +15,7 @@ related:
   - external-references.md
 ---
 
-# Fractal Decision Ecosystem data index
+# Fractal Decision Ecosystem データ索引
 
 FDE data index は、FDE core が参照する **データ / catalog / pointer** の入口。FDE の動作規則はここに置かない。
 

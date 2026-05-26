@@ -1,20 +1,17 @@
-# Security Policy
+# セキュリティポリシー
 
-## Reporting
+## 報告
 
-Please report security concerns privately before public disclosure. Do not open
-a public issue for secrets, credentials, account access, or sensitive operational
-details.
+セキュリティ上の懸念は、公開前に非公開の経路で報告してください。secret、
+credential、account access、機微な運用詳細について、public issue を作らないでください。
 
-## Scope
+## 対象範囲
 
-This repository contains documentation and lightweight validation scripts for
-Fractal Decision Ecosystem. It should not contain production credentials,
-private keys, personal access tokens, or machine-local secret files.
+この repository は Fractal Decision Ecosystem（FDE）の文書と軽量な検証 script を含みます。
+production credential、private key、personal access token、machine-local secret file を含めてはいけません。
 
-## Public Release Gate
+## 公開ゲート
 
-Before any public release, run the public readiness check and complete human
-review. GitHub repository visibility must not be changed to public until a
-reviewer explicitly approves that exact repository.
+public release の前に public readiness check を実行し、人間 review を完了してください。
+reviewer が対象 repository を明示承認するまで、GitHub repository visibility を public に変更してはいけません。
 

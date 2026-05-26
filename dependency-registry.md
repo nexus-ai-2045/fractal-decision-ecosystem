@@ -8,11 +8,11 @@ scope: fde-dependencies
 tags: [fde, dependency, registry, boundary]
 ---
 
-# FDE dependency registry
+# FDE 依存レジストリ
 
 FDE folder 内の file は、外部 path を直接ばら撒かない。外部依存はこの registry に集約し、本文側は `dependency-registry:<key>` で参照する。
 
-## Rule
+## ルール
 
 - FDE 内で閉じるものは `` に snapshot / digest / router として置く。
 - FDE 外の正本を読む必要がある時は、この registry に `key / path / reason / mode` を置く。
@@ -22,7 +22,7 @@ FDE folder 内の file は、外部 path を直接ばら撒かない。外部依
 - `mode=planned` は置き場だけ予約済みで、実体作成前。
 - `mode=missing-local` は参照候補が未配置。通常実行では読まず、次の registry cleanup 対象にする。
 
-## External SSOT closure classes
+## 外部 SSOT closure class
 
 FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の分類へ切る。registry にない外部 source は、FDE の根拠として直接採用しない。
 
@@ -34,7 +34,7 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | `not_fde` | lane local / report / historical evidence で、FDE 正本ではない | FDE へ入れない |
 | `stale` | 古い、矛盾、置き換え済み | FDE 入口から外す |
 
-## Internal snapshots
+## 内部 snapshot
 
 | key | internal file | source role |
 |---|---|---|
@@ -57,7 +57,7 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | data-index | `data-index.md` | lightweight data/catalog entry |
 | visual | `visual.html` | FDE visual view |
 
-## External authorities
+## 外部 authority
 
 | key | external path | reason | mode |
 |---|---|---|---|
@@ -154,7 +154,7 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | claude-optimization-guide | `~/.claude/docs/claude-code-optimization-guide.md` | Claude Code optimization guide | external-authority |
 | claude-code-reference | `Documents/references/claude-code/index.md` | Claude Code official reference digest | external-authority |
 
-## Imported source labels
+## import 済み source label
 
 | label | meaning |
 |---|---|
@@ -164,7 +164,7 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | planned | 置き場だけ予約済み。実体作成前 |
 | missing-local | 参照候補が未配置。通常実行では読まない |
 
-## Data / Policy / State 分離
+## data / policy / state 分離
 
 | 種別 | 意味 | 置き場 |
 |---|---|---|

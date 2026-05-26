@@ -7,7 +7,7 @@ owner: foundation
 tags: [fde, claude-ops, best-practice]
 ---
 
-# FDE filtered Claude ops best-practice inventory
+# FDE filter 済み Claude ops best-practice inventory（運用ベストプラクティス）
 
 作成日: 2026-05-12
 目的: 外部ベスプラ / GitHub 実例 / ローカル調査 / 既存 `.claude` ルールを、FDE で採用判定する。

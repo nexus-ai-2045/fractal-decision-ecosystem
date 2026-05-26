@@ -16,7 +16,7 @@ related:
   - dependency-registry:cross-runtime-primitives
 ---
 
-# FDE brain concept rollup
+# FDE brain 概念取り込み
 
 Brain 内の概念は、FDE 本文へ全部入れない。FDE に入れるのは、どの lane / runtime / tool から来ても `entry -> packet -> evidence -> decision -> closure` に戻れる抽象だけ。
 

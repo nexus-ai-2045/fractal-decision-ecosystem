@@ -12,7 +12,7 @@ related:
   - core.md
 ---
 
-# lifecycle operating pattern
+# lifecycle 運用パターン
 
 各 lane の `operating-card.md` が参照する lifecycle mini。具体例を lane ごとに増やさず、共通 slot だけを置く。
 
