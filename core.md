@@ -77,6 +77,8 @@ fact_label:
 delivery_receipt:
 external_review_state: not_sent | sent | received | failed | held | invalid_surface | timeout | not_applicable
 send_status: ok | failed | held | unknown | not_applicable
+failure_kind: none | attachment_failed | wrong_surface | timeout | payload_too_large | secret_risk | selector_drift | unknown
+postmortem_action: none | retry_with_new_route | reroute | human_gate | add_check | archive_with_reason
 main_line_age:
 next_move: stay | up | down | reroute | park | exception
 mode_result:
@@ -118,6 +120,8 @@ closure_rule:
 | delivery_receipt | 外部 surface / lane / worker へ送った時の到達確認。最低形は `surface_confirmed / payload_confirmed / response_or_null` |
 | external_review_state | 外部レビューの状態。未送信 / 送信済み / 受信済み / 失敗 / 保留 / surface誤り / timeout。`received` だけがレビュー入力になる |
 | send_status | 外部送信・回収の状態。`ok` 以外を review 済みや採用済みにしない |
+| failure_kind | 失敗の種類。`send_status: ok` 以外、または `external_review_state: received` 以外で成果物に進める前に必ず置く |
+| postmortem_action | 再発防止または次ルート。失敗を close する前に retry / reroute / human gate / check 追加 / archive 理由のどれかへ接続する |
 | main_line_age | 主線を最後に live todo / lane status と照合してからの経過。古い場合は採用前に再確認する |
 | confirmation_budget | 確認数の上限。`confidence / impact / reversible / route_delta` から `0 / 1 / packet` を選ぶ |
 | mode_result | mode 別の成果。search は result / blocker / unknown / candidate list、review は adopt / revise / reject / unknown |
@@ -151,6 +155,8 @@ closure_rule:
 - 外部AI / browser / lane / worker へ送る時は `delivery_receipt` / `external_review_state` / `send_status` を置く。`send_status: ok` は `surface_confirmed / payload_confirmed / response_or_null` が揃った時だけ。
 - 外部レビューの状態は `not_sent -> sent -> received` または `failed | held | invalid_surface | timeout` へ明示遷移させる。`received` 以外を review evidence に入れない。
 - `send_status: failed | held | unknown` または `external_review_state != received` の成果物は、採用判断の input ではなく blocker / held evidence として扱う。`mode_result: adopt | revise | reject` へ直接進めない。
+- `send_status: failed | held | unknown` または `external_review_state: failed | held | invalid_surface | timeout` の時は `failure_kind` と `postmortem_action` を置く。種類と次アクションのない失敗は close しない。
+- `failure_kind: unknown` は暫定だけに使う。次に調べる観測点を `postmortem_action` で `add_check` または `human_gate` へ接続する。
 - `main_line_age` が古い、または `[不明]` の場合は、作業前または採用前に `Documents/tasks/todo.md` / lane status と再照合する。
 - `return_to` は自由記述だけで閉じない。採用前に active todo / lane status と一致することを `precheck` または `delivery_receipt` に残す。archive 済み case を本線にしない。
 - 不明は推測で埋めず `[不明]` として戻す。

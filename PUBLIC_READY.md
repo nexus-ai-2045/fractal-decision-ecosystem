@@ -15,6 +15,7 @@ Status: private repository candidate, operationally ready
 - [x] Private repository push completed
 - [x] GitHub Actions public-readiness workflow passed
 - [x] Operational guarantee documented
+- [x] External review failures require `failure_kind` and `postmortem_action`
 
 ## Publication Boundary
 

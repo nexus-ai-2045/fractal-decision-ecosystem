@@ -515,6 +515,8 @@ cmux_lane_send_gate:
 - `unblock_policy` を置く。外部AI review は品質 gate であり、本線 blocker にしない。
 - `failure_reason` を置く。profile lock / selector drift / wrong surface / timeout / attachment missing を unknown に潰さない。
 - `failure_reason` が `selector drift | attachment missing | file_count_limit | payload_too_large | timeout | invalid_surface` の時は、同じ操作を 2 回以上粘らず `reroute` または `held` に落とす。
+- `failure_kind` を置く。`attachment_failed | wrong_surface | timeout | payload_too_large | secret_risk | selector_drift | unknown` を同じ failure として畳まない。
+- `postmortem_action` を置く。`retry_with_new_route | reroute | human_gate | add_check | archive_with_reason` のどれにも接続しない失敗は完了にしない。
 - `file_count_limit | payload_too_large` は即失敗ではない。初回 payload の `sent_files` / `rejected_files` / `remaining_files` を保存し、追加送信で閉じられるなら `progressive_disclosure` へ遷移する。
 - `return_to` は active todo / lane status と照合し、archive 済み case を本線として採用しない。
 
@@ -537,6 +539,8 @@ external_review_gate:
 - transmit_success: yes | no | unknown
 - send_status: ok | failed | held | unknown | not_applicable
 - failure_reason:
+- failure_kind: none | attachment_failed | wrong_surface | timeout | payload_too_large | secret_risk | selector_drift | unknown
+- postmortem_action: none | retry_with_new_route | reroute | human_gate | add_check | archive_with_reason
 - reviewer_fact_tags: required | missing
 - assumption_check: done | needed | not_applicable
 - review_target_type: external_ai | internal_lane | internal_agent | human

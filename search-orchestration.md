@@ -53,6 +53,8 @@ return_to:
 delivery_receipt:
 external_review_state: not_sent | sent | received | failed | held | invalid_surface | timeout | not_applicable
 send_status: ok | failed | held | unknown | not_applicable
+failure_kind: none | attachment_failed | wrong_surface | timeout | payload_too_large | secret_risk | selector_drift | unknown
+postmortem_action: none | retry_with_new_route | reroute | human_gate | add_check | archive_with_reason
 mode_result:
 return_format:
 closure_rule:
@@ -66,6 +68,7 @@ closure_rule:
 - 外部AI / browser / cmux / API route に渡す payload は `payload_fingerprint` を省略しない。path / byte_size / checksum_or_first_last_line / prompt_language を最低限残す。
 - 外部AI / browser / lane / worker へ送る時は `delivery_receipt` / `external_review_state` / `send_status` を省略しない。未送信・添付失敗・profile lock・selector drift・timeout は `held` または `failed` で記録し、review 済みにしない。
 - 外部レビューは `external_review_state: received` かつ `send_status: ok` の時だけ review evidence に入れる。その他は held evidence として保存し、本線へ戻す。
+- 外部レビュー失敗は `failure_kind` と `postmortem_action` を必ず残す。失敗の種類が不明なまま同じ route を再実行しない。
 - `why_search` が「なんとなく不安」だけなら検索しない。FDE core に戻す。
 - `source_order` は最大 3 本。例: local file -> official docs -> web / external AI。
 - `delegate_to` は `Codex本体` / `Explore` / `Plan` / `researcher` / `external AI` など、official layer と local role layer を混ぜずに書く。
@@ -174,9 +177,13 @@ delivery_receipt:
 external_review_state: not_sent | sent | received | failed | held | invalid_surface | timeout
 transmit_success:
 send_status: ok | failed | held | unknown
+failure_kind: none | attachment_failed | wrong_surface | timeout | payload_too_large | secret_risk | selector_drift | unknown
+postmortem_action: none | retry_with_new_route | reroute | human_gate | add_check | archive_with_reason
 ```
 
 `send_status: ok` は、対象 surface が正しいこと、payload が本文または添付として届いたこと、payload_fingerprint と画面上の投入内容が一致したこと、回答または明示 null が回収されたことが揃った時だけ使う。1 つでも欠ける場合は `failed` または `held` とし、Codex 本体は採用判断ではなく route 修復 / hold / return_to へ戻す。
+
+`send_status: failed | held | unknown` または `external_review_state: failed | held | invalid_surface | timeout` の時は、`failure_kind` で出来事を分け、`postmortem_action` で次の処置を決める。`attachment_failed` と `wrong_surface` と `timeout` を同じ失敗として扱わない。
 
 `external_review_state: held` や `waiting` 相当の状態に入る時は、待ちの正体を消さない。最低限、次の `waiting_contract` を同じ packet / TODO / lane status のどれかに残す。
 

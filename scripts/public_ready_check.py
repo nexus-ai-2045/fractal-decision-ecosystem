@@ -88,10 +88,39 @@ def check_operational_guarantee(errors: list[str]) -> None:
         "Operational residual: none",
         "Public-release residual: human approval required",
         "Current visibility: private",
+        "failure_kind",
+        "postmortem_action",
     )
     for phrase in required_phrases:
         if phrase not in text:
             errors.append(f"OPERATIONAL_GUARANTEE.md missing phrase: {phrase}")
+
+
+def check_failure_postmortem_contract(errors: list[str]) -> None:
+    required_docs = (
+        "core.md",
+        "search-orchestration.md",
+        "operating-card.md",
+        "PUBLIC_READY.md",
+        "OPERATIONAL_GUARANTEE.md",
+    )
+    required_terms = (
+        "failure_kind",
+        "postmortem_action",
+        "attachment_failed",
+        "wrong_surface",
+        "timeout",
+        "secret_risk",
+    )
+    for name in required_docs:
+        text = (ROOT / name).read_text(encoding="utf-8")
+        for term in required_terms[:2]:
+            if term not in text:
+                errors.append(f"{name} missing external review failure term: {term}")
+        if name in {"core.md", "search-orchestration.md", "operating-card.md"}:
+            for term in required_terms[2:]:
+                if term not in text:
+                    errors.append(f"{name} missing failure_kind value: {term}")
 
 
 def check_workflow_contract(errors: list[str]) -> None:
@@ -164,6 +193,7 @@ def main() -> int:
     check_required_files(errors)
     check_readme_name(errors)
     check_operational_guarantee(errors)
+    check_failure_postmortem_contract(errors)
     check_workflow_contract(errors)
     check_forbidden_patterns(errors)
     check_local_markdown_links(errors)

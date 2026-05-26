@@ -36,12 +36,14 @@ The package is considered operational only when all checks below pass:
 - GitHub Actions workflow `Public Ready`
 - Git history author and committer use `Nexus AI <noreply@nexus-ai.local>`
 - repository visibility remains private until explicit publication approval
+- external review failures carry `failure_kind` and `postmortem_action`
 
 ## Enforcement
 
 `scripts/public_ready_check.py` enforces required files, local links, private
 handle patterns, personal absolute paths, draft status, Git history author
-metadata, this guarantee file, and the GitHub Actions workflow contract.
+metadata, this guarantee file, external review failure fields, and the GitHub
+Actions workflow contract.
 
 GitHub branch protection and GitHub native secret scanning are not available for
 this private repository on the current plan. The repository compensates with the
