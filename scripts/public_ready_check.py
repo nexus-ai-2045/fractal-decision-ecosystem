@@ -129,6 +129,8 @@ def check_workflow_contract(errors: list[str]) -> None:
     required_terms = (
         "python scripts/public_ready_check.py",
         "python -m pytest -q",
+        "actions/checkout@v6",
+        "actions/setup-python@v6",
         "pull_request:",
         "workflow_dispatch:",
         "contents: read",
