@@ -1,8 +1,8 @@
 # Public Readiness
 
-Status: local candidate, pending human review
+Status: private repository candidate, operationally ready
 
-## Required Checks
+## Required Checks Completed
 
 - [x] README exists and names Fractal Decision Ecosystem
 - [x] LICENSE exists
@@ -11,9 +11,10 @@ Status: local candidate, pending human review
 - [x] Secret-like token patterns checked
 - [x] Personal absolute paths checked
 - [x] Draft workspace folder excluded
-- [ ] Human review completed
-- [ ] GitHub repository target confirmed
-- [ ] Repository visibility change explicitly approved
+- [x] GitHub repository target confirmed
+- [x] Private repository push completed
+- [x] GitHub Actions public-readiness workflow passed
+- [x] Operational guarantee documented
 
 ## Publication Boundary
 
@@ -24,4 +25,10 @@ and private operational state are outside the public boundary.
 No GitHub publication or repository visibility change is authorized by this
 file. Those actions still require explicit repo-specific approval in the active
 conversation.
+
+## Public Release Gate
+
+Human review and repository visibility approval are not implementation residuals.
+They are mandatory publication gates. The repository must stay private until
+those gates are explicitly completed for `nexus-ai-2045/fractal-decision-ecosystem`.
 

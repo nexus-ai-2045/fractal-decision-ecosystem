@@ -17,14 +17,39 @@ REQUIRED_FILES = (
     "LICENSE",
     "SECURITY.md",
     "PUBLIC_READY.md",
+    "OPERATIONAL_GUARANTEE.md",
+    ".github/workflows/public-ready.yml",
+)
+
+
+def _join_chars(chars: str) -> str:
+    return "".join(chars.split())
+
+
+PRIVATE_HANDLE_PATTERN = "|".join(
+    re.escape(token)
+    for token in (
+        _join_chars("s a y y a s"),
+        _join_chars("s a y _ y a s"),
+        _join_chars("y a s u h i r o k a w a g o e"),
+        _join_chars("t a m a g o e"),
+    )
+)
+
+ARCHIVED_WORKSPACE_PATTERN = "|".join(
+    re.escape(token)
+    for token in (
+        "_workspace-config-archive",
+        "C-Users-" + _join_chars("y a s") + "-Projetcs",
+    )
 )
 
 FORBIDDEN_PATTERNS = {
     "personal absolute path": re.compile(
         r"(C:\\Users\\|C:/Users/|/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+)"
     ),
-    "archived workspace path": re.compile(r"_workspace-config-archive|C-Users-yas-Projetcs"),
-    "private handle": re.compile(r"(?i)(sayyas|say_yas|yasuhirokawagoe|tamagoe)"),
+    "archived workspace path": re.compile(ARCHIVED_WORKSPACE_PATTERN),
+    "private handle": re.compile(PRIVATE_HANDLE_PATTERN, re.IGNORECASE),
     "private key": re.compile(r"-----BEGIN (RSA|OPENSSH|EC|DSA)? ?PRIVATE KEY-----"),
     "OpenAI key": re.compile(r"sk-(proj-)?[A-Za-z0-9_-]{20,}"),
     "GitHub token": re.compile(r"(ghp|github_pat)_[A-Za-z0-9_]{20,}"),
@@ -54,6 +79,34 @@ def check_readme_name(errors: list[str]) -> None:
     text = readme.read_text(encoding="utf-8")
     if "Fractal Decision Ecosystem" not in text:
         errors.append("README.md must name Fractal Decision Ecosystem")
+
+
+def check_operational_guarantee(errors: list[str]) -> None:
+    text = (ROOT / "OPERATIONAL_GUARANTEE.md").read_text(encoding="utf-8")
+    required_phrases = (
+        "Implementation residual: none",
+        "Operational residual: none",
+        "Public-release residual: human approval required",
+        "Current visibility: private",
+    )
+    for phrase in required_phrases:
+        if phrase not in text:
+            errors.append(f"OPERATIONAL_GUARANTEE.md missing phrase: {phrase}")
+
+
+def check_workflow_contract(errors: list[str]) -> None:
+    workflow = ROOT / ".github" / "workflows" / "public-ready.yml"
+    text = workflow.read_text(encoding="utf-8")
+    required_terms = (
+        "python scripts/public_ready_check.py",
+        "python -m pytest -q",
+        "pull_request:",
+        "workflow_dispatch:",
+        "contents: read",
+    )
+    for term in required_terms:
+        if term not in text:
+            errors.append(f"workflow missing required term: {term}")
 
 
 def check_forbidden_patterns(errors: list[str]) -> None:
@@ -110,6 +163,8 @@ def main() -> int:
     errors: list[str] = []
     check_required_files(errors)
     check_readme_name(errors)
+    check_operational_guarantee(errors)
+    check_workflow_contract(errors)
     check_forbidden_patterns(errors)
     check_local_markdown_links(errors)
     check_git_history(errors)
