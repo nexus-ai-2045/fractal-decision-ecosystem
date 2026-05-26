@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fractal Decision Ecosystem</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --ink: #1b1f24;
+      --muted: #667085;
+      --line: #b8c0cc;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #067647;
+      --blue: #175cd3;
+      --teal: #0e766e;
+      --violet: #6941c6;
+      --rose: #c11574;
+      --panel: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      padding: 28px 24px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    section {
+      margin: 0 0 28px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(150px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .node {
+      min-height: 112px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      position: relative;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      right: -13px;
+      top: 50%;
+      width: 12px;
+      border-top: 2px solid var(--line);
+    }
+
+    .node:last-child::after {
+      display: none;
+    }
+
+    .node strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .node span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .danger { border-top: 5px solid var(--danger); }
+    .strategy { border-top: 5px solid var(--violet); }
+    .secretary { border-top: 5px solid var(--rose); }
+    .coord { border-top: 5px solid var(--blue); }
+    .lane { border-top: 5px solid var(--teal); }
+    .field { border-top: 5px solid var(--ok); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .rule {
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .rule b {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .rule p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .matrix th,
+    .matrix td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e4e7ec;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .matrix th {
+      text-align: left;
+      background: #eef2f7;
+      font-size: 12px;
+      color: #344054;
+    }
+
+    .matrix tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .p-red { background: var(--danger); }
+    .p-blue { background: var(--blue); }
+    .p-green { background: var(--ok); }
+    .p-warn { background: var(--warn); }
+    .p-violet { background: var(--violet); }
+
+    .score {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .score .rule {
+      min-height: 92px;
+    }
+
+    .mini {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      background: #101828;
+      color: #f2f4f7;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 920px) {
+      .flow,
+      .grid,
+      .score {
+        grid-template-columns: 1fr;
+      }
+
+      .node::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fractal Decision Ecosystem</h1>
+    <p class="sub">判断が散ったら、上から落とす。どこから始まっても stay / up / down / exception のどれかにする。</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>MECE Routing Tree</h2>
+      <div class="flow" aria-label="MECE routing tree">
+        <div class="node danger">
+          <strong>0. 例外確認</strong>
+          <span>不明 / 矛盾 / Type1 / stop / collision / budget を先に拾う</span>
+        </div>
+        <div class="node strategy">
+          <strong>1. 草薙</strong>
+          <span>意味・違和感・方向が未確定なら問いにする</span>
+        </div>
+        <div class="node secretary">
+          <strong>2. 秘書</strong>
+          <span>情報が多すぎるなら 1-5 行 / A-B-C / 未決へ圧縮</span>
+        </div>
+        <div class="node coord">
+          <strong>3. Coord</strong>
+          <span>owner / route / stale / return_path を決める</span>
+        </div>
+        <div class="node lane">
+          <strong>4. Lane</strong>
+          <span>Foundation / Sales / Content / Research / Lab の成果物へ落とす</span>
+        </div>
+        <div class="node field">
+          <strong>5. 現場操作</strong>
+          <span>command / file / test / browser / cmux を diff・log・test で閉じる</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Any-Start Rule</h2>
+      <div class="grid">
+        <div class="rule">
+          <b>stay</b>
+          <p>今いる層で evidence / next_action まで閉じられる。</p>
+        </div>
+        <div class="rule">
+          <b>up</b>
+          <p>意味、判断材料、owner が足りない。草薙 / 秘書 / Coord へ上げる。</p>
+        </div>
+        <div class="rule">
+          <b>down</b>
+          <p>実作業や具体操作に落とせる。lane / 現場操作へ下げる。</p>
+        </div>
+        <div class="rule">
+          <b>exception</b>
+          <p>通常処理で解けない。例外表へ落として reroute する。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Exception Priority</h2>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>優先</th>
+            <th>例外</th>
+            <th>条件</th>
+            <th>落とし先</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><span class="pill p-red">user-stop</span></td>
+            <td>CEO が stop / 保留 / 今やらないと言った</td>
+            <td>park / discard</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><span class="pill p-red">type1-or-external</span></td>
+            <td>外部送信 / 公開 / 削除 / 課金 / auth / prod DB / main push</td>
+            <td>CEO 判断</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><span class="pill p-warn">unknown-or-conflict</span></td>
+            <td>source / scope / owner / safety が不明、SSOT が矛盾</td>
+            <td>fact-check / scope-routing gate</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><span class="pill p-warn">emergency-repair</span></td>
+            <td>主 Outcome / 安全 / データを守れない</td>
+            <td>Coord + 該当 lane</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><span class="pill p-blue">collision-risk</span></td>
+            <td>same file / DB / queue / lane を複数主体が触る</td>
+            <td>Coord で owner を 1 つに絞る</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><span class="pill p-violet">3x3-exhausted</span></td>
+            <td>3 視点 x 3 レイヤーで解けない</td>
+            <td>scope / layer / owner / workspace を切り直す</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><span class="pill p-green">freeze-or-budget</span></td>
+            <td>weekly / token / 維持モード / 5/15 freeze が危険</td>
+            <td>park-retake / pointer 1 行</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Convergence Score</h2>
+      <div class="score">
+        <div class="rule">
+          <b>8-10 adopt-now</b>
+          <p>今採用。ただし 1 行 rule / 1 file pointer まで。</p>
+        </div>
+        <div class="rule">
+          <b>5-7 park-retake</b>
+          <p>5/15 後 retake。今は pointer だけ残す。</p>
+        </div>
+        <div class="rule">
+          <b>3-4 decision-needed</b>
+          <p>CEO / 草薙へ 1 問に圧縮。</p>
+        </div>
+        <div class="rule">
+          <b>0-2 discard</b>
+          <p>棄却または archive。理由 1 行。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Minimum Packet</h2>
+      <pre class="mini">start_at:
+can_close_here: yes/no
+move: stay | up | down | exception
+target:
+reason: 1 line</pre>
+    </section>
+  </main>
+</body>
+</html>
