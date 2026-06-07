@@ -1,6 +1,6 @@
 # 公開準備
 
-状態: private repository 候補。private 運用では準備完了。
+状態: private repository 候補。private 運用では準備完了。public 化は patent / public kernel gate で保留。
 
 ## 完了済み必須チェック
 
@@ -29,3 +29,11 @@ source workspace、draft 作業 folder、machine-local path、private operationa
 
 人間 review と repository visibility approval は実装残務ではなく、必須の publication gate です。
 `nexus-ai-2045/fractal-decision-ecosystem` についてこの gate が明示完了するまで、repository は private のまま維持します。
+
+## 追加ブロッカー
+
+- defensive provisional patent filing の有無を決める。
+- inventor / owner / assignee を確定する。
+- filing する場合は receipt / application number / PDF / file hash を保存する。
+- public 化する場合は本体 repo ではなく `public-kernel/` 相当の sanitized kernel のみを対象にする。
+- `Patent Pending` 表記は patent application filed 後だけ使う。

@@ -1,21 +1,43 @@
-MIT License
+FDE SOURCE-AVAILABLE REFERENCE LICENSE 0.1
 
-Copyright (c) 2026 Nexus AI
+Copyright (c) 2026 Nexus AI. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This private repository is controlled by the owner, who may use, modify,
+operate, copy, restructure, publish selected parts of, or commercially exploit
+the materials without restriction.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+For everyone else, no license is granted unless a separate written agreement
+expressly grants those rights. This repository is not open source.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. No license is granted to copy, modify, merge, publish, distribute,
+   sublicense, sell, host, train models on, create derivative works from,
+   or commercially exploit this material, except where a separate written
+   agreement expressly grants those rights.
+
+2. Authorized collaborators may view and handle the private repository only
+   within the access and purpose granted by the owner. If selected materials are
+   later disclosed publicly, viewing those materials is permitted only to the
+   extent necessary for ordinary review and only to the extent required by the
+   hosting platform's terms.
+
+3. All copyright, trademark, patent, trade secret, database, moral, and
+   neighboring rights are reserved to the maximum extent permitted by law.
+   No patent license is granted.
+
+4. Names including "Fractal Decision Ecosystem", "FDE", and related product
+   or framework identifiers are reserved as source-identifying marks. No
+   trademark license is granted.
+
+5. The owner retains full freedom to use the private operating system. The
+   repository may contain private operating materials, unpublished
+   workflows, source pointers, implementation details, prompts, logs, and
+   internal documents. They are not licensed or disclosed for public use. If a
+   reduced public kernel is later published, that publication does not license
+   the private operating system.
+
+6. Nothing in this license limits rights that cannot be limited by law,
+   including fair use or other mandatory exceptions.
+
+7. THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT.
