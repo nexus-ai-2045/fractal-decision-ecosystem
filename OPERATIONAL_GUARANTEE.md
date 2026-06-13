@@ -7,7 +7,7 @@
 この保証は、Fractal Decision Ecosystem（FDE）の現在の private repository package を対象にします。
 
 - repository content
-- local validation script
+- local MVP gate script
 - local test
 - GitHub Actions validation
 - repository metadata と operating setting
@@ -29,8 +29,7 @@ public release 残務: 人間承認が必要
 
 この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
-- `python scripts/public_ready_check.py`
-- `python -m pytest -q`
+- `python scripts/mvp_gate_check.py`
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
 - Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
@@ -39,7 +38,9 @@ public release 残務: 人間承認が必要
 
 ## 強制チェック
 
-`scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
+`scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
+`MVP_STATUS.md`、pytest を集約する private MVP gate です。
+内側の `scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。
 

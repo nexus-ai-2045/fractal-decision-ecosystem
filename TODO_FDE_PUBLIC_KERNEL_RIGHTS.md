@@ -4,6 +4,19 @@ Status: active
 
 目的: FDE private repo を維持したまま、権利条件・defensive provisional patent・最小 public kernel 公開判断を一つの作業単位に閉じる。
 
+## MVP Gate
+
+- [x] `MVP_STATUS.md` に private local MVP 判定を記録する
+- [x] `python scripts\mvp_gate_check.py` で public-ready / pre-publication / pytest を集約する
+- [ ] 次: inventor / owner / filing decision を閉じる
+
+## Linear Tracking
+
+- [x] `LINEAR_EXPORT.md` を latest MVP gate 状態へ更新する
+- [x] `LINEAR_CREATE_MANUAL.md` に manual issue creation fallback を固定する
+- [ ] Linear issue identifier / URL を記録する
+- [ ] Linear project / labels / priority を確認する
+
 ## 最重要ブロッカー
 
 - [ ] Defensive provisional patent application を出すか決める
@@ -65,3 +78,6 @@ Status: active
 - `public-kernel/`: sanitized public kernel candidate
 - `patent-packet/`: PDF patent packet と SHA256 manifest
 - `scripts/pre_publication_gate_check.py`: pre-publication gate 機械検証
+- `scripts/mvp_gate_check.py`: private local MVP gate 機械検証
+- `MVP_STATUS.md`: MVP 判定と次 milestone
+- `LINEAR_CREATE_MANUAL.md`: Linear issue 手動作成 fallback

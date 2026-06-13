@@ -1,10 +1,14 @@
-# FDE Public Kernel / Rights / Defensive Patent Blockers
+# Prepare FDE public kernel with restrictive rights and defensive patent gate
 
 Status: ready to convert into Linear issue.
+Priority: High
+Labels: FDE, rights, patent, public-kernel, publication-gate, mvp-gate
 
 ## Summary
 
-FDE should not be made public yet. The current blocker is not implementation; it is publication safety, rights posture, and defensive patent timing.
+FDE should remain private while rights posture, defensive patent timing, and a minimal sanitized public kernel are tracked as one work item.
+
+The local private MVP gate is implemented. The current blocker is no longer code readiness; it is the human / external decision set around inventor, owner / assignee, and whether to file a defensive provisional patent application before any public disclosure.
 
 ## Primary Blocker
 
@@ -14,7 +18,11 @@ Public release before filing can weaken patent options. Do not mark FDE as `Pate
 
 ## Current State
 
-- Repository is private and synced.
+- Repository is private.
+- No GitHub visibility change has been performed.
+- No external publication action has been performed.
+- No patent filing action has been performed.
+- No Linear connector write has been performed from this session because a Linear create-issue tool is not currently exposed.
 - `LICENSE` has been changed from MIT to a restrictive source-available / all-rights-reserved license.
 - Rights and publication planning docs have been drafted:
   - `RIGHTS_NOTICE.md`
@@ -24,8 +32,27 @@ Public release before filing can weaken patent options. Do not mark FDE as `Pate
 - `public-kernel/` has been created as the sanitized public kernel candidate.
 - `patent-packet/` has been created with a printable PDF draft and SHA256 manifest.
 - `scripts/pre_publication_gate_check.py` verifies the local pre-publication gate.
+- `scripts/mvp_gate_check.py` verifies the local private MVP gate.
+- `MVP_STATUS.md` records the private MVP gate state and next milestone.
 - Full private FDE / Brain / recursive skill layer should remain private.
 - Public release should be a reduced public kernel only.
+
+## Local MVP Gate
+
+Command:
+
+```text
+python scripts\mvp_gate_check.py
+```
+
+Expected result:
+
+- MVP status is complete for the private local gate.
+- Public-readiness check passes.
+- Pre-publication gate check passes.
+- Pytest passes.
+- External actions performed remains false.
+- Repository visibility expectation remains private.
 
 ## Blockers
 
@@ -42,6 +69,7 @@ Public release before filing can weaken patent options. Do not mark FDE as `Pate
 11. Run secret scan and personal-path scan on the sanitized kernel. Done via pre-publication gate.
 12. Re-run public-readiness checks after the license and rights changes. Done locally.
 13. Get explicit repo-specific human approval before any GitHub visibility change.
+14. Keep this Linear issue open until inventor / owner / filing decision is recorded.
 
 ## Public Kernel Scope
 
@@ -77,8 +105,14 @@ Keep private:
 - Public kernel contains no local paths, private source pointers, secrets, private workflow details, or absorbed dialogue content.
 - License posture remains source-available / all rights reserved / no patent license / no trademark license / no derivative works / no model training.
 - `PUBLIC_READY.md` is updated after current rights posture and checks.
+- `MVP_STATUS.md` records the private local MVP gate state.
+- `scripts/mvp_gate_check.py` passes locally.
 - No repository is made public without explicit current-conversation approval.
 
-## Suggested Linear Title
+## Suggested Linear Fields
 
-Prepare FDE public kernel with restrictive rights and defensive patent gate
+- Title: Prepare FDE public kernel with restrictive rights and defensive patent gate
+- Priority: High
+- Status: Todo / Backlog
+- Project: FDE / Fractal Decision Ecosystem, if available
+- Assignee: owner

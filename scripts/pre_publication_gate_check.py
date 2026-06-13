@@ -82,6 +82,9 @@ REQUIRED_PUBLIC_READY_TERMS = (
 )
 
 
+SHA256_RE = re.compile(r"^[a-fA-F0-9]{64}$")
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -106,6 +109,50 @@ def check_license(errors: list[str]) -> None:
             errors.append(f"LICENSE missing required term: {term}")
 
 
+def parse_sha256_manifest(manifest_path: Path) -> tuple[dict[str, str], list[str]]:
+    entries: dict[str, str] = {}
+    errors: list[str] = []
+    for line_number, raw_line in enumerate(read(manifest_path).splitlines(), start=1):
+        line = raw_line.strip()
+        if not line or line.startswith("#") or line.startswith("generated_at_utc="):
+            continue
+        parts = line.split(None, 1)
+        if len(parts) != 2:
+            errors.append(f"line {line_number}: malformed SHA256 entry")
+            continue
+        digest, rel = parts[0].lower(), parts[1].strip()
+        if not SHA256_RE.fullmatch(digest):
+            errors.append(f"line {line_number}: invalid SHA256 for {rel}")
+            continue
+        if rel in entries:
+            errors.append(f"line {line_number}: duplicate hash entry: {rel}")
+            continue
+        entries[rel] = digest
+    return entries, errors
+
+
+def validate_sha256_manifest(root: Path, manifest_rel: str, required_rels: tuple[str, ...]) -> list[str]:
+    manifest_path = root / manifest_rel
+    if not manifest_path.exists():
+        return [f"{manifest_rel} missing"]
+
+    entries, parse_errors = parse_sha256_manifest(manifest_path)
+    errors = [f"{manifest_rel}: {error}" for error in parse_errors]
+    for rel in required_rels:
+        expected = entries.get(rel)
+        if expected is None:
+            errors.append(f"{manifest_rel} missing hash entry: {rel}")
+            continue
+        path = root / rel
+        if not path.exists():
+            errors.append(f"{manifest_rel} hash target missing: {rel}")
+            continue
+        actual = sha256(path)
+        if actual != expected:
+            errors.append(f"{manifest_rel} hash mismatch: {rel} expected {expected} actual {actual}")
+    return errors
+
+
 def check_patent_packet(errors: list[str]) -> None:
     text = read(ROOT / "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md")
     for term in REQUIRED_PATENT_DRAFT_TERMS:
@@ -113,15 +160,18 @@ def check_patent_packet(errors: list[str]) -> None:
             errors.append(f"PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md missing: {term}")
     if "Patent Pending" in text and "unless an\napplication is actually filed" not in text:
         errors.append("Patent Pending wording is not guarded by filing requirement")
-    manifest = read(ROOT / "patent-packet" / "MANIFEST.sha256")
-    for rel in (
-        "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
-        "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-        "DEFENSIVE_PATENT_REVIEW.md",
-        "INVENTION_RECORD.md",
-    ):
-        if rel not in manifest:
-            errors.append(f"patent-packet/MANIFEST.sha256 missing hash entry: {rel}")
+    errors.extend(
+        validate_sha256_manifest(
+            ROOT,
+            "patent-packet/MANIFEST.sha256",
+            (
+                "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
+                "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
+                "DEFENSIVE_PATENT_REVIEW.md",
+                "INVENTION_RECORD.md",
+            ),
+        )
+    )
 
 
 def check_public_kernel(errors: list[str]) -> None:

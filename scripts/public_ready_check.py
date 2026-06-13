@@ -17,8 +17,10 @@ REQUIRED_FILES = (
     "LICENSE",
     "SECURITY.md",
     "PUBLIC_READY.md",
+    "MVP_STATUS.md",
     "OPERATIONAL_GUARANTEE.md",
     ".github/workflows/public-ready.yml",
+    "scripts/mvp_gate_check.py",
 )
 
 
@@ -130,8 +132,8 @@ def check_workflow_contract(errors: list[str]) -> None:
     workflow = ROOT / ".github" / "workflows" / "public-ready.yml"
     text = workflow.read_text(encoding="utf-8")
     required_terms = (
-        "python scripts/public_ready_check.py",
-        "python -m pytest -q",
+        "python scripts/mvp_gate_check.py",
+        "python -m pip install pytest",
         "actions/checkout@v6",
         "actions/setup-python@v6",
         "pull_request:",

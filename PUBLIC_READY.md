@@ -13,7 +13,7 @@
 - [x] draft workspace folder を除外済み
 - [x] GitHub repository target を確認済み
 - [x] private repository への push 完了
-- [x] GitHub Actions の public-readiness workflow 通過
+- [x] GitHub Actions の private MVP gate workflow 通過
 - [x] 運用保証を文書化済み
 - [x] 外部 review 失敗では `failure_kind` と `postmortem_action` が必須
 
@@ -27,6 +27,7 @@ source workspace、draft 作業 folder、machine-local path、private operationa
 
 ## 公開リリースゲート
 
+private repository の主検証は `python scripts\mvp_gate_check.py` です。
 人間 review と repository visibility approval は実装残務ではなく、必須の publication gate です。
 `nexus-ai-2045/fractal-decision-ecosystem` についてこの gate が明示完了するまで、repository は private のまま維持します。
 
