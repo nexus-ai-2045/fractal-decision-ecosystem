@@ -17,13 +17,17 @@ if str(ROOT) not in sys.path:
 
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.public_ready_check import main as public_ready_main
+from scripts.linear_handoff_check import evaluate as evaluate_linear_handoff
 
 
 REQUIRED_STATUS_TERMS = (
     "MVP status: complete for private local gate",
     "Repository visibility: private",
     "No external publication action performed",
-    "Next milestone: inventor / owner / filing decision",
+    "Inventor decision: user-confirmed sole inventor",
+    "Owner decision: user retains ownership",
+    "Filing strategy: self-file defensive provisional patent application before any public disclosure",
+    "Next milestone: provisional filing execution",
 )
 
 REQUIRED_TRACKED_FILES = (
@@ -31,6 +35,8 @@ REQUIRED_TRACKED_FILES = (
     "MVP_STATUS.md",
     "scripts/mvp_gate_check.py",
     "scripts/public_ready_check.py",
+    "scripts/linear_handoff_check.py",
+    "LINEAR_ISSUE_RECORD.md",
     "tests/test_public_ready.py",
 )
 
@@ -51,6 +57,15 @@ def _run_pre_publication() -> dict[str, object]:
     result = evaluate_pre_publication()
     return {
         "name": "pre_publication_gate_check",
+        "ok": result["overall"] == "ok",
+        "result": result,
+    }
+
+
+def _run_linear_handoff() -> dict[str, object]:
+    result = evaluate_linear_handoff()
+    return {
+        "name": "linear_handoff_check",
         "ok": result["overall"] == "ok",
         "result": result,
     }
@@ -118,6 +133,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
     checks = [
         _run_public_ready(),
         _run_pre_publication(),
+        _run_linear_handoff(),
         _check_mvp_status_file(),
         _check_required_files_tracked(),
     ]
@@ -130,7 +146,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         "external_actions_performed": False,
         "repository_visibility_expected": "private",
         "mvp_status": "complete_for_private_local_gate" if ok else "blocked",
-        "next_milestone": "inventor / owner / filing decision",
+        "next_milestone": "provisional filing execution",
         "checks": checks,
     }
 

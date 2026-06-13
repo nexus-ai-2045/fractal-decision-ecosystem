@@ -77,8 +77,18 @@ REQUIRED_PUBLIC_READY_TERMS = (
     "public 化は patent / public kernel gate で保留",
     "defensive provisional patent filing",
     "inventor / owner / assignee",
+    "user-confirmed sole inventor",
+    "assignee は none / unassigned",
     "public-kernel/",
     "Patent Pending",
+)
+
+REQUIRED_INVENTION_RECORD_TERMS = (
+    "Inventor(s): user-confirmed sole inventor",
+    "Owner: user",
+    "Assignee: none / unassigned",
+    "self-file defensive provisional patent application before public disclosure",
+    "Public release: hold until filing receipt and application number are recorded",
 )
 
 
@@ -195,6 +205,13 @@ def check_public_ready(errors: list[str]) -> None:
             errors.append(f"PUBLIC_READY.md missing: {term}")
 
 
+def check_invention_record(errors: list[str]) -> None:
+    text = read(ROOT / "INVENTION_RECORD.md")
+    for term in REQUIRED_INVENTION_RECORD_TERMS:
+        if term not in text:
+            errors.append(f"INVENTION_RECORD.md missing: {term}")
+
+
 def build_manifest() -> dict[str, object]:
     files = [
         ROOT / "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
@@ -229,16 +246,16 @@ def evaluate() -> dict[str, object]:
         check_patent_packet(errors)
         check_public_kernel(errors)
         check_public_ready(errors)
+        check_invention_record(errors)
     return {
         "overall": "ok" if not errors else "error",
         "error": len(errors),
         "errors": errors,
         "manifest": build_manifest(),
         "remaining_human_or_external_blockers": [
-            "confirm inventor name(s)",
-            "confirm owner / assignee",
-            "decide whether to file provisional patent application",
-            "perform patent filing if chosen",
+            "perform provisional patent filing after explicit approval",
+            "save filing receipt / application number / submitted PDF / file hash after filing",
+            "calendar 12-month nonprovisional / PCT follow-up deadline after filing",
             "approve exact GitHub repository visibility change before any public release",
         ],
     }

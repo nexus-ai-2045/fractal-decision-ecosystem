@@ -1,6 +1,6 @@
 # Provisional Patent Disclosure Draft
 
-Status: draft for possible self-filed provisional patent application.
+Status: draft for self-filed provisional patent application before public disclosure.
 
 Do not publish this draft. Do not mark FDE as "Patent Pending" unless an
 application is actually filed.
@@ -11,9 +11,11 @@ Recursive Source-Pointer Skill Routing and Verification System for Multi-Runtime
 
 ## Inventor Information
 
-Inventor(s): TBD by human.
+Inventor(s): user-confirmed sole inventor. Legal filing name to be entered at filing time.
 
-Owner/assignee: TBD by human.
+Owner: user.
+
+Assignee: none / unassigned.
 
 ## Field
 
@@ -294,13 +296,14 @@ Before filing, do not disclose:
 
 ## Filing Checklist
 
-- [ ] Confirm inventor names.
-- [ ] Confirm owner/assignee.
+- [x] Confirm inventor decision: user-confirmed sole inventor.
+- [x] Confirm owner/assignee decision: user owner, no assignee.
 - [x] Add diagrams if possible.
 - [ ] Export this document to PDF.
 - [x] Include generator excerpt or pseudocode if desired.
 - [x] Include public/private boundary.
-- [ ] File through USPTO Patent Center or chosen filing route.
+- [x] Decide filing route: self-file defensive provisional before public disclosure.
+- [ ] File through USPTO Patent Center or chosen filing route after explicit approval.
 - [ ] Save filing receipt and application number.
 - [ ] Only after filing, consider "Patent Pending" wording.
 - [ ] Calendar 12-month follow-up deadline.

@@ -1,83 +1,91 @@
 # TODO: FDE Public Kernel / Rights / Defensive Patent Gate
 
-Status: active
+Status: human / external blockers 解消まで active。Linear は optional local tracking。
 
-目的: FDE private repo を維持したまま、権利条件・defensive provisional patent・最小 public kernel 公開判断を一つの作業単位に閉じる。
+Purpose: FDE を private に維持したまま、rights posture・defensive provisional patent timing・sanitized public-kernel release boundary を一つの work item として追跡する。
 
-## MVP Gate
+## Local MVP Gate
 
-- [x] `MVP_STATUS.md` に private local MVP 判定を記録する
-- [x] `python scripts\mvp_gate_check.py` で public-ready / pre-publication / pytest を集約する
-- [ ] 次: inventor / owner / filing decision を閉じる
+- [x] `MVP_STATUS.md` に private local MVP state を記録する
+- [x] `python scripts\mvp_gate_check.py` で public-ready / pre-publication / pytest checks を集約する
+- [x] `LINEAR_EXPORT.md` に final copy-paste Linear packet を用意する
+- [x] Next milestone を閉じる: inventor / owner / filing decision
+- [ ] Next milestone: provisional filing execution
 
-## Linear Tracking
+## Optional Linear Tracking
 
-- [x] `LINEAR_EXPORT.md` を latest MVP gate 状態へ更新する
-- [x] `LINEAR_CREATE_MANUAL.md` に manual issue creation fallback を固定する
-- [ ] Linear issue identifier / URL を記録する
-- [ ] Linear project / labels / priority を確認する
+- [x] `LINEAR_EXPORT.md` を single issue packet として finalize する
+- [x] `LINEAR_CREATE_MANUAL.md` を manual creation fallback として維持する
+- [x] `LINEAR_ISSUE_RECORD.md` placeholder を追加する
+- [x] Linear issue creation is optional, not required for local FDE operation
+- [ ] If used, Linear issue を手動作成する
+- [ ] If used, Linear issue identifier / URL を `LINEAR_ISSUE_RECORD.md` に記録する
+- [ ] If used, Linear project / labels / priority を確認する
+- [ ] If used, repo evidence 更新後、この section の完了項目を check する
 
-## 最重要ブロッカー
+## Primary Human Blockers
 
-- [ ] Defensive provisional patent application を出すか決める
-- [ ] Inventor name(s) を確定する
-- [ ] Owner / assignee を確定する
+- [x] Defensive provisional patent application を public disclosure 前に filing する方針を決める
+- [x] Inventor decision を記録する: user-confirmed sole inventor
+- [x] Owner / assignee decision を記録する: user owner, no assignee
 
 ## Patent / Filing
 
-- [x] `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` を最終確認する
-- [x] 図・処理フロー・generator 擬似コードが十分か確認する
+- [x] `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` を用意する
+- [x] Diagrams / processing flow / generator pseudocode が含まれることを確認する
 - [x] Filing packet を PDF 化する
-- [ ] Filing する場合は USPTO Patent Center 等で提出する
-- [ ] Filing receipt / application number / submitted PDF / file hash を private に保存する
-- [ ] Filing した場合、12か月後の nonprovisional / PCT follow-up 期限をカレンダー化する
-- [ ] Filing しない場合、その判断理由を `INVENTION_RECORD.md` に記録する
-- [ ] `Patent Pending` 表記は application filed 後だけ使う
+- [ ] 別途承認後に chosen filing path で submit する
+- [ ] filing receipt / application number / submitted PDF / file hash を private に保存する
+- [ ] 12-month nonprovisional / PCT follow-up deadline を calendar 化する
+- [ ] `Patent Pending` は application が実際に filed された後だけ使う
 
 ## Rights / License
 
-- [x] `LICENSE` が private owner は完全自由、第三者は無許諾になっていることを確認する
+- [x] `LICENSE` が owner freedom を保ち、third party license を default で付与しないことを確認する
 - [x] `RIGHTS_NOTICE.md` が no patent license / no trademark license / no derivative works / no model training を明記していることを確認する
-- [x] Public kernel を出しても private FDE operating system がライセンスされないことを確認する
+- [x] Public kernel が private FDE operating system を license しないことを確認する
 
 ## Public Kernel
 
-- [x] 公開対象を `public-kernel/` のみに限定する
-- [x] Full 50-skill recursive implementation を公開しない
-- [x] Generator internals を公開しない
-- [x] `Documents/brain` pointers を公開しない
-- [x] Local filesystem paths を公開しない
-- [x] External AI route registry を公開しない
-- [x] Absorbed dialogues を公開しない
-- [x] Machine-specific runtime procedures を公開しない
-- [x] Private guarantee scripts を公開しない
-- [x] Patent-candidate implementation details を filing decision 完了まで公開しない
+- [x] Public candidate scope を `public-kernel/` に限定する
+- [x] Full 50-skill recursive implementation を private に保つ
+- [x] Private structure を reveal する generator internals を private に保つ
+- [x] `Documents/brain` pointers を private に保つ
+- [x] Local filesystem paths を private に保つ
+- [x] External AI route registry を private に保つ
+- [x] Absorbed dialogues を private に保つ
+- [x] Machine-specific runtime procedures を private に保つ
+- [x] Private guarantee scripts を private に保つ
+- [x] Filing decision 完了まで patent-candidate implementation details を private に保つ
 
 ## Verification
 
-- [x] `python scripts\public_ready_check.py` を通す
-- [x] `python -m pytest -q` を通す
-- [x] `python scripts\pre_publication_gate_check.py --json` を通す
+- [x] `python scripts\public_ready_check.py`
+- [x] `python -m pytest -q`
+- [x] `python scripts\pre_publication_gate_check.py --json`
 - [x] `public-kernel/` に local paths / private source pointers / secrets / absorbed dialogues / private workflow details がないことを確認する
-- [x] `PUBLIC_READY.md` を現行の rights posture / patent gate / public-kernel gate に合わせて更新する
+- [x] `PUBLIC_READY.md` が current rights posture / patent gate / public-kernel gate に合っている
+- [x] Linear issue creation is not required before `python scripts\mvp_gate_check.py`
 
 ## Publication Gate
 
-- [ ] GitHub repository visibility は明示承認なしに変更しない
-- [ ] Public release / external send / Slack / Gmail / Drive / browser send は別承認にする
-- [ ] 公開する場合は対象 repository を owner/name 形式で明示する
-- [ ] 公開する場合は commit history と files が web 上で visible になることを再確認する
+- [ ] Exact repository への explicit current-conversation approval なしに GitHub repository visibility を変更しない
+- [ ] Public release / external send / Slack / Gmail / Drive / browser send は別承認の action として扱う
+- [ ] Public release が後で要求された場合、action 前に target repository を `owner/name` form で明示する
+- [ ] Public release が後で要求された場合、commit history と files が web 上で visible になることを再確認する
+- [ ] Public release が後で要求された場合、README / license / SECURITY.md / secret scan / personal path scan / `PUBLIC_READY.md` を確認する
 
 ## Current Local Evidence
 
-- `LINEAR_EXPORT.md`: Linear issue 用の元メモ
-- `PUBLIC_KERNEL_PLAN.md`: public kernel 方針
-- `DEFENSIVE_PATENT_REVIEW.md`: defensive patent 方針
+- `LINEAR_EXPORT.md`: optional Linear issue packet
+- `LINEAR_CREATE_MANUAL.md`: manual issue creation fallback
+- `LINEAR_ISSUE_RECORD.md`: post-creation placeholder
+- `PUBLIC_KERNEL_PLAN.md`: public-kernel boundary
+- `DEFENSIVE_PATENT_REVIEW.md`: defensive patent context
 - `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md`: provisional patent disclosure draft
 - `INVENTION_RECORD.md`: private invention record
-- `public-kernel/`: sanitized public kernel candidate
-- `patent-packet/`: PDF patent packet と SHA256 manifest
-- `scripts/pre_publication_gate_check.py`: pre-publication gate 機械検証
-- `scripts/mvp_gate_check.py`: private local MVP gate 機械検証
-- `MVP_STATUS.md`: MVP 判定と次 milestone
-- `LINEAR_CREATE_MANUAL.md`: Linear issue 手動作成 fallback
+- `public-kernel/`: sanitized public-kernel candidate
+- `patent-packet/`: PDF patent packet and SHA256 manifest
+- `scripts/pre_publication_gate_check.py`: pre-publication gate
+- `scripts/mvp_gate_check.py`: private local MVP gate
+- `MVP_STATUS.md`: MVP status and next milestone

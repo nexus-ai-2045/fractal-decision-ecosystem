@@ -12,6 +12,7 @@
 - GitHub Actions validation
 - repository metadata と operating setting
 - private handle と personal path の確認
+- optional Linear handoff packet の local readiness
 
 この保証は repository の public 化を承認しません。
 
@@ -23,6 +24,14 @@
 
 public release 残務: 人間承認が必要
 
+patent decision 残務: なし
+
+patent filing 実行残務: 明示承認後の外部 submit が必要
+
+Linear handoff 実装残務: なし
+
+Linear issue 作成残務: なし（optional）
+
 現在の visibility: private
 
 ## 必須検証
@@ -30,16 +39,20 @@ public release 残務: 人間承認が必要
 この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
 - `python scripts/mvp_gate_check.py`
+- `python scripts/linear_handoff_check.py`
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
 - Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
 - 明示的な publication approval まで repository visibility が private のままである
+- `Patent Pending` / `特許出願中` は application filed 後だけ使う
 - 外部 review 失敗には `failure_kind` と `postmortem_action` がある
 
 ## 強制チェック
 
 `scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
+`scripts/linear_handoff_check.py` は、Linear を使う場合の optional packet、manual fallback、
+post-creation evidence placeholder、TODO の境界文言を検証します。
 内側の `scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。

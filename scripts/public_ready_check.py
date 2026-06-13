@@ -20,7 +20,11 @@ REQUIRED_FILES = (
     "MVP_STATUS.md",
     "OPERATIONAL_GUARANTEE.md",
     ".github/workflows/public-ready.yml",
+    "LINEAR_EXPORT.md",
+    "LINEAR_CREATE_MANUAL.md",
+    "LINEAR_ISSUE_RECORD.md",
     "scripts/mvp_gate_check.py",
+    "scripts/linear_handoff_check.py",
 )
 
 
@@ -92,6 +96,10 @@ def check_operational_guarantee(errors: list[str]) -> None:
         "実装残務: なし",
         "運用残務: なし",
         "public release 残務: 人間承認が必要",
+        "patent decision 残務: なし",
+        "patent filing 実行残務: 明示承認後の外部 submit が必要",
+        "Linear handoff 実装残務: なし",
+        "Linear issue 作成残務: なし（optional）",
         "現在の visibility: private",
         "failure_kind",
         "postmortem_action",

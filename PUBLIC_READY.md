@@ -31,10 +31,13 @@ private repository の主検証は `python scripts\mvp_gate_check.py` です。
 人間 review と repository visibility approval は実装残務ではなく、必須の publication gate です。
 `nexus-ai-2045/fractal-decision-ecosystem` についてこの gate が明示完了するまで、repository は private のまま維持します。
 
-## 追加ブロッカー
+## Patent / Publication Blockers
 
-- defensive provisional patent filing の有無を決める。
-- inventor / owner / assignee を確定する。
-- filing する場合は receipt / application number / PDF / file hash を保存する。
+- defensive provisional patent filing 方針は、public disclosure 前に self-file することで決定済み。
+- inventor / owner / assignee decision は記録済み。
+- inventor は user-confirmed sole inventor として決定済み。
+- owner は user、assignee は none / unassigned として決定済み。
+- filing 実行は未実行。実行には現在の会話での明示承認が必要。
+- filing 後は receipt / application number / submitted PDF / file hash を保存する。
 - public 化する場合は本体 repo ではなく `public-kernel/` 相当の sanitized kernel のみを対象にする。
 - `Patent Pending` 表記は patent application filed 後だけ使う。

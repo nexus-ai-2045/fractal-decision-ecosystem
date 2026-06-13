@@ -1,219 +1,744 @@
 %PDF-1.4
-%“Œ‹ž ReportLab Generated PDF document (opensource)
 1 0 obj
-<<
-/F1 2 0 R /F2 3 0 R /F3 6 0 R /F4 7 0 R
->>
+<< /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<<
-/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
->>
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R] /Count 7 >>
 endobj
 3 0 obj
-<<
-/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R >>
 endobj
 4 0 obj
-<<
-/Contents 17 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 1905 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(Provisional Patent Disclosure Draft) Tj
+T*
+() Tj
+T*
+(Status: draft for self-filed provisional patent application before public disclosure.) Tj
+T*
+() Tj
+T*
+(Do not publish this draft. Do not mark FDE as "Patent Pending" unless an) Tj
+T*
+(application is actually filed.) Tj
+T*
+() Tj
+T*
+(Title) Tj
+T*
+() Tj
+T*
+(Recursive Source-Pointer Skill Routing and Verification System for Multi-Runtime AI) Tj
+T*
+(Operations) Tj
+T*
+() Tj
+T*
+(Inventor Information) Tj
+T*
+() Tj
+T*
+(Inventor\(s\): user-confirmed sole inventor. Legal filing name to be entered at filing) Tj
+T*
+(time.) Tj
+T*
+() Tj
+T*
+(Owner: user.) Tj
+T*
+() Tj
+T*
+(Assignee: none / unassigned.) Tj
+T*
+() Tj
+T*
+(Field) Tj
+T*
+() Tj
+T*
+(The invention relates to AI-assisted software operation, multi-agent workflow) Tj
+T*
+(routing, source-of-truth management, publication containment, and automated) Tj
+T*
+(verification of operational decision systems.) Tj
+T*
+() Tj
+T*
+(Background) Tj
+T*
+() Tj
+T*
+(AI coding agents, chat agents, browser agents, and external review systems often) Tj
+T*
+(operate with inconsistent context, duplicated prompt instructions, weak) Tj
+T*
+(publication boundaries, and unverifiable completion claims. Conventional prompt) Tj
+T*
+(libraries and workflow documents do not reliably route a task through source) Tj
+T*
+(truth, safety gates, runtime-specific instructions, and completion checks.) Tj
+T*
+() Tj
+T*
+(This creates failures including:) Tj
+T*
+() Tj
+T*
+(* acting from stale or inferred context;) Tj
+T*
+(* exposing private source material during public release;) Tj
+T*
+(* publishing or externally sending before human review;) Tj
+T*
+(* losing traceability between a user request, source files, decision, and) Tj
+T*
+(completion evidence;) Tj
+T*
+(* duplicating long source documents into runtime prompts; and) Tj
+T*
+(* producing many skills without machine-verifiable trigger coverage.) Tj
+T*
+() Tj
+T*
+ET
+endstream
 endobj
 5 0 obj
-<<
-/Contents 18 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 6 0 R >>
 endobj
 6 0 obj
-<<
-/BaseFont /Courier /Encoding /WinAnsiEncoding /Name /F3 /Subtype /Type1 /Type /Font
->>
+<< /Length 1971 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(Summary) Tj
+T*
+() Tj
+T*
+(The disclosed system provides a recursive skill-routing architecture for AI) Tj
+T*
+(operations. A set of thin runtime skills is generated and arranged in three) Tj
+T*
+(layers:) Tj
+T*
+() Tj
+T*
+(1. core skills that protect source truth, scope, public boundaries, fact checks,) Tj
+T*
+(memory, restart, security, and completion;) Tj
+T*
+(2. router skills that select an operating lane, runtime, external AI path,) Tj
+T*
+(workspace, or publication route; and) Tj
+T*
+(3. leaf skills that point to concrete source documents or workflow modules.) Tj
+T*
+() Tj
+T*
+(Each skill is a source-pointer shim rather than a copy of the underlying source) Tj
+T*
+(document. The system validates that each skill contains trigger wording,) Tj
+T*
+(Japanese and English user-trigger surfaces, source pointers, runtime coverage,) Tj
+T*
+(human approval boundaries, and metadata contracts.) Tj
+T*
+() Tj
+T*
+(Technical Problem) Tj
+T*
+() Tj
+T*
+(The system solves the technical problem of maintaining consistent, verifiable,) Tj
+T*
+(and containment-aware AI operations across multiple runtimes while minimizing) Tj
+T*
+(context duplication and preventing unsafe publication or external-send actions.) Tj
+T*
+() Tj
+T*
+(Technical Solution) Tj
+T*
+() Tj
+T*
+(The solution combines:) Tj
+T*
+() Tj
+T*
+(* recursive skill layers;) Tj
+T*
+(* source-pointer-only skill bodies;) Tj
+T*
+(* trigger-surface validation;) Tj
+T*
+(* runtime coverage validation;) Tj
+T*
+(* public/external/hook/settings/auth containment gates;) Tj
+T*
+(* completion verification gates;) Tj
+T*
+(* generated metadata for runtime discovery;) Tj
+T*
+(* an ordered skill index;) Tj
+T*
+(* machine-readable guarantee scripts; and) Tj
+T*
+(* a publication split between private implementation and public kernel.) Tj
+T*
+() Tj
+T*
+(Example Architecture) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(User request) Tj
+T*
+(-> pre-execution fact check) Tj
+T*
+(-> scope routing gate) Tj
+T*
+(-> level 1 core skill) Tj
+T*
+ET
+endstream
 endobj
 7 0 obj
-<<
-/BaseFont /Helvetica-BoldOblique /Encoding /WinAnsiEncoding /Name /F4 /Subtype /Type1 /Type /Font
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 8 0 R >>
 endobj
 8 0 obj
-<<
-/Contents 19 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 1346 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(-> level 2 router skill) Tj
+T*
+(-> level 3 leaf skill) Tj
+T*
+(-> source pointer read) Tj
+T*
+(-> action or hold) Tj
+T*
+(-> done verification closeout) Tj
+T*
+(-> publication containment if external/public action is involved) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Figure Descriptions) Tj
+T*
+() Tj
+T*
+(Figure 1: Recursive Routing Stack) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(|        User / Operator         |) Tj
+T*
+(+---------------+---------------+) Tj
+T*
+(|) Tj
+T*
+(v) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(| Level 1: Core Safety Layer     |) Tj
+T*
+(| fact, scope, rights, done      |) Tj
+T*
+(+---------------+---------------+) Tj
+T*
+(|) Tj
+T*
+(v) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(| Level 2: Router Layer          |) Tj
+T*
+(| lane, runtime, public/private  |) Tj
+T*
+(+---------------+---------------+) Tj
+T*
+(|) Tj
+T*
+(v) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(| Level 3: Leaf Source Layer     |) Tj
+T*
+(| source pointer, workflow shim  |) Tj
+T*
+(+---------------+---------------+) Tj
+T*
+(|) Tj
+T*
+(v) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(| Evidence / Action / Hold       |) Tj
+T*
+(+-------------------------------+) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Figure 2: Containment and Completion Loop) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(Task packet) Tj
+T*
+ET
+endstream
 endobj
 9 0 obj
-<<
-/Contents 20 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 10 0 R >>
 endobj
 10 0 obj
-<<
-/Contents 21 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 1279 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(-> source truth check) Tj
+T*
+(-> risk classification) Tj
+T*
+(-> public/external/hook/auth/settings gate) Tj
+T*
+(-> execute only if allowed) Tj
+T*
+(-> collect evidence) Tj
+T*
+(-> done verification) Tj
+T*
+(-> final report with fact / inference / unknown separation) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Figure 3: Public/Private Split) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(Private operating layer) Tj
+T*
+(* full recursive skills) Tj
+T*
+(* internal source pointers) Tj
+T*
+(* validation scripts) Tj
+T*
+(* runtime-specific workflows) Tj
+T*
+(* absorbed dialogue and internal logs) Tj
+T*
+() Tj
+T*
+(Reduced public kernel) Tj
+T*
+(* concept overview) Tj
+T*
+(* abstract recursive map) Tj
+T*
+(* four general gates) Tj
+T*
+(* rights notice) Tj
+T*
+(* restrictive license) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Example Data Structures) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(SkillSpec:) Tj
+T*
+(name: string) Tj
+T*
+(level: 1 | 2 | 3) Tj
+T*
+(kind: core | router | leaf) Tj
+T*
+(source_pointers: list[path_or_uri]) Tj
+T*
+(description: trigger text) Tj
+T*
+(related_core_skills: list[name]) Tj
+T*
+(approval_boundaries: list[action_type]) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(ValidationResult:) Tj
+T*
+(skill_name: string) Tj
+T*
+(frontmatter_ok: boolean) Tj
+T*
+(trigger_gap_count: integer) Tj
+T*
+ET
+endstream
 endobj
 11 0 obj
-<<
-/Contents 22 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 12 0 R >>
 endobj
 12 0 obj
-<<
-/Contents 23 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 1999 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(source_pointer_ok: boolean) Tj
+T*
+(runtime_coverage_ok: boolean) Tj
+T*
+(human_approval_boundary_ok: boolean) Tj
+T*
+(metadata_contract_ok: boolean) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Example Method) Tj
+T*
+() Tj
+T*
+(1. Receive a user request.) Tj
+T*
+(2. Identify whether the request involves current facts, source truth, public) Tj
+T*
+(release, external send, credentials, hook enablement, settings, auth,) Tj
+T*
+(memory write, or completion claim.) Tj
+T*
+(3. Select one or more core skills based on trigger descriptions.) Tj
+T*
+(4. If the task requires routing, select a router skill.) Tj
+T*
+(5. If the task requires concrete workflow execution, select a leaf skill.) Tj
+T*
+(6. Read the first source pointer listed in the selected skill as the source of) Tj
+T*
+(truth.) Tj
+T*
+(7. Read secondary source pointers only when required by task scope.) Tj
+T*
+(8. Execute or hold the task according to the selected skill and source truth.) Tj
+T*
+(9. Before public/external action, require human approval in the current) Tj
+T*
+(conversation.) Tj
+T*
+(10. Before completion, verify changed files, command evidence, logs, source) Tj
+T*
+(pointers, and unverified risk.) Tj
+T*
+(11. Emit a compact final report separating facts, inferences, and unknowns.) Tj
+T*
+() Tj
+T*
+(Example Generator) Tj
+T*
+() Tj
+T*
+(A generator receives an ordered list of `SkillSpec` records and writes:) Tj
+T*
+() Tj
+T*
+(* `SKILL.md` for each skill;) Tj
+T*
+(* `agents/openai.yaml` metadata for each skill;) Tj
+T*
+(* a recursive skill index; and) Tj
+T*
+(* validation-ready source pointers and approval boundaries.) Tj
+T*
+() Tj
+T*
+(Example pseudocode:) Tj
+T*
+() Tj
+T*
+(```text) Tj
+T*
+(for each SkillSpec in ordered_skill_specs:) Tj
+T*
+(validate name, level, kind, source pointers, and trigger text) Tj
+T*
+(create skill directory) Tj
+T*
+(write SKILL.md with:) Tj
+T*
+(* frontmatter name and trigger description) Tj
+T*
+(* source pointer list) Tj
+T*
+(* runtime coverage statement) Tj
+T*
+(* human approval boundary) Tj
+T*
+ET
+endstream
 endobj
 13 0 obj
-<<
-/Contents 24 0 R /MediaBox [ 0 0 612 792 ] /Parent 16 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 14 0 R >>
 endobj
 14 0 obj
-<<
-/PageMode /UseNone /Pages 16 0 R /Type /Catalog
->>
+<< /Length 1728 >>
+stream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(* completion evidence requirement) Tj
+T*
+(write runtime metadata) Tj
+T*
+() Tj
+T*
+(write recursive index grouped by importance and level) Tj
+T*
+(run trigger-gap validation) Tj
+T*
+(run source-pointer validation) Tj
+T*
+(run public-action containment validation) Tj
+T*
+(```) Tj
+T*
+() Tj
+T*
+(Example Validation) Tj
+T*
+() Tj
+T*
+(Validation checks may include:) Tj
+T*
+() Tj
+T*
+(* every generated skill has `name` and `description` frontmatter;) Tj
+T*
+(* each description includes natural trigger wording;) Tj
+T*
+(* each description includes Japanese trigger examples;) Tj
+T*
+(* no required core skill is missing;) Tj
+T*
+(* source pointers are present;) Tj
+T*
+(* runtime coverage includes target runtimes;) Tj
+T*
+(* public release, external sending, hook enablement, credential changes,) Tj
+T*
+(settings changes, auth changes, and repository visibility changes require) Tj
+T*
+(human approval;) Tj
+T*
+(* trigger gap count is zero; and) Tj
+T*
+(* Brain/FDE source-of-truth contracts are satisfied.) Tj
+T*
+() Tj
+T*
+(Variations) Tj
+T*
+() Tj
+T*
+(The system may be applied to:) Tj
+T*
+() Tj
+T*
+(* coding agents;) Tj
+T*
+(* browser agents;) Tj
+T*
+(* external AI review workflows;) Tj
+T*
+(* document management systems;) Tj
+T*
+(* private/public repo publication gates;) Tj
+T*
+(* enterprise AI governance systems;) Tj
+T*
+(* local-first knowledge operating systems;) Tj
+T*
+(* prompt routing systems;) Tj
+T*
+(* MCP-style tool and skill systems; and) Tj
+T*
+(* multi-runtime AI operations spanning desktop and cloud environments.) Tj
+T*
+() Tj
+T*
+(Candidate Claim Concepts) Tj
+T*
+() Tj
+T*
+(These are not formal claims.) Tj
+T*
+() Tj
+T*
+(1. A computer-implemented method for routing AI-agent tasks through recursive) Tj
+T*
+ET
+endstream
 endobj
 15 0 obj
-<<
-/Author (\(anonymous\)) /CreationDate (D:20260608073550+09'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20260608073550+09'00') /Producer (ReportLab PDF Library - \(opensource\)) 
-  /Subject (\(unspecified\)) /Title (FDE Provisional Patent Disclosure Draft) /Trapped /False
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 16 0 R >>
 endobj
 16 0 obj
-<<
-/Count 8 /Kids [ 4 0 R 5 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R ] /Type /Pages
->>
-endobj
-17 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1291
->>
+<< /Length 2190 >>
 stream
-Gat=*9lJcG&A@7.%!kM^G&#.)X^k4sFTVd!7C.iTVd*nLA91J-.S8=d^[I8i\o(.PNF9PPW/l3[oA5s.?q.oLs-F21I/tE2&kGnKC.PY"%#VgX@r_2;.QK`(b$fRbd_g/bo4NAr7B\#p^-qEHoT^,RgjLJCh)AB8Rr#@(]0unT:KedKiCYj+:X#Q?Yi_esb&eP1X]]Mu6h)64^VTR570<#jrOrNC=un?%S^'R"M^\)%#>XO0I/4oZoo!Ci1NuYU=AULWXYPWL"G/p::MVSeK(^Cb[SMafXl(M3FEfU;'?hR,Aru.na1>:oQ%c[$#]=fnGMMi#Dr?#D@<rFpl]8gi]K=aE$"_*;p)S6QTJ=5m'Q,[Q40XWH!+B?5m?eG4nAU;eB9i_$ZWLeR7`!<$a?>?2>Cj%]Me*fa[0ZG<0d"f8B.Q,]p]9>BFh5NUPN(#bL6k%>!hND)W=dX1$N<K=l_.iB-Y'FOjSQP&Q;=,7BmG@#a!5tH;>[7b1pqT_[Fm2_q6Gs?nj'9".$'Mk2*Q17FESVO@[;fGROskEYNc,Op"I'm^OtNp%@\$t\q\1XQS!j*Z4SGRkpTDY@,q]"M>.hpo+8I<=gSUr^-$?K<@l`!2H96mSqg'B,?/"9&@cY5,HXF$raNYmU?U1XL.GR#;7/PBnp*)(G63aO2;:/N3\%hHKfV[Z).Va==4`*:GjVJVC3=05jGB$d2\^Yf>N].3V37-ag#$b;A=Z`=GDoUK*jqk![_nrq<W.DaBUi%(qT/fY]7>b/BqC'jRGLEX.a4f;<pmFr1`9"HbsMV/o8p?-jbU@-`KdIo[cmKp-;a,trH>Hnl=e7)LMPKhr'I"?8uM3pnMh5C$;9tCRS5W6GC?Y+Nh!Vt-*bHGSZ(l\6s(d4FoD+$(PS`ooUI)qQ/8ttE(%-qi^u_ni['jKY)Q+r4BJJF4l_o6@nK'5Yc#-AS/;H[W^4XBTCJ#<pgtb*U#6mW+aHJ.m%I<gk9NQe9>@coO#WXWDurL:@%#]sDF9cFh-%rVE67JQ/+_%O<l&OX-eLI)Rt0q)maSTh8WrBM?$'dceoHQ-5-EH^3!>F"6a1OA?E)=VDU#\a<SBDnMU%(A/d`g_#a6uqn24@Ngj8/U=qbhi=@O""D1TkK[DlrX`U?Ylkm/I/f_C0OEu2O?r8;,='*OhDC[UPre,HdWLEdTjK5iU8BcI.p?Gp,3Wk`"86tOiNgos(JTs3Dfc>FANP)mtX7j@f(=NsHK)_O+TH@tpI-qR:,F&7jg4#D,JO+'#8<Y+62oD8c/E:jsehQk6~>endstream
-endobj
-18 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1287
->>
-stream
-Gat=+9lK&M&A@7.bcra9a8/>sFAH*`"^:QF@X[TsTuRofMH!0iWVc#Y.*6Y<.r`+R!Q-64cI9EbDh\FtnL932fb47jV;%UM.SAF_WMilUD1A=YmEONI`O'^X5aunQbue0\C[Q.oa,8&3Gd\Vg=V%EpnVlq4D*-!.=[RR94#W6dHr&M3B_t.*n-;/GK%rT?h]Ck)@^Db6he=B*;!($silg*58Z&&DIENs^;C5Ld]a:]Ml5Ylhs+,jV,luiZB*(DQ>q[Fm<gXQr(T"O;<tuY.#HZ$:)."B;WP&qjROL4=33XWAYp^*p9&kfYIBctX;eYJ/D$c4-Zk!8m:OUt)G=k?BesU2?3O=&+QpK]>!E7-6D*@@/T7#QTAh[u>P9@oOG?u;8bi@+pLG?3R+cV%akT/./3r8VEl94Pn)/S":F@6H4'n%@RJaAs0fXlrRi`:=cY_ek>%aYs;3FNEmK>!subXlVp&)WCAM\A2PA,=t`QDt@ZMA=(o0(0_t&L'e$s6"D1Xq/d/]L:<deFh-98p[qZfa4S/05*#C=Z.g<r#uHZaIoQpf"0<3Eq)H*!$"ip.UX^rEHS%P$.Y(S9U%&bU."soc&QEWP9UK1.Z3X>$rSlqB0lG+*\p&L]$q$30+%"h=lAnu?EJSESWF,3$5kiA"?dt.WX%,L)9uTk8@-s`f8>7e'3nXC,97$gd\Hmt_VK#)8hCHNZVUF*I<RoNm^gPKn-PCC_Msg3->^j+FJQ<A/V1bC^[X2d4!=+CBEh.,3'2OdQd1d_?"VH.:=>#o>>?5b'O'm33)bS-q@:Sd&Bac@?U8"BJ="hg:6Y]XFHElmTuN\J5qChhn(B;=TmcB+pTaWD_Pa4+9-%9K?4pS01EJB$)qjLc4$f:J25:GejWKXN0dOuZS^N+j2KQ")Wfr%(DnK;?NBo".qV>:J!,XK/2(/$rRMu@/,(minU@M>,#=ZJT0,V;5A(5i5>t&U!Yp4$ji@+l<]achi(<`3S@J'"3Cb117GSTF1nB>Zp-6\rQT%[KU"f":t$WC-%n@&S\<rEEU8TZsK6:;#&^J:IVf8-qXHj&/jW8;d(kBHV-ZTGf!dW6BFj>^eJn]ap;ees\/<Ig^CmUPHki,VTgAN;\UPj?O:cqco9YC=KAS=XSTa#Q[Z:6QZ0p<U`P)TSo>YYaC;a!'+4rj&n#:U^I/e.22:%U8+&PU914:7ck$+C?(FMDFoMoXVm>mtg:g-9bbLL)RZef@FeKmE7'cpK34M<a\7BCF+(YrA+cA0iq1im_>MW:6e$_P&C7$^@`:6~>endstream
-endobj
-19 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 836
->>
-stream
-Gaua<hf%4&&BE](/+/P%:m-nE7\r]ReYc$g>5#B@f=;"pa%dX&V,I?g?(A9dc9tSgWC-etc?C?Phle%e5YpV#GldD[%C:s(_?e^1K^iablV%#]*o2jn5'!o]71`<Mblr"1j<IhD5%UIr7@,<>=e[gppfFt-5`Q0\Z^=(1QDMe\aKttH.k:s[<)d*]B^X4(_>6*lhm]G3cuW#I=iRWrcP1&VU7qG6<_*N`V77HsQ6`Xb<\V6"$E")BUGif/YF/hA,!s8.-uF*%5j;\HGkp'a6<W2:_3l$A5ugNci<JZiU4UgLLAh8d74GK,A\0'oknh/ONC%nON92tdE]+n:7be#7Uaub`FMQdWX<iEnL)OZdgY1RnkofJ[55Pn<B&f]UhuQ@#2QZ*]2S5@N%=Eh`n]qP6Q$?MCAK=Cd17l)9p`jnmVmo*#]>eE@>MpI]>>HXR\jS6@6<+LUp"^9,YsCrl>T<$oGr-pi\VP,_CegTR3uV)_g2M^C$YA-h=mCj<IC8qsK5S'g"f,<FOC(HMW&-,LK`pUTg+u$89r\l,'d&5?E(:V"a]Yg^^9FQWTT,6H%_<o\I!UUp]R#A<cOR]T018QuKWj&(QI)WtT$V,03(Q0<o4@D%%Zd4ljQAYa$EcpPV@j?T<NiWBbBb0MTpm]_h3o_*DCm)oGp59]#L.<F*IaRG`UNrRBf#Nj[eBhPm:$%Tb<19&J!O_3ClTk["M*k]\:QB9$*RKdp)Yj>4WZ:?34D[E>>N%jHt03KB7r35O&f!Y`9X+_9XVCd4ZhoA3.&:EhO&])U&gfcfA3Fe_*:&c-?,m-2O!tIWf8G+(]N8F0_tmu$:@V~>endstream
-endobj
-20 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 999
->>
-stream
-Gat=)9lHLd&A@7.bgC9lg0io"5#gf;U)n>gA(4.O=ds!<>LpF@h8N,7s7d(3)nXdbW^a:%GWb-5]GVn1d1J89Hj0!oL#HkO;%..K;=Z>joF>ceZeoEC%XBpca^d_GM@hm1&<*NKY*pa,Lgpk@W9+pSLFiMS[kKeVkl73gJb3"Oh87E?A>hK)&3b%d[%`a;>%Y#+;#a!U8CI!eN`-sbdoseuBH2oL43`+<VrH`?qsZL(<3EC@i)UPW7>PUG8Lr,?>+tN&<(>Ii,I%i'VmYd617EmeM+3'[j_,Rrb]M:fR6eu#$&7s_I95*[k&g)6S?=D#_;!*cJM3.P!K\$a_'O.tjFX^A=9)p4#:]EZ+$EfHjD_)@3Fp&iFQgD7KnFu&$p9B-a=E=EQ$`Xq"-ZW$0FK#6Q4g_5gpnd4ag=B:U[:]3(R-%E1tm9.#a1c8@NC%s3SL#U.oe(4;;feTgG-CgaNIGZA]]'-MGC&KD7B$D^:&apC;lY,$$.>Fmn55=:-oS`K_Tj-n5tpf@^:D7g0e29<IeUUBTGarGpVd>o?',!7W>2cdN&FCC5oRoUsVot"LD]<A5+_mE@Zu4\SE_W`<n8g6!h#B2VOHWH0GIN*h9YLQpE'de4#)9bT>V9TaopAEfXAB$/ZX@9#@8aB&oC#@m"G1h-/b!YIAd]S#_ae@cjI?,Spee<&rW*aJgL`/A2.^]f<8YnI`%!eOb^a(+P)f-A\S9G$fsS:Rq'[_kcs<gc1Mq3Gn\>o>p4!#G7Ds0W0WA4o*Y$jtmQB7i[<N)TADrdVI$E?Ft#KG*mEK;f%.DW/IR2/h1k#E^lj/R_LG5]/uicfo15N_m]fMBi/"oOi[)'dopq"\*T&7iqs>)r,SLuU9`ckLX!'2/t$rRMcUSr&UIWM*Q4Zt+(U<+V2KLpG*I.?7pO7TX(`st&%YXVZNBkdepLF5rlONr0D$BEK%5lJDJ:]pCcD!qi;6qnn'P.`+*F;T[WpAa/lOb,"(\o>QN~>endstream
-endobj
-21 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1272
->>
-stream
-Gat=+_/A9k&A@6Wk*Qpe,KYu5A5?JR>:c3a](*%U6VAYn[7"b$b";THO-J`_]3;WT$j[+ri]PM5o7fgc_(Q8D]I*KbVQ3KAV&?C.9'=Y`XmbLlIIZtS4[gu)[$^YsX<BVfDm2WG*PT2,*]$D%^IJocAk06-R4_.-Q)fU[Cc;-/93\MK(@!8Ns4mi<,Bl5^gkfX,lW1Q#P0,MF?=U'S:!T4tq_pala5Bm!1\Nf6&N_%og:+Id)ppK3+%<Tj,%2Y=bA_FF:)(POm&?Ke\bduf;(0tepq87\QMGQL]:(>V<j,S_Y-`W5hUXZNq!(c^C'$[O?gPtJB2LT&di[rM\qiY_#"\ng(TX7[lQcZ\l_(%$Sibd^dj]_(SE5l):i"aGiNFh;2iY\CAa`E[:$H`8TXfHDV`g'#A9d_QTpqg[Nbg._NBnPLi64rpP7K\&])@;NG$E'N$8.ma+.Qc<_X`BT)&cML,0R!R:i87#();qt[6>-PZ)tOU,+u2^;XNsGG]5B:o:)[TL/HK+CP-@>kl=Esb-`%GP?Lgi$!Bc$RP.b2:H=om")<r[dY`HF+CO9L_]E>g=k]TF"l@\,pShPi)qfI82@aCT6D8JAV@5e2_B+;4Uk)-sDLLn8#m%17.tA:@`c93maS5N938cD#M.:k[k"o+T#nl71p!rgR2Q3\S5KL,Bg0OIp(.H#>8qU/*[EQa4WKPh`19!T2LC&G83$`=Lg3o^=.(j)DLdU2l:H_pA&F/h.C<L##:P!FZD'@:V30!4F.VS_-Z"J.6E#d>IKN;/Q\dRSScIqN`GSQ1Yd6n-P926#gTSb[/(Ir[46GYTZqT,N%jN^/sc<^aN%<=V^M8GdZIa7Z(3Vd\0f5-+h_&nEG'coa?eEI87V9/PcYO4CoAFtL&h[?go#GnL=2NEUI'>[0FgWs<>Q/8'E:^gQO1IB!m<%!7q<Wu;4E/_/ZBIU7;Qsl%iIof;38%o[F*U!.o)fE$6D/^_Yn?1Kk?E$OT^(=q5#Gn'l_re;A91q1(8gAd`qMc5mKhe+NhV$8h/^&n:D-8WGY$Ynpj$:`'Xi[:gkk0P@]6Ks%K@8e4n*#O]o1'mXf/?S]b].tK4[UuHL3,;IXo:qZ90i=OoDSWp/fk<N5V2JSk;OJl.+6(j7dKX(m]N(nK"WWWV_=dI*iZo2^C.o+"@3'?n25-Dolo-8>,<_Dq1GRfRW16[V*[XrUb%+GrF.ID^7Rfbr3MlarbIW9n"MWXlCrCE"R`n#Z.p*Uf*+Z%QmPCkR4eI>S%-OS~>endstream
-endobj
-22 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1152
->>
-stream
-Gat=*;,>q#&:WeDg`r:lLsnW4p9\NVD<#3%ib?h[SSR4BYqt-Kl$iTV#q>,[bS3JgYV5u>hgK]U(e"##k-l`>4tbglL&m3@\H\@i-*Y%9lfH6l'D<,#?bjW3TjV'!BQc@cbp->Vc)\<qa:)23%uHaqA8o-2#*=`_mP_@!mOAnn'kif*_=WNUMa&bpg37ICq%I03(/D?OO=>AZMO-;R!k29*?mAZ4!NTu\&1T8s6XqLZ<=7$m/40LL+5QNC_Os,h_15K''Mb.roD[$+g:mI\q=aN`9OT;ShBOb/[F*-^g_!<!j9R5(.u^R"e>iPo0g-q\Fo?/U.jsR,Tsn][7cYOd/5[EVj`SZ[n>\74;?8:RX-E@H:[*D8.aXpmDIn]_5Rm^ml'BAf[?p6!96?[Zb7FLK(_jB_Ef3ni'H\JS\um`@eK/7(C#c].nMt7indIg>GA3IW]Rm'P*G*72[(2TJ\bT</<Nc`YVHbse'3#&dQ+ti+DpSk;dVnat$T5Zj6@H*W%BLmX;(Lp,YfH$(]XH.)@VUdt2&9N[Vq7!b-QhdVMbZT'"2OMQB_<PUd>;'gm&A+\VE94'!?t%=Yu#HjR1_rZik$>@A<>LrR$1qkhq<BP8jp"@$l*L2O`K1$bIN<3h`hX2GTM1%o?cs2pHbf1*_XWdT,qU2),!-[C.%sM[IfKVP#PSGa6[P/KjNa.Ki_NQ`<-]g"_PYGk*I<\.,Bl?PhO<&'2k!4Up[C<i*nDRpTMsRS=hB"(KW5JR#Dd@MfF*b\`5#(f*/gMl$0<'g/1>m/s':X19r8aMBk]9p/7AFY4VuqnQ!u\m0Skgd56'1JjdmaL3=3j(6-\97HXs4*Y<kR0(8a/D/-<'<dMZ:XgE*p$gI@j8>i'kZZn2kT?#4nX@dk#<ejtMH*7kAXj0T>2]DYOh`Q^?0ij,Q%@PlEc)9mQ"nd3,9TsT;J;2:Nm0?::go_s#B0dS11,-4J(=^4*RGDp/)tU:"^hCflf[Z)4ZMB<n/9AE"hU8l0j'F8.+t+iMi,m>`fV"A40h0k28nd+L5f5q!n5s))Ylf5^oZiU"rs+4:<V^(SI/$D&\s9es#.I_OKH5f+`eln/U2E0EW/9bVc(AiM_ha5uo@:o6I;,2nk%pldAo@K/PgSV$BK5ei&lirf~>endstream
-endobj
-23 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1347
->>
-stream
-Gat=+9on$e&A@P9Qt'@A)bZJ][QX"q&g0FIUk"N>d*g!E9o03KH0]t;8':OC('YE`#(3(Tc-s=d)<E]q-P,*78+a0b&"dpc$edM'QhMeCs.iHF]5Mohq9&Abf(/qZj(od^bl/*%bHH-,J%Oqto5L&5hrC&Qo(AH]GAII./^r_rg?TuQ?M"tr4^#grrSpu5r_)#'I*'.nq6'(!;^Rf1\e8c/87NY\HMsSJhD=DINGu2\s'56I.^AhXF>l07HMmSJjX.7b?dE(let!M=doqmtCU+2Ee?uABMO%Sm'2*PEEcPd3hT7D>HZ$(U/_NG^]momImD8$1!3;>*CM;]UNUAlA_qmnG'nQC/Vosjo.`r'9!AOhlRt15Nj^g"`e$B[mULt#J%aN):0/pkPo'=i.dq&T1gQpe+@@2B.W6qIU$9\I)G[Hc[S%odGDTVA3OXeFpKMQ6d)\dX*\>G9lX)!d].ceW'1U5!(jFfZuE\2am[q)ueNKm"o@a5YB1^R<A',qle,"OhX8fQ%W/2gX-Q=A68]!iQjZtrk<`1h"E_\f]M+b@3spJ+8_F$1G[fq>0;3ZGkVW%34d+m`_a`QihZaSh]in#CmH7?l\MPMjO!1\ld4_=/%Aq0%b2'b)jW4!cDoDu?7!3K1>D-F`D<kik(*&6D)4fIC;J>Vu's>taS;M4VY9TKE:p:60fT$o#%n6!+/:!#rd#Hc9d2YHoXc1;O*YiS(b5W/Oo^%iOXlNttn3UMD66)'6/M:'9Yk1>GGIh<EA(31iWkp)!2m7&,-[q&Z8SDo:0#jjbamQep*gd^/A9kiN3JhhqN[1&PmQBO3CR)$G$dQ7D@Lo3eNpe44Ign&uCH[<P6H^h`2m_R%e6He!WoZ=oSA-H;d5/_14800Namd%+'ul`p"#SC`>GqeK*:k@b8qjq&6Y7SW]41Z>(lQ3eHgg`R<KjqUFSl"9&d`(dYB`\<;WE^FgCqE:9*S0idajpLUTUX0b_9#!Lfe>KgA(3tL6Q_'U(JTA#\D`"OZ#Wt'k\q**frJo6`&G#.q3;KQT4;(M1o*!GFRD;/PF?Ui2=CHkS`KQY40r4C7F!gM76GAA9ggdjO9hJfKdK#")Bn*ojEH<KWb,?.p05=jl2LL`)bG$!h.o5?m&-];J[4)m1k147<^sWlT52mLF7q;foKU&[2;"F'PD"Cl`nkJE(Kb&CH:aoF"Y>Dqar(:-/IEBQ3W@o.P;Fn2eL[d.Ce/+"#s5&Sq?>Yi$DAmE\Vrs8[.ehona%p4XM3W_Yi[+3GpX74r7g@Yh85+^FM"j>$Ul%V-X>W.2UrISQpEO17&mdfmHL"P(>St+c3^sH_61t+`:Nug@/X]L!~>endstream
-endobj
-24 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 609
->>
-stream
-GatU0;/b23&:Vs/3;%!Tf#ID'gO8Fo7]J;ERHctQI3<L;fe@YY-gAD'iD`h/<^^t]K[9boI=1c00gmkXETSjgf+R5H(ub\@$KC\%L%7<1Qa=H5puu<q5TV4nQt"G[Zh99[`Qst9DL9G;NEHmdj28&[c[d%[/bTI[n'PmIi9CNJ)(8t!QEI]X(E]@K%HSsuqLce;aOt.eO^CVb/Aro!n4Dh,,G/H+Z][rG)O:j'5DkPTY`&-:fX,lVqB_RYc;/\8V9tR8/P*QDh&?`j[HPJr`)E`,'%#u%g,X4Lef$7K\@>51!q%/g8dGukeX!TQA-JMIb`+XbR0P6ijGhdgcIa377QM*8%kU?\]n,jc<>]jUSFFlEc.*pJC*[AYY9iTsg9(ZaFq+bO@VDAj&EooY&LN]:p=0O+h69b>cT<YdN1+Wo"teJiVHY=D(l\;"8U>.B\q0ajFa4@1Ju/l+BgV.9i/M`TTfTRAp`G/,7?\`_N:,=6T<XKQUlmD`J9;lH_g6#Rkb6h*%?a8?;`o?+eK_<@$ZMd0fmf#W$4<:d$+*/RB]feI`qi,k:,^e,rYo5P]b>)>]J[9=TJB--h>,E[4..4GDb:);Ih[Bk5Q~>endstream
+BT
+/F1 10 Tf
+50 742 Td
+14 TL
+(skill layers comprising core, router, and leaf skills, wherein each skill) Tj
+T*
+(contains source pointers and machine-verifiable trigger metadata.) Tj
+T*
+(2. A method for preventing unsafe public or external actions by coupling skill) Tj
+T*
+(routing with human approval boundary checks for publication, external send,) Tj
+T*
+(credential, hook, settings, auth, and repository visibility actions.) Tj
+T*
+(3. A method for validating an AI operational skill layer by computing trigger) Tj
+T*
+(gaps, required core skill presence, runtime coverage, source pointer) Tj
+T*
+(presence, and metadata contract satisfaction.) Tj
+T*
+(4. A system for reducing prompt duplication by using thin runtime skills that) Tj
+T*
+(reference source-of-truth documents rather than copying the documents into) Tj
+T*
+(runtime prompts.) Tj
+T*
+(5. A publication method that separates a private full operating layer from a) Tj
+T*
+(reduced public kernel while preserving source pointers, provenance, and) Tj
+T*
+(reserved rights.) Tj
+T*
+() Tj
+T*
+(Public Disclosure Boundary) Tj
+T*
+() Tj
+T*
+(Before filing, do not disclose:) Tj
+T*
+() Tj
+T*
+(* complete generated skill list;) Tj
+T*
+(* generator source;) Tj
+T*
+(* private source pointers;) Tj
+T*
+(* internal Brain/FDE structure;) Tj
+T*
+(* validation script internals;) Tj
+T*
+(* absorbed dialogue examples;) Tj
+T*
+(* private runtime paths; or) Tj
+T*
+(* concrete external AI route registry.) Tj
+T*
+() Tj
+T*
+(Filing Checklist) Tj
+T*
+() Tj
+T*
+(* [x] Confirm inventor decision: user-confirmed sole inventor.) Tj
+T*
+(* [x] Confirm owner/assignee decision: user owner, no assignee.) Tj
+T*
+(* [x] Add diagrams if possible.) Tj
+T*
+(* [ ] Export this document to PDF.) Tj
+T*
+(* [x] Include generator excerpt or pseudocode if desired.) Tj
+T*
+(* [x] Include public/private boundary.) Tj
+T*
+(* [x] Decide filing route: self-file defensive provisional before public disclosure.) Tj
+T*
+(* [ ] File through USPTO Patent Center or chosen filing route after explicit approval.) Tj
+T*
+(* [ ] Save filing receipt and application number.) Tj
+T*
+(* [ ] Only after filing, consider "Patent Pending" wording.) Tj
+T*
+(* [ ] Calendar 12-month follow-up deadline.) Tj
+T*
+ET
+endstream
 endobj
 xref
-0 25
+0 17
 0000000000 65535 f 
-0000000061 00000 n 
-0000000122 00000 n 
-0000000229 00000 n 
-0000000341 00000 n 
-0000000536 00000 n 
-0000000731 00000 n 
-0000000836 00000 n 
-0000000955 00000 n 
-0000001150 00000 n 
-0000001345 00000 n 
-0000001541 00000 n 
-0000001737 00000 n 
-0000001933 00000 n 
-0000002129 00000 n 
-0000002199 00000 n 
-0000002506 00000 n 
-0000002612 00000 n 
-0000003995 00000 n 
-0000005374 00000 n 
-0000006301 00000 n 
-0000007391 00000 n 
-0000008755 00000 n 
-0000009999 00000 n 
-0000011438 00000 n 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000154 00000 n 
+0000000329 00000 n 
+0000002286 00000 n 
+0000002461 00000 n 
+0000004484 00000 n 
+0000004659 00000 n 
+0000006057 00000 n 
+0000006233 00000 n 
+0000007565 00000 n 
+0000007742 00000 n 
+0000009794 00000 n 
+0000009971 00000 n 
+0000011752 00000 n 
+0000011929 00000 n 
 trailer
-<<
-/ID 
-[<12c0fcb3e476aca1299d85a90a4a29e5><12c0fcb3e476aca1299d85a90a4a29e5>]
-% ReportLab generated PDF document -- digest (opensource)
-
-/Info 15 0 R
-/Root 14 0 R
-/Size 25
->>
+<< /Size 17 /Root 1 0 R >>
 startxref
-12138
+14172
 %%EOF

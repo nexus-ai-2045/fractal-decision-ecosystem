@@ -1,10 +1,22 @@
 # Manual Linear Issue Creation
 
-Status: ready for manual creation.
+Status: optional。Linear を使う場合だけ手動作成 ready。
 
-This file is the fallback path when no Linear create-issue tool is exposed in the current Codex session.
+これは connector を使わない fallback 手順。Linear は FDE 運用保証の必須条件ではない。Codex は、外部 write action への別途明示承認なしに、この repo から Linear issue を作成・submit しない。
 
-## Target Issue
+## Copy-Paste Source
+
+`LINEAR_EXPORT.md` を issue packet として使う。
+
+Linear を使う場合の手順:
+
+1. Linear で新規 issue を手動作成する。
+2. `LINEAR_EXPORT.md` の title を使う。
+3. `LINEAR_EXPORT.md` の全文を issue description に貼る。
+4. 可能なら suggested priority / project / assignee / labels を設定する。
+5. 作成後、Linear issue ID と URL を `LINEAR_ISSUE_RECORD.md` に戻す。
+
+## Suggested Fields
 
 - Title: `Prepare FDE public kernel with restrictive rights and defensive patent gate`
 - Priority: High
@@ -13,40 +25,25 @@ This file is the fallback path when no Linear create-issue tool is exposed in th
 - Project: FDE / Fractal Decision Ecosystem, if available
 - Assignee: owner
 
-## Body
+## This Is Not Approval For
 
-Paste the full contents of `LINEAR_EXPORT.md` into the issue description.
+- public release
+- GitHub repository visibility change
+- patent filing
+- `Patent Pending` wording
+- private source pointers / local paths / absorbed dialogues / secret material の添付
+- Codex による connector / browser / API submit
 
-## Do Not Do In Linear
+## Optional Repo Follow-Up After Manual Creation
 
-- Do not mark the work as public-release approved.
-- Do not mark FDE as `Patent Pending`.
-- Do not treat the issue as patent filing approval.
-- Do not treat the issue as GitHub visibility approval.
-- Do not attach private source pointers, local paths, absorbed dialogues, or secret material.
+Linear issue を作った場合だけ、`LINEAR_ISSUE_RECORD.md` に次を記録する。
 
-## Completion Evidence To Add After Creation
+- Linear issue identifier
+- Linear issue URL
+- created date
+- project used
+- labels applied
+- priority used
+- current status
 
-- Linear issue identifier.
-- Linear issue URL.
-- Date created.
-- Whether the issue is in the FDE / Fractal Decision Ecosystem project.
-- Whether labels were applied.
-
-## Current Blocker
-
-The Codex session is blocked from creating the Linear issue directly because no reliable Linear write surface is available from the current environment.
-
-Confirmed blockers:
-
-- No Linear create-issue tool is exposed in the current Codex tool surface.
-- No local `linear` CLI is available.
-- No `LINEAR_*` environment variable or API token is available.
-- Chrome extension control is available, but there is no existing Linear tab to continue from.
-- Creating the issue through Chrome would require a logged-in Linear browser session and explicit approval to press the final create / submit button because it is an external write action.
-
-Local fallback state:
-
-- `LINEAR_EXPORT.md` is ready to paste into Linear.
-- The contents of `LINEAR_EXPORT.md` have been copied to the clipboard.
-- After manual creation, record the Linear issue identifier and URL back in this repo.
+その後、実際に完了した項目だけ `TODO_FDE_PUBLIC_KERNEL_RIGHTS.md` の optional Linear tracking section で check する。

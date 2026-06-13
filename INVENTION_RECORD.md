@@ -2,12 +2,14 @@
 
 Status: private working record. Do not publish.
 
-## Current Blocking Decisions
+## Current Recorded Decisions
 
-- Inventor(s): TBD by human.
-- Owner / assignee: TBD by human.
-- Filing route: provisional patent application recommended before public disclosure.
-- Public release: hold until filing decision is recorded.
+- Inventor(s): user-confirmed sole inventor. Legal filing name to be entered at filing time.
+- Owner: user.
+- Assignee: none / unassigned.
+- Filing route: self-file defensive provisional patent application before public disclosure.
+- Guard wording: use `Patent Pending` / `特許出願中` only after an application is actually filed.
+- Public release: hold until filing receipt and application number are recorded.
 
 ## Protectable Surfaces To Preserve
 
@@ -32,7 +34,7 @@ Status: private working record. Do not publish.
 - Private MVP gate output from `python scripts\mvp_gate_check.py`.
 - Test output from `python -m pytest -q`.
 
-## Do Not Publish Before Filing Decision
+## Do Not Publish Before Filing Evidence
 
 - Full recursive skill list.
 - Generator source.

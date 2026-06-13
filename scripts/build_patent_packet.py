@@ -8,9 +8,15 @@ import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
-from reportlab.lib.pagesizes import LETTER
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+try:
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+except ModuleNotFoundError:  # pragma: no cover - exercised when reportlab is absent.
+    LETTER = None
+    Paragraph = object
+    SimpleDocTemplate = None
+    Spacer = object
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +32,9 @@ def sha256(path: Path) -> str:
 
 
 def markdown_to_paragraphs(text: str) -> list[Paragraph | Spacer]:
+    if SimpleDocTemplate is None:
+        raise RuntimeError("reportlab is not available")
+
     styles = getSampleStyleSheet()
     body = styles["BodyText"]
     heading = styles["Heading2"]
@@ -79,11 +88,71 @@ def markdown_to_paragraphs(text: str) -> list[Paragraph | Spacer]:
     return story
 
 
+def pdf_escape(text: str) -> str:
+    return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def build_simple_pdf(text: str, path: Path) -> None:
+    lines: list[str] = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            lines.append("")
+            continue
+        if line.startswith("#"):
+            line = line.lstrip("#").strip()
+        if line.startswith("- "):
+            line = "* " + line[2:]
+        for wrapped in textwrap.wrap(line, width=88) or [""]:
+            lines.append(wrapped)
+
+    pages = [lines[index : index + 45] for index in range(0, len(lines), 45)] or [[]]
+    objects: list[str] = []
+    objects.append("<< /Type /Catalog /Pages 2 0 R >>")
+    kids = " ".join(f"{3 + page_index * 2} 0 R" for page_index in range(len(pages)))
+    objects.append(f"<< /Type /Pages /Kids [{kids}] /Count {len(pages)} >>")
+    for page_index, page_lines in enumerate(pages):
+        page_obj = 3 + page_index * 2
+        content_obj = page_obj + 1
+        stream_lines = ["BT", "/F1 10 Tf", "50 742 Td", "14 TL"]
+        for line in page_lines:
+            stream_lines.append(f"({pdf_escape(line)}) Tj")
+            stream_lines.append("T*")
+        stream_lines.append("ET")
+        stream = "\n".join(stream_lines)
+        objects.append(
+            f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            f"/Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> "
+            f"/Contents {content_obj} 0 R >>"
+        )
+        objects.append(f"<< /Length {len(stream.encode('latin-1', errors='replace'))} >>\nstream\n{stream}\nendstream")
+
+    output = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for index, obj in enumerate(objects, start=1):
+        offsets.append(len(output))
+        output.extend(f"{index} 0 obj\n{obj}\nendobj\n".encode("latin-1", errors="replace"))
+    xref_offset = len(output)
+    output.extend(f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode("ascii"))
+    for offset in offsets[1:]:
+        output.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    output.extend(
+        (
+            f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\n"
+            f"startxref\n{xref_offset}\n%%EOF\n"
+        ).encode("ascii")
+    )
+    path.write_bytes(bytes(output))
+
+
 def main() -> int:
     OUT_DIR.mkdir(exist_ok=True)
     text = SOURCE.read_text(encoding="utf-8")
-    doc = SimpleDocTemplate(str(PDF), pagesize=LETTER, title="FDE Provisional Patent Disclosure Draft")
-    doc.build(markdown_to_paragraphs(text))
+    if SimpleDocTemplate is None:
+        build_simple_pdf(text, PDF)
+    else:
+        doc = SimpleDocTemplate(str(PDF), pagesize=LETTER, title="FDE Provisional Patent Disclosure Draft")
+        doc.build(markdown_to_paragraphs(text))
 
     generated_at = datetime.now(timezone.utc).isoformat()
     files = [SOURCE, PDF, ROOT / "DEFENSIVE_PATENT_REVIEW.md", ROOT / "INVENTION_RECORD.md"]
