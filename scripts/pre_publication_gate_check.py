@@ -75,7 +75,7 @@ REQUIRED_PATENT_DRAFT_TERMS = (
 
 REQUIRED_PUBLIC_READY_TERMS = (
     "public 化は patent / public kernel gate で保留",
-    "defensive provisional patent filing",
+    "patent / filing 方針は意図的に broad",
     "inventor / owner / assignee",
     "user-confirmed sole inventor",
     "assignee は none / unassigned",
@@ -87,8 +87,8 @@ REQUIRED_INVENTION_RECORD_TERMS = (
     "Inventor(s): user-confirmed sole inventor",
     "Owner: user",
     "Assignee: none / unassigned",
-    "self-file defensive provisional patent application before public disclosure",
-    "Public release: hold until filing receipt and application number are recorded",
+    "Patent / filing details: intentionally broad",
+    "Public release: hold until explicit repository visibility approval",
 )
 
 
@@ -253,9 +253,6 @@ def evaluate() -> dict[str, object]:
         "errors": errors,
         "manifest": build_manifest(),
         "remaining_human_or_external_blockers": [
-            "perform provisional patent filing after explicit approval",
-            "save filing receipt / application number / submitted PDF / file hash after filing",
-            "calendar 12-month nonprovisional / PCT follow-up deadline after filing",
             "approve exact GitHub repository visibility change before any public release",
         ],
     }

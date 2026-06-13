@@ -26,7 +26,7 @@ public release 残務: 人間承認が必要
 
 patent decision 残務: なし
 
-patent filing 実行残務: 明示承認後の外部 submit が必要
+patent filing 実行残務: なし（optional / approval-gated）
 
 Linear handoff 実装残務: なし
 

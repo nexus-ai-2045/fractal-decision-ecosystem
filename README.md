@@ -10,15 +10,84 @@ tags: [fde, index, brain]
 
 # Fractal Decision Ecosystem（FDE）
 
-Fractal Decision Ecosystem（FDE）は、判断・通信・実装・検索・検証・改善を迷子にしないための routing OS です。
+Fractal Decision Ecosystem（FDE）は、AI が本来デフォルトで持っているはずの判断・整理・検証・接続・改善の能力を、毎回ちゃんと発揮させるための体系です。
 
-どの入口から始まっても、FDE は作業を次の型へ戻します。
+AI は、問いを分解する、根拠を分ける、過去の文脈に接続する、危険な操作を止める、次の一手へ閉じる、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、入口、判断軸、根拠、閉じ方、発火条件をまとめた routing OS です。
+
+## 何に困っている時の解決策か
+
+FDE は、「AI ができるはずなのに、その場で発揮されない」状態を解くための仕組みです。
+
+| 困りごと | FDE で発火させる能力 |
+|---|---|
+| AI が文脈を読めるはずなのに、毎回浅い返答から始まる | entry を packet 化し、過去文脈・目的・戻り先へ接続する |
+| AI が判断できるはずなのに、質問や提案が散らばる | mode、axis、closure_rule を先に立て、何を決める turn かを固定する |
+| AI が検証できるはずなのに、事実・推測・不明が混ざる | evidence と fact label を必須化し、根拠のない断定を止める |
+| AI が危険操作を避けられるはずなのに、公開・送信・visibility 変更が曖昧になる | Type1 / publication gate を発火させ、人間承認まで止める |
+| AI が改善できるはずなのに、同じ失敗を反省だけで終える | route_failure を分類し、skill / document / validator のどこを直すかへ落とす |
+| AI が全体を接続できるはずなのに、file、外部AI、GitHub、local state がばらける | registry / source pointer で正本、外部 authority、未吸収 candidate、stale を分ける |
+
+## どのように発火させるか
+
+FDE は、どの入口から始まっても、AI の処理を次の型へ戻します。
 
 ```text
 entry -> packet -> evidence -> decision -> closure
 ```
 
-FDE が扱うのは、個別の作業内容そのものではなく、作業をどこへ置き、何を根拠にし、どう閉じるかです。長い議論、raw log、private draft、外部AIの出力本文はここへ厚く入れず、必要な file や registry へ逃がします。
+この型は、AI に次の能力を自動で呼び出させるための発火順です。
+
+| 段階 | 発火させる能力 |
+|---|---|
+| `entry` | ユーザーの言葉から、本当の入口と目的を読む |
+| `packet` | 問い、owner、mode、戻り先、閉じ方を圧縮する |
+| `evidence` | 事実、推測、不明、source pointer を分ける |
+| `decision` | adopt / park / discard / decision-needed / blocked を切る |
+| `closure` | 何が終わり、何が未保証で、次に何をするかを返す |
+
+つまり、FDE が直接扱うのは個別の作業内容そのものではなく、AI が本来やるべき判断動作を、どの条件で発火させ、どの根拠で閉じるかです。長い議論、raw log、private draft、外部AIの出力本文はここへ厚く入れず、必要な file や registry へ逃がします。
+
+## 何で発火させるか
+
+FDE は、主に次の部品で AI の能力を発火させます。
+
+| 部品 | 役割 |
+|---|---|
+| `trigger` | どの言葉、状態、失敗、操作で FDE を起動するかを決める |
+| `packet` | 今の問い、owner、mode、根拠、閉じ方を短く持つ |
+| `mode` | search / implement / review / operate / ideate / decide のどれで進むかを決める |
+| `8-axis` | who / what / why / when / where / how / howmuch / withwhat に分けて迷子化を防ぐ |
+| `evidence` | 事実、推測、不明を分け、採用する根拠を明示する |
+| `gate` | 公開、外部送信、破壊操作、secret、visibility 変更を人間承認まで止める |
+| `registry / source pointer` | 詳細手順、外部正本、raw source を本文へ抱え込まず参照する |
+| `closure_rule` | 何をもって完了、保留、blocker、unknown とするかを先に決める |
+| `route_failure` | 能力が発揮されなかった時に、原因と修正先を分類する |
+
+## 自動発火の考え方
+
+FDE の目的は、AI に毎回「FDE 使う？」と聞かせることではありません。特定の言葉、状況、リスク、失敗を見たら、自動で必要な能力が起動する状態にすることです。
+
+代表的な発火条件:
+
+- FDE、判断整理、正本、root router、operating card、fact gate などの語が出た時
+- 事実、推測、不明、根拠、source、evidence が混ざりそうな時
+- 完了、保証、公開可能、送信済み、採用済みなどを断定しそうな時
+- 公開、投稿、共有、GitHub visibility、外部送信、credential、hook/settings に触れる時
+- 同じ失敗、同じ指摘、同じ迷子化が繰り返された時
+- 新しい file、rule、workflow、prompt を作りたくなった時
+- 外部AI、browser、GitHub、local file のどれを正本にするか迷う時
+
+発火後は、まず `entry -> packet -> evidence -> decision -> closure` に戻します。必要なら `operating-card.md`、`dialogue-protocol.md`、`axis-registry.md` の順で読む範囲を広げます。
+
+## なぜ公開候補にするか
+
+FDE は、個人の技量だけで完成させるためのものではありません。
+
+個人で閉じると、到達点はどうしてもその人の得意領域と技量の上限に引っ張られます。だから、自分が得意なところに尖って取り組み、足りないところはそれを得意な人が補える形にしておく必要があります。
+
+FDE を公開候補にする理由は、AI の使い方を一部の個人技や暗黙知に閉じないためです。AI が本来持っている能力を発火させる体系を外に出し、他の人が読み、試し、補い、直せる形にすることで、日本国内でも実践知が広がります。
+
+AI格差は生まれます。だからこそ、FDE は「AI をうまく使える人だけの秘密の手順」ではなく、発火条件、判断軸、根拠、公開境界、失敗時の直し方まで見える形にします。
 
 ## まず読むもの
 

@@ -34,4 +34,4 @@ Status: optional; no Linear issue required for local FDE operation.
 - Linear issue creation は patent filing approval ではない。
 - Linear issue creation は `Patent Pending` wording approval ではない。
 - Linear issue creation は GitHub repository visibility change approval ではない。
-- Patent strategy is recorded as self-file defensive provisional before public disclosure, but actual filing is still a separate external submit action.
+- Patent / filing details are intentionally broad; filing remains an optional external submit action.

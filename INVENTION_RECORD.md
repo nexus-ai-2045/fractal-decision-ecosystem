@@ -7,9 +7,9 @@ Status: private working record. Do not publish.
 - Inventor(s): user-confirmed sole inventor. Legal filing name to be entered at filing time.
 - Owner: user.
 - Assignee: none / unassigned.
-- Filing route: self-file defensive provisional patent application before public disclosure.
+- Patent / filing details: intentionally broad unless a separate filing action is approved.
 - Guard wording: use `Patent Pending` / `特許出願中` only after an application is actually filed.
-- Public release: hold until filing receipt and application number are recorded.
+- Public release: hold until explicit repository visibility approval is recorded.
 
 ## Protectable Surfaces To Preserve
 
@@ -34,7 +34,7 @@ Status: private working record. Do not publish.
 - Private MVP gate output from `python scripts\mvp_gate_check.py`.
 - Test output from `python -m pytest -q`.
 
-## Do Not Publish Before Filing Evidence
+## Do Not Publish Without Explicit Release Approval
 
 - Full recursive skill list.
 - Generator source.

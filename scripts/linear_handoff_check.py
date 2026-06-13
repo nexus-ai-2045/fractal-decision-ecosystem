@@ -25,7 +25,7 @@ REQUIRED_PACKET_TERMS = (
     "Patent filing は未実行",
     "Inventor decision: user-confirmed sole inventor",
     "Owner / assignee decision: user owner, no assignee",
-    "Filing strategy: public disclosure 前に self-file defensive provisional patent application",
+    "Rights strategy: patent / filing details は意図的に broad に保つ",
     "Linear は必須ではなく、使う場合だけ手動作成する",
     "python scripts\\mvp_gate_check.py",
     "Linear を使う場合だけ",
@@ -52,8 +52,8 @@ REQUIRED_TODO_TERMS = (
     "Linear issue creation is optional, not required for local FDE operation",
     "If used, Linear issue を手動作成する",
     "If used, Linear issue identifier / URL を `LINEAR_ISSUE_RECORD.md` に記録する",
-    "Defensive provisional patent application を public disclosure 前に filing する方針を決める",
-    "Next milestone: provisional filing execution",
+    "Patent / filing 方針は broad に保ち、local operation blocker にしない",
+    "Next milestone: publication approval only if public release is requested",
     "Exact repository への explicit current-conversation approval なしに GitHub repository visibility を変更しない",
 )
 
@@ -88,8 +88,6 @@ def evaluate() -> dict[str, object]:
         "external_actions_performed": False,
         "handoff_status": "optional_packet_ready" if not errors else "blocked",
         "not_guaranteed_by_local_repo": [
-            "patent filing submission",
-            "filing receipt / application number preservation",
             "GitHub repository visibility change approval",
         ],
     }

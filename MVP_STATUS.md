@@ -6,12 +6,12 @@ MVP status: complete for private local gate
 
 - Repository visibility: private
 - No external publication action performed
-- No patent filing action performed
+- No patent filing action performed; filing is optional and approval-gated
 - No connector write action performed
 - Inventor decision: user-confirmed sole inventor
 - Owner decision: user retains ownership
 - Assignee decision: none / unassigned
-- Filing strategy: self-file defensive provisional patent application before any public disclosure
+- Rights strategy: keep patent / filing details intentionally broad until a separate filing decision or action is approved
 - Guard wording strategy: use `Patent Pending` / `特許出願中` only after an application is actually filed
 - Local MVP gate command: `python scripts\mvp_gate_check.py`
 
@@ -24,12 +24,12 @@ MVP status: complete for private local gate
 
 ## Remaining Human / External Blockers
 
-- Perform patent filing only with explicit current-conversation approval.
-- Save filing receipt / application number / submitted PDF / file hash after filing.
-- Calendar 12-month nonprovisional / PCT follow-up deadline after filing.
+- Treat patent filing as optional external work, not local implementation residue.
+- If filing is later chosen, perform it only with explicit current-conversation approval.
+- If filing happens later, save filing receipt / application number / submitted PDF / file hash after filing.
 - Keep `Patent Pending` wording unused until an application is actually filed.
 - Keep GitHub repository visibility private unless exact repo-specific approval is given.
 
 ## Next
 
-Next milestone: provisional filing execution
+Next milestone: publication approval only if public release is requested

@@ -26,8 +26,8 @@ REQUIRED_STATUS_TERMS = (
     "No external publication action performed",
     "Inventor decision: user-confirmed sole inventor",
     "Owner decision: user retains ownership",
-    "Filing strategy: self-file defensive provisional patent application before any public disclosure",
-    "Next milestone: provisional filing execution",
+    "Rights strategy: keep patent / filing details intentionally broad until a separate filing decision or action is approved",
+    "Next milestone: publication approval only if public release is requested",
 )
 
 REQUIRED_TRACKED_FILES = (
@@ -146,7 +146,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         "external_actions_performed": False,
         "repository_visibility_expected": "private",
         "mvp_status": "complete_for_private_local_gate" if ok else "blocked",
-        "next_milestone": "provisional filing execution",
+        "next_milestone": "publication approval only if public release is requested",
         "checks": checks,
     }
 

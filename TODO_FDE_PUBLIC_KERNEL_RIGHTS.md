@@ -10,7 +10,8 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - [x] `python scripts\mvp_gate_check.py` で public-ready / pre-publication / pytest checks を集約する
 - [x] `LINEAR_EXPORT.md` に final copy-paste Linear packet を用意する
 - [x] Next milestone を閉じる: inventor / owner / filing decision
-- [ ] Next milestone: provisional filing execution
+- [x] Patent filing は local implementation residue ではなく optional external action として扱う
+- [ ] Next milestone: publication approval only if public release is requested
 
 ## Optional Linear Tracking
 
@@ -25,7 +26,7 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 
 ## Primary Human Blockers
 
-- [x] Defensive provisional patent application を public disclosure 前に filing する方針を決める
+- [x] Patent / filing 方針は broad に保ち、local operation blocker にしない
 - [x] Inventor decision を記録する: user-confirmed sole inventor
 - [x] Owner / assignee decision を記録する: user owner, no assignee
 
@@ -34,9 +35,9 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - [x] `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` を用意する
 - [x] Diagrams / processing flow / generator pseudocode が含まれることを確認する
 - [x] Filing packet を PDF 化する
-- [ ] 別途承認後に chosen filing path で submit する
-- [ ] filing receipt / application number / submitted PDF / file hash を private に保存する
-- [ ] 12-month nonprovisional / PCT follow-up deadline を calendar 化する
+- [ ] If later chosen, 別途承認後に chosen filing path で submit する
+- [ ] If filed, filing receipt / application number / submitted PDF / file hash を private に保存する
+- [ ] If filed, 12-month nonprovisional / PCT follow-up deadline を calendar 化する
 - [ ] `Patent Pending` は application が実際に filed された後だけ使う
 
 ## Rights / License

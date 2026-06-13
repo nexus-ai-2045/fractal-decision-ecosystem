@@ -33,11 +33,11 @@ private repository の主検証は `python scripts\mvp_gate_check.py` です。
 
 ## Patent / Publication Blockers
 
-- defensive provisional patent filing 方針は、public disclosure 前に self-file することで決定済み。
+- patent / filing 方針は意図的に broad に保つ。local operation の必須残務にはしない。
 - inventor / owner / assignee decision は記録済み。
 - inventor は user-confirmed sole inventor として決定済み。
 - owner は user、assignee は none / unassigned として決定済み。
-- filing 実行は未実行。実行には現在の会話での明示承認が必要。
-- filing 後は receipt / application number / submitted PDF / file hash を保存する。
+- filing 実行は optional external action。実行する場合は現在の会話での明示承認が必要。
+- filing した場合だけ receipt / application number / submitted PDF / file hash を保存する。
 - public 化する場合は本体 repo ではなく `public-kernel/` 相当の sanitized kernel のみを対象にする。
 - `Patent Pending` 表記は patent application filed 後だけ使う。
