@@ -63,6 +63,30 @@ FORBIDDEN_PATTERNS = {
 }
 
 LOCAL_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+JAPANESE_TEXT = re.compile(r"[\u3040-\u30ff\u3400-\u9fff]")
+
+JAPANESE_REQUIRED_DOCS = (
+    "README.md",
+    "PUBLIC_READY.md",
+    "MVP_STATUS.md",
+    "OPERATIONAL_GUARANTEE.md",
+    "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md",
+    "LINEAR_EXPORT.md",
+    "LINEAR_CREATE_MANUAL.md",
+    "LINEAR_ISSUE_RECORD.md",
+    "PUBLIC_KERNEL_PLAN.md",
+    "SECURITY.md",
+    "public-kernel/README.md",
+    "public-kernel/GATES.md",
+    "public-kernel/PUBLIC_BOUNDARY.md",
+    "public-kernel/RECURSIVE_MAP.md",
+    "public-kernel/RIGHTS_NOTICE.md",
+)
+
+LANGUAGE_POLICY_TERMS = (
+    "人間が読む本文、見出し、説明文は日本語で書きます",
+    "code identifier、schema field、file name、GitHub Actions keyword、frontmatter key は英語のまま維持します",
+)
 
 
 def iter_text_files() -> list[Path]:
@@ -88,6 +112,22 @@ def check_readme_name(errors: list[str]) -> None:
     for phrase in ("## 言語方針", "人間が読む本文", "schema field"):
         if phrase not in text:
             errors.append(f"README.md に言語方針の必須文言がありません: {phrase}")
+
+
+def check_japanese_documentation(errors: list[str]) -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for term in LANGUAGE_POLICY_TERMS:
+        if term not in readme:
+            errors.append(f"README.md に日本語保証の必須文言がありません: {term}")
+
+    for relpath in JAPANESE_REQUIRED_DOCS:
+        path = ROOT / relpath
+        if not path.exists():
+            errors.append(f"日本語保証対象 doc がありません: {relpath}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        if not JAPANESE_TEXT.search(text):
+            errors.append(f"{relpath}: 人間向け documentation は日本語本文を含む必要があります")
 
 
 def check_operational_guarantee(errors: list[str]) -> None:
@@ -207,6 +247,7 @@ def main() -> int:
     errors: list[str] = []
     check_required_files(errors)
     check_readme_name(errors)
+    check_japanese_documentation(errors)
     check_operational_guarantee(errors)
     check_failure_postmortem_contract(errors)
     check_workflow_contract(errors)

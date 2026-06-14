@@ -1,6 +1,6 @@
 # Recursive Map
 
-The public FDE kernel uses a three-layer routing map.
+Public FDE kernel は、三層の routing map を使います。
 
 ```text
 User request
@@ -13,14 +13,14 @@ User request
 
 ## Core
 
-Core gates protect truth, scope, rights, safety, and completion claims.
+Core gates は truth、scope、rights、safety、completion claims を守ります。
 
 ## Router
 
-Router logic chooses the correct lane, runtime, or public/private path.
+Router logic は、正しい lane、runtime、public/private path を選びます。
 
 ## Leaf
 
-Leaf modules point to the minimum source needed for the task. The private
-implementation uses richer source pointers that are intentionally not disclosed
-in this public kernel.
+Leaf modules は、task に必要な最小 source を指します。private implementation
+ではより豊かな source pointers を使いますが、この public kernel では意図的に
+非公開にします。
