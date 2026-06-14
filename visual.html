@@ -6,18 +6,19 @@
   <title>Fractal Decision Ecosystem</title>
   <style>
     :root {
-      --bg: #f7f8fb;
-      --ink: #1b1f24;
-      --muted: #667085;
-      --line: #b8c0cc;
-      --danger: #b42318;
-      --warn: #b54708;
-      --ok: #067647;
-      --blue: #175cd3;
-      --teal: #0e766e;
-      --violet: #6941c6;
-      --rose: #c11574;
-      --panel: #ffffff;
+      --paper: #fffaf2;
+      --paper-2: #f6fbff;
+      --ink: #1f2633;
+      --muted: #5f6d7c;
+      --line: #d9e0e8;
+      --blue: #2767c7;
+      --teal: #168177;
+      --green: #3f8f55;
+      --amber: #d58a20;
+      --coral: #d85f4d;
+      --violet: #7558c8;
+      --white: #ffffff;
+      --shadow: 0 18px 45px rgba(31, 38, 51, 0.12);
     }
 
     * {
@@ -26,341 +27,469 @@
 
     body {
       margin: 0;
-      background: var(--bg);
+      background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 48%, #ffffff 100%);
       color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.55;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      line-height: 1.75;
     }
 
-    header {
-      padding: 28px 24px 18px;
-      border-bottom: 1px solid var(--line);
-      background: var(--panel);
+    a {
+      color: inherit;
+    }
+
+    .top {
+      min-height: 94vh;
+      display: grid;
+      grid-template-columns: minmax(0, 0.86fr) minmax(360px, 1.14fr);
+      gap: 34px;
+      align-items: center;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 48px 26px 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 7px 10px;
+      border: 1px solid rgba(39, 103, 199, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
     }
 
     h1 {
       margin: 0;
-      font-size: 26px;
+      max-width: 760px;
+      font-size: clamp(39px, 6vw, 74px);
+      line-height: 1.04;
       letter-spacing: 0;
     }
 
-    .sub {
-      margin: 8px 0 0;
+    .lead {
+      max-width: 680px;
+      margin: 22px 0 0;
+      color: #344051;
+      font-size: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .action {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .action.primary {
+      border-color: transparent;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .cover {
+      margin: 0;
+    }
+
+    .cover img {
+      display: block;
+      width: 100%;
+      max-height: 650px;
+      object-fit: cover;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .caption {
+      margin: 12px 4px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 10px 26px 72px;
+    }
+
+    section {
+      padding: 42px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .section-lead {
+      max-width: 760px;
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .problem-grid,
+    .parts-grid,
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .tile {
+      min-height: 154px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    .tile strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .tile p {
+      margin: 0;
       color: var(--muted);
       font-size: 14px;
     }
 
-    main {
-      max-width: 1220px;
-      margin: 0 auto;
-      padding: 24px;
+    .tag {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--white);
     }
 
-    section {
-      margin: 0 0 28px;
-    }
-
-    h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      letter-spacing: 0;
-    }
+    .blue { background: var(--blue); }
+    .teal { background: var(--teal); }
+    .green { background: var(--green); }
+    .amber { background: var(--amber); }
+    .coral { background: var(--coral); }
+    .violet { background: var(--violet); }
 
     .flow {
       display: grid;
-      grid-template-columns: repeat(6, minmax(150px, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 12px;
-      align-items: stretch;
+      margin-top: 18px;
     }
 
-    .node {
-      min-height: 112px;
-      padding: 14px;
+    .step {
+      position: relative;
+      min-height: 132px;
+      padding: 18px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--panel);
-      position: relative;
+      background: var(--white);
     }
 
-    .node::after {
+    .step::after {
       content: "";
       position: absolute;
-      right: -13px;
       top: 50%;
+      right: -13px;
       width: 12px;
       border-top: 2px solid var(--line);
     }
 
-    .node:last-child::after {
+    .step:last-child::after {
       display: none;
     }
 
-    .node strong {
+    .step b {
       display: block;
-      font-size: 15px;
-      margin-bottom: 6px;
+      color: var(--blue);
+      font-size: 14px;
+      text-transform: uppercase;
     }
 
-    .node span {
+    .step span {
       display: block;
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
     }
 
-    .danger { border-top: 5px solid var(--danger); }
-    .strategy { border-top: 5px solid var(--violet); }
-    .secretary { border-top: 5px solid var(--rose); }
-    .coord { border-top: 5px solid var(--blue); }
-    .lane { border-top: 5px solid var(--teal); }
-    .field { border-top: 5px solid var(--ok); }
+    .band {
+      padding: 30px;
+      border-radius: 14px;
+      background: #1f2633;
+      color: var(--white);
+    }
 
-    .grid {
+    .band h2,
+    .band p {
+      color: var(--white);
+    }
+
+    .band .section-lead {
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .boundary {
       display: grid;
-      grid-template-columns: repeat(3, minmax(220px, 1fr));
-      gap: 12px;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      align-items: start;
     }
 
-    .rule {
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    .rule b {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .rule p {
+    .checklist {
       margin: 0;
-      color: var(--muted);
-      font-size: 13px;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 9px;
     }
 
-    .matrix {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--panel);
+    .checklist li {
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+    }
+
+    .why {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .quote {
+      margin: 0;
+      padding: 22px;
+      border-left: 5px solid var(--amber);
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 0 8px 8px 0;
+      color: #344051;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .file-grid a {
+      display: block;
+      padding: 14px 16px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      overflow: hidden;
+      background: var(--white);
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 800;
     }
 
-    .matrix th,
-    .matrix td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e4e7ec;
-      vertical-align: top;
+    .file-grid span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    footer {
+      padding: 26px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      text-align: center;
       font-size: 13px;
     }
 
-    .matrix th {
-      text-align: left;
-      background: #eef2f7;
-      font-size: 12px;
-      color: #344054;
-    }
-
-    .matrix tr:last-child td {
-      border-bottom: 0;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    .p-red { background: var(--danger); }
-    .p-blue { background: var(--blue); }
-    .p-green { background: var(--ok); }
-    .p-warn { background: var(--warn); }
-    .p-violet { background: var(--violet); }
-
-    .score {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(160px, 1fr));
-      gap: 12px;
-    }
-
-    .score .rule {
-      min-height: 92px;
-    }
-
-    .mini {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 12px;
-      background: #101828;
-      color: #f2f4f7;
-      padding: 12px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-
-    @media (max-width: 920px) {
-      .flow,
-      .grid,
-      .score {
+    @media (max-width: 940px) {
+      .top,
+      .boundary,
+      .why {
         grid-template-columns: 1fr;
       }
 
-      .node::after {
+      .top {
+        min-height: auto;
+        padding-top: 32px;
+      }
+
+      .problem-grid,
+      .parts-grid,
+      .file-grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
         display: none;
+      }
+
+      .cover img {
+        max-height: none;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Fractal Decision Ecosystem</h1>
-    <p class="sub">判断が散ったら、上から落とす。どこから始まっても stay / up / down / exception のどれかにする。</p>
+  <header class="top">
+    <div>
+      <p class="eyebrow">個人がAI相棒の力を引き出すための体系</p>
+      <h1>Fractal Decision Ecosystem</h1>
+      <p class="lead">
+        FDEは、AIが本来持っている判断・整理・検証・接続・改善の能力を、毎回ちゃんと発火させるための道具箱です。
+        会社向けの管理資料ではなく、個人が自分のAIをもっと頼れる相棒にするための入口です。
+      </p>
+      <div class="actions">
+        <a class="action primary" href="#flow">発火の流れを見る</a>
+        <a class="action" href="README.md">README.mdを読む</a>
+      </div>
+    </div>
+    <figure class="cover">
+      <img src="assets/fde-cover.png" alt="FDEの道具箱を開く個人と人懐っこいAI相棒のアニメ調イラスト">
+      <figcaption class="caption">README表紙画像: 個人の机で、AI相棒とFDEの道具箱を開く。</figcaption>
+    </figure>
   </header>
 
   <main>
     <section>
-      <h2>MECE Routing Tree</h2>
-      <div class="flow" aria-label="MECE routing tree">
-        <div class="node danger">
-          <strong>0. 例外確認</strong>
-          <span>不明 / 矛盾 / Type1 / stop / collision / budget を先に拾う</span>
+      <h2>解きたい問題</h2>
+      <p class="section-lead">
+        AIにはできるはずのことが多いのに、実運用では浅い返答、根拠の混線、危険操作の見落とし、完了の過大申告が起きます。
+        FDEは、その「発揮されない問題」を先に設計します。
+      </p>
+      <div class="problem-grid">
+        <div class="tile">
+          <span class="tag blue">Context</span>
+          <strong>文脈を読めるはずなのに浅い</strong>
+          <p>entryをpacket化し、目的、戻り先、過去文脈へ接続します。</p>
         </div>
-        <div class="node strategy">
-          <strong>1. 草薙</strong>
-          <span>意味・違和感・方向が未確定なら問いにする</span>
+        <div class="tile">
+          <span class="tag teal">Decision</span>
+          <strong>判断できるはずなのに散らばる</strong>
+          <p>mode、axis、closure_ruleを先に立て、何を決めるturnか固定します。</p>
         </div>
-        <div class="node secretary">
-          <strong>2. 秘書</strong>
-          <span>情報が多すぎるなら 1-5 行 / A-B-C / 未決へ圧縮</span>
+        <div class="tile">
+          <span class="tag amber">Evidence</span>
+          <strong>検証できるはずなのに混ざる</strong>
+          <p>事実、推測、不明を分け、根拠のない断定を止めます。</p>
         </div>
-        <div class="node coord">
-          <strong>3. Coord</strong>
-          <span>owner / route / stale / return_path を決める</span>
+        <div class="tile">
+          <span class="tag coral">Safety</span>
+          <strong>危険操作を止めきれない</strong>
+          <p>公開、外部送信、visibility変更は人間レビューまで止めます。</p>
         </div>
-        <div class="node lane">
-          <strong>4. Lane</strong>
-          <span>Foundation / Sales / Content / Research / Lab の成果物へ落とす</span>
+        <div class="tile">
+          <span class="tag green">Improve</span>
+          <strong>同じ失敗を反省だけで終える</strong>
+          <p>route_failureとして分類し、skill、document、validatorの修正先へ落とします。</p>
         </div>
-        <div class="node field">
-          <strong>5. 現場操作</strong>
-          <span>command / file / test / browser / cmux を diff・log・test で閉じる</span>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Any-Start Rule</h2>
-      <div class="grid">
-        <div class="rule">
-          <b>stay</b>
-          <p>今いる層で evidence / next_action まで閉じられる。</p>
-        </div>
-        <div class="rule">
-          <b>up</b>
-          <p>意味、判断材料、owner が足りない。草薙 / 秘書 / Coord へ上げる。</p>
-        </div>
-        <div class="rule">
-          <b>down</b>
-          <p>実作業や具体操作に落とせる。lane / 現場操作へ下げる。</p>
-        </div>
-        <div class="rule">
-          <b>exception</b>
-          <p>通常処理で解けない。例外表へ落として reroute する。</p>
+        <div class="tile">
+          <span class="tag violet">Connect</span>
+          <strong>正本がばらける</strong>
+          <p>registryとsource pointerで、正本、外部authority、未吸収candidate、staleを分けます。</p>
         </div>
       </div>
     </section>
 
-    <section>
-      <h2>Exception Priority</h2>
-      <table class="matrix">
-        <thead>
-          <tr>
-            <th>優先</th>
-            <th>例外</th>
-            <th>条件</th>
-            <th>落とし先</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td><span class="pill p-red">user-stop</span></td>
-            <td>CEO が stop / 保留 / 今やらないと言った</td>
-            <td>park / discard</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td><span class="pill p-red">type1-or-external</span></td>
-            <td>外部送信 / 公開 / 削除 / 課金 / auth / prod DB / main push</td>
-            <td>CEO 判断</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td><span class="pill p-warn">unknown-or-conflict</span></td>
-            <td>source / scope / owner / safety が不明、SSOT が矛盾</td>
-            <td>fact-check / scope-routing gate</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td><span class="pill p-warn">emergency-repair</span></td>
-            <td>主 Outcome / 安全 / データを守れない</td>
-            <td>Coord + 該当 lane</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td><span class="pill p-blue">collision-risk</span></td>
-            <td>same file / DB / queue / lane を複数主体が触る</td>
-            <td>Coord で owner を 1 つに絞る</td>
-          </tr>
-          <tr>
-            <td>6</td>
-            <td><span class="pill p-violet">3x3-exhausted</span></td>
-            <td>3 視点 x 3 レイヤーで解けない</td>
-            <td>scope / layer / owner / workspace を切り直す</td>
-          </tr>
-          <tr>
-            <td>7</td>
-            <td><span class="pill p-green">freeze-or-budget</span></td>
-            <td>weekly / token / 維持モード / 5/15 freeze が危険</td>
-            <td>park-retake / pointer 1 行</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section>
-      <h2>Convergence Score</h2>
-      <div class="score">
-        <div class="rule">
-          <b>8-10 adopt-now</b>
-          <p>今採用。ただし 1 行 rule / 1 file pointer まで。</p>
-        </div>
-        <div class="rule">
-          <b>5-7 park-retake</b>
-          <p>5/15 後 retake。今は pointer だけ残す。</p>
-        </div>
-        <div class="rule">
-          <b>3-4 decision-needed</b>
-          <p>CEO / 草薙へ 1 問に圧縮。</p>
-        </div>
-        <div class="rule">
-          <b>0-2 discard</b>
-          <p>棄却または archive。理由 1 行。</p>
-        </div>
+    <section id="flow">
+      <h2>FDEの発火順</h2>
+      <p class="section-lead">
+        どこから始まっても、まずこの型へ戻します。これは説明用の飾りではなく、AIに必要な能力を順番に呼び出すための操作手順です。
+      </p>
+      <div class="flow" aria-label="entryからclosureまでの流れ">
+        <div class="step"><b>entry</b><span>ユーザーの言葉から、本当の入口と目的を読む。</span></div>
+        <div class="step"><b>packet</b><span>問い、owner、mode、戻り先、閉じ方を圧縮する。</span></div>
+        <div class="step"><b>evidence</b><span>事実、推測、不明、source pointerを分ける。</span></div>
+        <div class="step"><b>decision</b><span>adopt / park / discard / decision-needed / blockedを切る。</span></div>
+        <div class="step"><b>closure</b><span>終わったこと、未保証、次の一手を返す。</span></div>
       </div>
     </section>
 
     <section>
-      <h2>Minimum Packet</h2>
-      <pre class="mini">start_at:
-can_close_here: yes/no
-move: stay | up | down | exception
-target:
-reason: 1 line</pre>
+      <h2>何で発火させるか</h2>
+      <p class="section-lead">
+        FDEは大きな思想だけではなく、毎回のturnで使える小さな部品の集まりです。
+      </p>
+      <div class="parts-grid">
+        <div class="tile"><strong>trigger</strong><p>どの言葉、状態、失敗、操作でFDEを起動するかを決める。</p></div>
+        <div class="tile"><strong>packet</strong><p>問い、owner、mode、根拠、閉じ方を短く持つ。</p></div>
+        <div class="tile"><strong>8-axis</strong><p>who / what / why / when / where / how / howmuch / withwhatで迷子化を防ぐ。</p></div>
+        <div class="tile"><strong>gate</strong><p>公開、外部送信、破壊操作、secret、visibility変更を止める。</p></div>
+        <div class="tile"><strong>registry</strong><p>詳細手順、外部正本、raw sourceを本文に抱え込まない。</p></div>
+        <div class="tile"><strong>route_failure</strong><p>能力が発揮されなかった原因と修正先を分類する。</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="why">
+        <div>
+          <h2>なぜ公開候補にするか</h2>
+          <p class="section-lead">
+            個人で閉じると、到達点はどうしてもその人の得意領域と技量の上限に引っ張られます。
+            だから、自分が得意なところに尖って取り組み、足りないところはそれを得意な人が補える形にしておく必要があります。
+          </p>
+        </div>
+        <blockquote class="quote">
+          AI格差は生まれます。だからこそ、FDEは「AIをうまく使える人だけの秘密の手順」ではなく、発火条件、判断軸、根拠、公開境界、失敗時の直し方まで見える形にします。
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="boundary">
+        <div>
+          <h2>公開境界</h2>
+          <p class="section-lead">
+            このHTMLはローカルで読むための視覚入口です。公開、外部送信、GitHub repository visibility変更は、このHTMLやREADMEだけでは承認されません。
+          </p>
+        </div>
+        <ul class="checklist">
+          <li>README / LICENSE / SECURITY.md / PUBLIC_READY.mdを確認する</li>
+          <li>secret scanとpersonal path scanを確認する</li>
+          <li>draft workspaceを公開境界の外へ置く</li>
+          <li>patent / public kernel gateを確認する</li>
+          <li>対象repositoryを明示して人間レビューと承認を取る</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>まず読むもの</h2>
+      <p class="section-lead">
+        詳細へ進む時は、長い本文へ飛び込む前にこの順番で読みます。
+      </p>
+      <div class="file-grid">
+        <a href="operating-card.md">operating-card.md<span>毎turnの最小起動。main thread、gate、mode、closure。</span></a>
+        <a href="dialogue-protocol.md">dialogue-protocol.md<span>AIと人間の対話ルール。1問圧縮、fact tag、Type1境界。</span></a>
+        <a href="axis-registry.md">axis-registry.md<span>8-axis、work mode、closure rule、配置判断。</span></a>
+        <a href="core.md">core.md<span>packet / move / orchestration_requiredの薄い定義。</span></a>
+        <a href="root-router.md">root-router.md<span>FDE root routingとscoringの詳細。</span></a>
+        <a href="PUBLIC_READY.md">PUBLIC_READY.md<span>公開準備状態と未承認の公開境界。</span></a>
+      </div>
     </section>
   </main>
+
+  <footer>
+    Fractal Decision Ecosystem（FDE） / local visual README. closure_rule: active
+  </footer>
 </body>
 </html>
