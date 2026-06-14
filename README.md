@@ -10,6 +10,10 @@ tags: [fde, index, brain]
 
 # Fractal Decision Ecosystem（FDE）
 
+![FDEの道具箱を開く個人と人懐っこいAI相棒](assets/fde-cover.png)
+
+グラフィカルに読む入口: [visual.html](visual.html)
+
 Fractal Decision Ecosystem（FDE）は、AI が本来デフォルトで持っているはずの判断・整理・検証・接続・改善の能力を、毎回ちゃんと発揮させるための体系です。
 
 AI は、問いを分解する、根拠を分ける、過去の文脈に接続する、危険な操作を止める、次の一手へ閉じる、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、入口、判断軸、根拠、閉じ方、発火条件をまとめた routing OS です。
