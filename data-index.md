@@ -31,6 +31,7 @@ FDE data index は、FDE core が参照する **データ / catalog / pointer** 
 | Brain 内概念の吸収/参照/保留 | `brain-concept-rollup.md` |
 | 外部AI・browser AI review・best practice | `external-references.md` |
 | dialogue / CEO 問いの作法 | `dialogue-protocol.md` |
+| AI開発標準カード / Living Harness | `ai-development-living-harness.md` |
 | 検索の分担 / Codex 本体への戻し方 | `search-orchestration.md` |
 | 外部依存 key / FDECC review workspace | `dependency-registry.md` |
 | SSOT 管理 (registry / loader / lint / placement / 構造分離) | `dependency-registry:ssot-registry` / `ssot-loader` / `ssot-lint` / `placement-rules` / `structural-separation` / `ssot-split` |
@@ -64,4 +65,3 @@ type が増えそうな時:
 | knowledge | 知見 | `dependency-registry:lessons` / `dependency-registry:reports` |
 
 closure_rule: active
-

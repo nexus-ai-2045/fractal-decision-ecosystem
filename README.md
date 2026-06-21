@@ -151,6 +151,7 @@ closure_rule:
 | [core.md](core.md) | FDE の最小 core。packet / move / orchestration_required |
 | [root-router.md](root-router.md) | 詳細な root routing と scoring |
 | [data-index.md](data-index.md) | type / catalog / source pointer の入口 |
+| [ai-development-living-harness.md](ai-development-living-harness.md) | AI開発標準カード、Living Harness、route drift stop 条件 |
 | [dependency-registry.md](dependency-registry.md) | FDE 外部依存、外部正本、playbook、report の registry |
 | [source-pointers.md](source-pointers.md) | 元議論や source cluster への pointer |
 | [search-orchestration.md](search-orchestration.md) | 検索、外部AI、browser route を薄く扱う規則 |
