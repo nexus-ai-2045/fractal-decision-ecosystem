@@ -207,6 +207,8 @@ repeated_user_correction_triage:
 
 ## 1. Route
 
+FDE のオーケストレーション検討は常時 ON とする。これは毎回必ず並列 dispatch するという意味ではなく、作業開始時に `orchestration_required` と `route_mode` を明示し、十分なら local / fast path で閉じ、不足なら Spark / explorer / worker / lane / 外部AIのどこへ逃がすかを決めるという意味。
+
 ```text
 orchestration_required: yes | no
 route_mode: fast_reply | balanced | parallel_deep | background_watch
@@ -222,6 +224,7 @@ exit_condition:
 
 | 条件 | route |
 |---|---|
+| すべての作業開始 | `orchestration_required` を検討し、理由 1 行を残す |
 | 3 file / 3 surface / 複数AI / 比較 / 回収 / 広い検索 | `orchestration_required: yes` |
 | user が待っている短答 | `fast_reply` |
 | 通常作業 | `balanced` |

@@ -10,3 +10,6 @@ build/
 .env
 .env.*
 !.env.example
+
+# Local AI-agent workspace state; outside the FDE repository boundary.
+.chinju/
