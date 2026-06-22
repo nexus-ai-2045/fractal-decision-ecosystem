@@ -18,6 +18,8 @@ if str(ROOT) not in sys.path:
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.public_ready_check import main as public_ready_main
 from scripts.linear_handoff_check import evaluate as evaluate_linear_handoff
+from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
+from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 
 
 REQUIRED_STATUS_TERMS = (
@@ -36,8 +38,21 @@ REQUIRED_TRACKED_FILES = (
     "scripts/mvp_gate_check.py",
     "scripts/public_ready_check.py",
     "scripts/linear_handoff_check.py",
+    "scripts/roadmap_gate_check.py",
+    "scripts/chinju_guidance_check.py",
+    "ROADMAP.md",
     "LINEAR_ISSUE_RECORD.md",
     "tests/test_public_ready.py",
+    ".chinju/manifest.json",
+    ".chinju/policy.json",
+    ".chinju/README.md",
+    ".chinju/agent-guidance.md",
+    ".chinju/project.md",
+    ".chinju/workflow.md",
+    ".chinju/quality-gates.md",
+    ".chinju/knowledge/invariants.md",
+    ".chinju/knowledge/incidents.md",
+    ".chinju/knowledge/edge-cases.md",
 )
 
 
@@ -66,6 +81,24 @@ def _run_linear_handoff() -> dict[str, object]:
     result = evaluate_linear_handoff()
     return {
         "name": "linear_handoff_check",
+        "ok": result["overall"] == "ok",
+        "result": result,
+    }
+
+
+def _run_roadmap() -> dict[str, object]:
+    result = evaluate_roadmap()
+    return {
+        "name": "roadmap_gate_check",
+        "ok": result["overall"] == "ok",
+        "result": result,
+    }
+
+
+def _run_chinju_guidance() -> dict[str, object]:
+    result = evaluate_chinju_guidance()
+    return {
+        "name": "chinju_guidance_check",
         "ok": result["overall"] == "ok",
         "result": result,
     }
@@ -134,6 +167,8 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_public_ready(),
         _run_pre_publication(),
         _run_linear_handoff(),
+        _run_roadmap(),
+        _run_chinju_guidance(),
         _check_mvp_status_file(),
         _check_required_files_tracked(),
     ]

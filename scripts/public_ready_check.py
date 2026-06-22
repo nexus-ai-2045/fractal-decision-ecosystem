@@ -23,9 +23,12 @@ REQUIRED_FILES = (
     "LINEAR_EXPORT.md",
     "LINEAR_CREATE_MANUAL.md",
     "LINEAR_ISSUE_RECORD.md",
+    "ROADMAP.md",
     "scripts/mvp_gate_check.py",
     "scripts/run_mvp_gate.ps1",
     "scripts/linear_handoff_check.py",
+    "scripts/roadmap_gate_check.py",
+    "scripts/chinju_guidance_check.py",
 )
 
 
@@ -75,6 +78,7 @@ JAPANESE_REQUIRED_DOCS = (
     "LINEAR_EXPORT.md",
     "LINEAR_CREATE_MANUAL.md",
     "LINEAR_ISSUE_RECORD.md",
+    "ROADMAP.md",
     "PUBLIC_KERNEL_PLAN.md",
     "SECURITY.md",
     "public-kernel/README.md",

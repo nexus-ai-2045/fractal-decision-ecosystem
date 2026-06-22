@@ -1,0 +1,7 @@
+{
+  "auto_apply_fixes": false,
+  "data_boundary": "local_first",
+  "external_provider_requires_approval": true,
+  "guard": "warn",
+  "schema_version": "chinju.policy.v1"
+}

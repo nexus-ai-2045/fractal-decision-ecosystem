@@ -13,6 +13,8 @@
 - repository metadata と operating setting
 - private handle と personal path の確認
 - optional Linear handoff packet の local readiness
+- roadmap first iteration gate の local readiness
+- project-local Chinju guidance の local readiness
 
 この保証は repository の public 化を承認しません。
 
@@ -40,6 +42,8 @@ Linear issue 作成残務: なし（optional）
 
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
 - `python scripts/linear_handoff_check.py`
+- `python scripts/roadmap_gate_check.py`
+- `python scripts/chinju_guidance_check.py`
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
 - Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
@@ -54,6 +58,10 @@ Linear issue 作成残務: なし（optional）
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
 `scripts/linear_handoff_check.py` は、Linear を使う場合の optional packet、manual fallback、
 post-creation evidence placeholder、TODO の境界文言を検証します。
+`scripts/roadmap_gate_check.py` は、`ROADMAP.md` の Now / Next / Future、
+lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 merge 境界を検証します。
+`scripts/chinju_guidance_check.py` は、`.chinju/` の local-first guidance、
+quality gates、invariants、incidents、edge cases、外部 provider approval 境界を検証します。
 内側の `scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。
