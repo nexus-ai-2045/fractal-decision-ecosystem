@@ -42,6 +42,7 @@ REQUIRED_TRACKED_FILES = (
     "scripts/chinju_guidance_check.py",
     "scripts/adr_next.py",
     "ROADMAP.md",
+    "mvp-axis-operating-card.md",
     "decisions/README.md",
     "decisions/ADR-0001-development-card-adr-numbering.md",
     "LINEAR_ISSUE_RECORD.md",

@@ -52,6 +52,22 @@ def test_adr_auto_numbering_uses_next_repo_local_number(tmp_path) -> None:
     assert next_adr_filename(decisions_dir=tmp_path) == "ADR-0002-short-title.md"
 
 
+def test_mvp_axis_operating_card_has_13_items_and_boundaries() -> None:
+    text = (public_ready_check.ROOT / "mvp-axis-operating-card.md").read_text(encoding="utf-8")
+    for term in (
+        "FDE MVP軸別13運用カード",
+        "MVP軸",
+        "ユーザー行動",
+        "最小E2E",
+        "public/private境界",
+        "ADR/採番",
+        "python scripts\\adr_next.py",
+        "MVP は public release approval ではない",
+        "repository visibility 変更 approval ではない",
+    ):
+        assert term in text
+
+
 def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> None:
     packet = tmp_path / "patent-packet"
     packet.mkdir()
