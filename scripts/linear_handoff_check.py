@@ -27,7 +27,7 @@ REQUIRED_PACKET_TERMS = (
     "Owner / assignee decision: user owner, no assignee",
     "Rights strategy: patent / filing details は意図的に broad に保つ",
     "Linear は必須ではなく、使う場合だけ手動作成する",
-    "python scripts\\mvp_gate_check.py",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\run_mvp_gate.ps1",
     "Linear を使う場合だけ",
     "LINEAR_ISSUE_RECORD.md",
 )

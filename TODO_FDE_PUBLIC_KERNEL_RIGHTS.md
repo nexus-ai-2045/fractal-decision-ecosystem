@@ -7,7 +7,7 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 ## Local MVP Gate
 
 - [x] `MVP_STATUS.md` に private local MVP state を記録する
-- [x] `python scripts\mvp_gate_check.py` で public-ready / pre-publication / pytest checks を集約する
+- [x] `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` で public-ready / pre-publication / pytest checks を集約する
 - [x] `LINEAR_EXPORT.md` に final copy-paste Linear packet を用意する
 - [x] Next milestone を閉じる: inventor / owner / filing decision
 - [x] Patent filing は local implementation residue ではなく optional external action として扱う
@@ -66,7 +66,7 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - [x] `python scripts\pre_publication_gate_check.py --json`
 - [x] `public-kernel/` に local paths / private source pointers / secrets / absorbed dialogues / private workflow details がないことを確認する
 - [x] `PUBLIC_READY.md` が current rights posture / patent gate / public-kernel gate に合っている
-- [x] Linear issue creation is not required before `python scripts\mvp_gate_check.py`
+- [x] Linear issue creation is not required before `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
 
 ## Publication Gate
 
@@ -88,5 +88,6 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - `public-kernel/`: sanitized public-kernel candidate
 - `patent-packet/`: PDF patent packet and SHA256 manifest
 - `scripts/pre_publication_gate_check.py`: pre-publication gate
-- `scripts/mvp_gate_check.py`: private local MVP gate
+- `scripts/run_mvp_gate.ps1`: Windows local supported MVP gate entrypoint
+- `scripts/mvp_gate_check.py`: private local MVP gate implementation
 - `MVP_STATUS.md`: MVP status and next milestone

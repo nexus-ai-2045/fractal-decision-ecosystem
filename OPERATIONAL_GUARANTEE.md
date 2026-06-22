@@ -38,7 +38,7 @@ Linear issue 作成残務: なし（optional）
 
 この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
-- `python scripts/mvp_gate_check.py`
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
 - `python scripts/linear_handoff_check.py`
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
@@ -49,6 +49,7 @@ Linear issue 作成残務: なし（optional）
 
 ## 強制チェック
 
+`scripts/run_mvp_gate.ps1` は、Windows local の supported entrypoint として Python launcher の差を吸収します。
 `scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
 `scripts/linear_handoff_check.py` は、Linear を使う場合の optional packet、manual fallback、

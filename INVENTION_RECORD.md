@@ -31,7 +31,7 @@ Status: private working record. Do not publish.
 - Provisional patent disclosure draft.
 - Patent packet PDF and SHA256 manifest in `patent-packet/`.
 - Pre-publication gate output from `python scripts\pre_publication_gate_check.py --json`.
-- Private MVP gate output from `python scripts\mvp_gate_check.py`.
+- Private MVP gate output from `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`.
 - Test output from `python -m pytest -q`.
 
 ## Do Not Publish Without Explicit Release Approval

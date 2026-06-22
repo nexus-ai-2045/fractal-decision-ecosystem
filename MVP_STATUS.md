@@ -13,7 +13,7 @@ MVP status: complete for private local gate
 - Assignee decision: none / unassigned
 - Rights strategy: keep patent / filing details intentionally broad until a separate filing decision or action is approved
 - Guard wording strategy: use `Patent Pending` / `特許出願中` only after an application is actually filed
-- Local MVP gate command: `python scripts\mvp_gate_check.py`
+- Local MVP gate command: `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
 
 ## Completed Local Gate
 

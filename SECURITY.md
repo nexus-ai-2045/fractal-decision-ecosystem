@@ -12,7 +12,7 @@ production credential、private key、personal access token、machine-local secr
 
 ## private MVP gate
 
-private repository の主検証は `python scripts\mvp_gate_check.py` です。
+private repository の主検証は `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` です。
 この gate は public readiness check、pre-publication gate、pytest を集約します。
 
 public release の前に private MVP gate と人間 review を完了してください。

@@ -27,7 +27,7 @@ source workspace、draft 作業 folder、machine-local path、private operationa
 
 ## 公開リリースゲート
 
-private repository の主検証は `python scripts\mvp_gate_check.py` です。
+private repository の主検証は `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` です。
 人間 review と repository visibility approval は実装残務ではなく、必須の publication gate です。
 `nexus-ai-2045/fractal-decision-ecosystem` についてこの gate が明示完了するまで、repository は private のまま維持します。
 

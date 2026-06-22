@@ -24,6 +24,7 @@ REQUIRED_FILES = (
     "LINEAR_CREATE_MANUAL.md",
     "LINEAR_ISSUE_RECORD.md",
     "scripts/mvp_gate_check.py",
+    "scripts/run_mvp_gate.ps1",
     "scripts/linear_handoff_check.py",
 )
 
@@ -180,7 +181,8 @@ def check_workflow_contract(errors: list[str]) -> None:
     workflow = ROOT / ".github" / "workflows" / "public-ready.yml"
     text = workflow.read_text(encoding="utf-8")
     required_terms = (
-        "python scripts/mvp_gate_check.py",
+        "scripts/run_mvp_gate.ps1",
+        "shell: pwsh",
         "python -m pip install pytest",
         "actions/checkout@v6",
         "actions/setup-python@v6",

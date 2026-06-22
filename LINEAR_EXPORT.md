@@ -50,7 +50,7 @@ private local MVP gate は実装済みで、通常の code readiness は主 bloc
 ## Local Gate Command
 
 ```text
-python scripts\mvp_gate_check.py
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1
 ```
 
 Expected result:
@@ -111,7 +111,7 @@ private に残すもの:
 - License posture は source-available / all rights reserved / no patent license / no trademark license / no derivative works / no model training のまま。
 - `PUBLIC_READY.md` が current rights posture と checks に合っている。
 - `MVP_STATUS.md` が private local MVP gate state を記録している。
-- `python scripts\mvp_gate_check.py` が local で pass する。
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` が local で pass する。
 - Exact repository への explicit current-conversation approval なしに repository を public にしない。
 - Linear を使う場合だけ、manual issue 作成後に `LINEAR_ISSUE_RECORD.md` が更新されている。
 
