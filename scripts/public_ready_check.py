@@ -29,6 +29,9 @@ REQUIRED_FILES = (
     "scripts/linear_handoff_check.py",
     "scripts/roadmap_gate_check.py",
     "scripts/chinju_guidance_check.py",
+    "scripts/adr_next.py",
+    "decisions/README.md",
+    "decisions/ADR-0001-development-card-adr-numbering.md",
 )
 
 LOCAL_AI_WORKSPACE_PATHS = (
@@ -88,6 +91,8 @@ JAPANESE_REQUIRED_DOCS = (
     "LINEAR_CREATE_MANUAL.md",
     "LINEAR_ISSUE_RECORD.md",
     "ROADMAP.md",
+    "decisions/README.md",
+    "decisions/ADR-0001-development-card-adr-numbering.md",
     "PUBLIC_KERNEL_PLAN.md",
     "SECURITY.md",
     "public-kernel/README.md",

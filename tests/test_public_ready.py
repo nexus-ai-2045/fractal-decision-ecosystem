@@ -1,6 +1,7 @@
 import hashlib
 
 from scripts import public_ready_check
+from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
 from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.linear_handoff_check import evaluate as evaluate_linear_handoff
@@ -41,6 +42,14 @@ def test_roadmap_gate_has_first_iteration_contract_without_external_write() -> N
     assert result["overall"] == "ok", result["errors"]
     assert result["external_actions_performed"] is False
     assert result["first_iteration"]["status"] == "ready"
+
+
+def test_adr_auto_numbering_uses_next_repo_local_number(tmp_path) -> None:
+    assert next_adr_filename(decisions_dir=tmp_path) == "ADR-0001-short-title.md"
+    (tmp_path / "ADR-0001-first-decision.md").write_text("# ADR-0001\n", encoding="utf-8")
+    (tmp_path / "notes.md").write_text("not an ADR\n", encoding="utf-8")
+
+    assert next_adr_filename(decisions_dir=tmp_path) == "ADR-0002-short-title.md"
 
 
 def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> None:

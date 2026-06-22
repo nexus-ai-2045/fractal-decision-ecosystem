@@ -6,6 +6,7 @@ Project-specific commands for local FDE operation.
 python scripts\mvp_gate_check.py
 python scripts\linear_handoff_check.py
 python scripts\chinju_guidance_check.py
+python scripts\adr_next.py
 python scripts\public_ready_check.py
 python scripts\pre_publication_gate_check.py --json
 python -m compileall -q scripts tests

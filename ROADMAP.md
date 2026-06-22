@@ -28,6 +28,7 @@
 
 - Local implementation residue: none.
 - Roadmap gate is already connected to `scripts/mvp_gate_check.py`.
+- Development card / ADR / auto-numbering adoption is recorded in `decisions/ADR-0001-development-card-adr-numbering.md`.
 - Product Design / Security / Creative / OpenAI Dev の追加TDDサイクルは、次に明示された実装要求が出た場合だけ切る。
 - PR / merge / public release は、このロードマップでは承認しない。必要な場合は `smoke -> preflight -> diff review -> PR -> human review -> merge` の順序を別承認で記録する。
 

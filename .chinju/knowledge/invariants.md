@@ -8,3 +8,4 @@
 - The public kernel stays sanitized and separate from the private FDE operating system.
 - Local gates must preserve `external_actions_performed: false`.
 - Completion claims must separate implementation complete, operationally guaranteed, and publicly releasable.
+- Durable repo behavior decisions use repo-local ADRs under `decisions/` and `python scripts\adr_next.py` for auto-numbering.
