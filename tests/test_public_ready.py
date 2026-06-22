@@ -1,5 +1,6 @@
 import hashlib
 
+from scripts import public_ready_check
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
 from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.linear_handoff_check import evaluate as evaluate_linear_handoff
@@ -63,3 +64,27 @@ def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> 
 
     assert errors
     assert "hash mismatch: INVENTION_RECORD.md" in errors[0]
+
+
+def test_local_ai_workspace_state_is_outside_repository_package() -> None:
+    assert not public_ready_check.is_repository_package_path(
+        public_ready_check.ROOT / ".chinju" / "sessions" / "local.jsonl"
+    )
+    assert public_ready_check.is_repository_package_path(public_ready_check.ROOT / ".chinju" / "README.md")
+    assert public_ready_check.is_repository_package_path(public_ready_check.ROOT / "README.md")
+
+
+def test_local_ai_workspace_boundary_is_declared_and_untracked() -> None:
+    errors: list[str] = []
+    public_ready_check.check_local_ai_workspace_boundary(errors)
+    assert errors == []
+
+
+def test_local_ai_workspace_boundary_requires_gitignore_entry(tmp_path, monkeypatch) -> None:
+    (tmp_path / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
+    monkeypatch.setattr(public_ready_check, "ROOT", tmp_path)
+
+    errors: list[str] = []
+    public_ready_check.check_local_ai_workspace_boundary(errors)
+
+    assert ".gitignore に local AI-agent workspace 除外がありません: .chinju/sessions/" in errors

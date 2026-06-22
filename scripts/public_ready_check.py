@@ -31,6 +31,15 @@ REQUIRED_FILES = (
     "scripts/chinju_guidance_check.py",
 )
 
+LOCAL_AI_WORKSPACE_PATHS = (
+    ".chinju/sessions",
+)
+
+PACKAGE_EXCLUDED_PARTS = (
+    ".git",
+    "__pycache__",
+)
+
 
 def _join_chars(chars: str) -> str:
     return "".join(chars.split())
@@ -94,11 +103,26 @@ LANGUAGE_POLICY_TERMS = (
 )
 
 
+def is_repository_package_path(path: Path) -> bool:
+    try:
+        rel = path.resolve().relative_to(ROOT.resolve())
+    except ValueError:
+        rel = path if not path.is_absolute() else Path(path.name)
+    rel_parts = rel.as_posix().split("/")
+    if any(part in PACKAGE_EXCLUDED_PARTS for part in rel_parts):
+        return False
+    rel_posix = rel.as_posix().rstrip("/")
+    return not any(
+        rel_posix == excluded or rel_posix.startswith(f"{excluded}/")
+        for excluded in LOCAL_AI_WORKSPACE_PATHS
+    )
+
+
 def iter_text_files() -> list[Path]:
     files: list[Path] = []
     for pattern in ("*.md", "*.html", "*.toml", "*.py", ".gitignore", "LICENSE"):
         files.extend(ROOT.rglob(pattern))
-    return sorted({path for path in files if ".git" not in path.parts and "__pycache__" not in path.parts})
+    return sorted({path for path in files if is_repository_package_path(path)})
 
 
 def check_required_files(errors: list[str]) -> None:
@@ -199,6 +223,36 @@ def check_workflow_contract(errors: list[str]) -> None:
             errors.append(f"workflow に必須用語がありません: {term}")
 
 
+def check_local_ai_workspace_boundary(errors: list[str]) -> None:
+    gitignore = ROOT / ".gitignore"
+    if not gitignore.exists():
+        errors.append(".gitignore がありません")
+        return
+
+    ignored_patterns = {
+        line.strip()
+        for line in gitignore.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    for relpath in LOCAL_AI_WORKSPACE_PATHS:
+        if f"{relpath}/" not in ignored_patterns:
+            errors.append(f".gitignore に local AI-agent workspace 除外がありません: {relpath}/")
+
+    if not (ROOT / ".git").exists():
+        return
+    for relpath in LOCAL_AI_WORKSPACE_PATHS:
+        result = subprocess.run(
+            ["git", "ls-files", "--", relpath],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if result.stdout.strip():
+            errors.append(f"{relpath}/ が git tracked package に含まれています")
+
+
 def check_forbidden_patterns(errors: list[str]) -> None:
     for path in iter_text_files():
         if path == Path(__file__).resolve():
@@ -212,7 +266,7 @@ def check_forbidden_patterns(errors: list[str]) -> None:
 
 def check_local_markdown_links(errors: list[str]) -> None:
     for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
+        if not is_repository_package_path(path):
             continue
         text = path.read_text(encoding="utf-8")
         for match in LOCAL_LINK.finditer(text):
@@ -257,6 +311,7 @@ def main() -> int:
     check_operational_guarantee(errors)
     check_failure_postmortem_contract(errors)
     check_workflow_contract(errors)
+    check_local_ai_workspace_boundary(errors)
     check_forbidden_patterns(errors)
     check_local_markdown_links(errors)
     check_git_history(errors)
