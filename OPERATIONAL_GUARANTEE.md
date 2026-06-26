@@ -54,6 +54,8 @@ Linear issue 作成残務: なし（optional）
 ## 強制チェック
 
 `scripts/run_mvp_gate.ps1` は、Windows local の supported entrypoint として Python launcher の差を吸収します。
+`py -3` / `python` の probe が Python 3.11+ として確認できない場合、または Windows pyenv shim failure が検出された場合は、MVP gate 本体を通過扱いにせず非ゼロ終了します。
+MVP gate 本体の出力 marker が確認できない場合も、wrapper 成功ではなく gate 未実行として失敗扱いにします。
 `scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
 `scripts/linear_handoff_check.py` は、Linear を使う場合の optional packet、manual fallback、

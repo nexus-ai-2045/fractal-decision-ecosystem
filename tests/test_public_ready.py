@@ -1,4 +1,8 @@
 import hashlib
+import os
+import subprocess
+
+import pytest
 
 from scripts import public_ready_check
 from scripts.adr_next import next_adr_filename
@@ -113,3 +117,89 @@ def test_local_ai_workspace_boundary_requires_gitignore_entry(tmp_path, monkeypa
     public_ready_check.check_local_ai_workspace_boundary(errors)
 
     assert ".gitignore に local AI-agent workspace 除外がありません: .chinju/sessions/" in errors
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows pyenv shim regression")
+def test_run_mvp_gate_rejects_broken_windows_pyenv_shim(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    (fake_bin / "py.cmd").write_text(
+        "@echo off\r\necho py launcher unavailable 1>&2\r\nexit /b 1\r\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python.cmd").write_text(
+        "@echo off\r\necho pyenv: python: command not found\r\nexit /b 0\r\n",
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(public_ready_check.ROOT / "scripts" / "run_mvp_gate.ps1"),
+            "--skip-pytest",
+        ],
+        cwd=public_ready_check.ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+    assert result.returncode != 0, result.stdout
+    assert "pyenv shim is not usable for the MVP gate" in result.stdout
+    assert "FDE MVP GATE CHECK" not in result.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows shim regression")
+def test_run_mvp_gate_requires_mvp_gate_output_even_when_python_exits_zero(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    (fake_bin / "py.cmd").write_text(
+        "@echo off\r\necho py launcher unavailable 1>&2\r\nexit /b 1\r\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python.cmd").write_text(
+        "\r\n".join(
+            [
+                "@echo off",
+                "if \"%~1\"==\"-c\" (",
+                "  echo {\"marker\":\"fde-mvp-gate-python-probe\",\"ok\":true,\"version\":[3,13,1],\"executable\":\"C:\\\\fake\\\\python.exe\"}",
+                "  exit /b 0",
+                ")",
+                "echo python shim returned without running the MVP gate",
+                "exit /b 0",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(public_ready_check.ROOT / "scripts" / "run_mvp_gate.ps1"),
+            "--skip-pytest",
+        ],
+        cwd=public_ready_check.ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+    assert result.returncode != 0, result.stdout
+    assert "MVP gate did not produce the expected gate output" in result.stdout
