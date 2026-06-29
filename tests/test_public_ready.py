@@ -8,7 +8,6 @@ from scripts import public_ready_check
 from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
 from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
-from scripts.linear_handoff_check import evaluate as evaluate_linear_handoff
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
@@ -27,12 +26,6 @@ def test_public_ready_check_passes_as_nested_mvp_check() -> None:
 def test_pre_publication_gate_check_passes() -> None:
     result = evaluate_pre_publication()
     assert result["overall"] == "ok", result["errors"]
-
-
-def test_linear_handoff_packet_is_ready_without_external_write() -> None:
-    result = evaluate_linear_handoff()
-    assert result["overall"] == "ok", result["errors"]
-    assert result["external_actions_performed"] is False
 
 
 def test_chinju_guidance_is_fde_specific_without_external_write() -> None:

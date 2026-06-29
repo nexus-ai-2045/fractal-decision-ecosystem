@@ -627,7 +627,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 16 0 R >>
 endobj
 16 0 obj
-<< /Length 2190 >>
+<< /Length 2335 >>
 stream
 BT
 /F1 10 Tf
@@ -699,7 +699,11 @@ T*
 T*
 (* [x] Add diagrams if possible.) Tj
 T*
-(* [ ] Export this document to PDF.) Tj
+(* [x] Export this document to PDF as) Tj
+T*
+(`patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf`.) Tj
+T*
+(* [x] Record packet integrity in `patent-packet/MANIFEST.sha256`.) Tj
 T*
 (* [x] Include generator excerpt or pseudocode if desired.) Tj
 T*
@@ -740,5 +744,5 @@ xref
 trailer
 << /Size 17 /Root 1 0 R >>
 startxref
-14172
+14317
 %%EOF

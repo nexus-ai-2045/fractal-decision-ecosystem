@@ -12,7 +12,6 @@
 - GitHub Actions validation
 - repository metadata と operating setting
 - private handle と personal path の確認
-- optional Linear handoff packet の local readiness
 - roadmap first iteration gate の local readiness
 - project-local Chinju guidance の local readiness
 
@@ -30,10 +29,6 @@ patent decision 残務: なし
 
 patent filing 実行残務: なし（optional / approval-gated）
 
-Linear handoff 実装残務: なし
-
-Linear issue 作成残務: なし（optional）
-
 現在の visibility: private
 
 ## 必須検証
@@ -41,7 +36,6 @@ Linear issue 作成残務: なし（optional）
 この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
-- `python scripts/linear_handoff_check.py`
 - `python scripts/roadmap_gate_check.py`
 - `python scripts/chinju_guidance_check.py`
 - `python -m compileall -q scripts tests`
@@ -58,8 +52,6 @@ Linear issue 作成残務: なし（optional）
 MVP gate 本体の出力 marker が確認できない場合も、wrapper 成功ではなく gate 未実行として失敗扱いにします。
 `scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
-`scripts/linear_handoff_check.py` は、Linear を使う場合の optional packet、manual fallback、
-post-creation evidence placeholder、TODO の境界文言を検証します。
 `scripts/roadmap_gate_check.py` は、`ROADMAP.md` の Now / Next / Future、
 lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 merge 境界を検証します。
 `scripts/chinju_guidance_check.py` は、`.chinju/` の local-first guidance、

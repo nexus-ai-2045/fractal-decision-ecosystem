@@ -18,7 +18,7 @@ FDE の local operation として次を採用する。
 - repo-local ADR は `decisions/` に保存する。
 - ADR filename は `ADR-NNNN-short-title.md` 形式にする。
 - 次の ADR 番号は `python scripts\adr_next.py` で確認する。
-- 外部 issue / card system は optional かつ approval-gated のままにする。local ADR の採用は、Linear、GitHub issue、PR、public release、visibility 変更、patent filing の承認を意味しない。
+- 外部 issue / card system は optional かつ approval-gated のままにする。local ADR の採用は、外部 tracker、PR、public release、visibility 変更、patent filing の承認を意味しない。
 
 ## Consequences / 影響
 

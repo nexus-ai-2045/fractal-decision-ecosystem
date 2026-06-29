@@ -299,7 +299,9 @@ Before filing, do not disclose:
 - [x] Confirm inventor decision: user-confirmed sole inventor.
 - [x] Confirm owner/assignee decision: user owner, no assignee.
 - [x] Add diagrams if possible.
-- [ ] Export this document to PDF.
+- [x] Export this document to PDF as
+  `patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf`.
+- [x] Record packet integrity in `patent-packet/MANIFEST.sha256`.
 - [x] Include generator excerpt or pseudocode if desired.
 - [x] Include public/private boundary.
 - [x] Decide filing route: self-file defensive provisional before public disclosure.

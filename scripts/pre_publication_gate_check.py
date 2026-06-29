@@ -71,6 +71,15 @@ REQUIRED_PATENT_DRAFT_TERMS = (
     "Figure 2: Containment and Completion Loop",
     "Figure 3: Public/Private Split",
     "Candidate Claim Concepts",
+    "Export this document to PDF as",
+    "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
+    "Record packet integrity in `patent-packet/MANIFEST.sha256`",
+)
+
+REQUIRED_TODO_PATENT_PACKET_TERMS = (
+    "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
+    "patent-packet/MANIFEST.sha256",
+    "already-exported private PDF patent packet",
 )
 
 REQUIRED_PUBLIC_READY_TERMS = (
@@ -168,6 +177,10 @@ def check_patent_packet(errors: list[str]) -> None:
     for term in REQUIRED_PATENT_DRAFT_TERMS:
         if term not in text:
             errors.append(f"PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md missing: {term}")
+    todo_text = read(ROOT / "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md")
+    for term in REQUIRED_TODO_PATENT_PACKET_TERMS:
+        if term not in todo_text:
+            errors.append(f"TODO_FDE_PUBLIC_KERNEL_RIGHTS.md missing: {term}")
     if "Patent Pending" in text and "unless an\napplication is actually filed" not in text:
         errors.append("Patent Pending wording is not guarded by filing requirement")
     errors.extend(
