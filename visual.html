@@ -38,7 +38,7 @@
     }
 
     .top {
-      min-height: 94vh;
+      min-height: 82vh;
       display: grid;
       grid-template-columns: minmax(0, 0.86fr) minmax(360px, 1.14fr);
       gap: 34px;
@@ -120,6 +120,37 @@
       margin: 12px 4px 0;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 1180px;
+      margin: -10px auto 0;
+      padding: 0 26px 18px;
+    }
+
+    .status-item {
+      min-height: 102px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .status-item b {
+      display: block;
+      color: var(--blue);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .status-item span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     main {
@@ -233,6 +264,7 @@
       margin-top: 8px;
       color: var(--muted);
       font-size: 14px;
+      overflow-wrap: anywhere;
     }
 
     .band {
@@ -304,6 +336,48 @@
       font-weight: 800;
     }
 
+    .review-path {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .review-card {
+      display: block;
+      min-height: 178px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .review-card b {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--white);
+      font-size: 13px;
+    }
+
+    .review-card strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 15px;
+    }
+
+    .review-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     .file-grid span {
       display: block;
       margin-top: 5px;
@@ -335,6 +409,8 @@
       .problem-grid,
       .parts-grid,
       .file-grid,
+      .review-path,
+      .status-strip,
       .flow {
         grid-template-columns: 1fr;
       }
@@ -360,6 +436,7 @@
       </p>
       <div class="actions">
         <a class="action primary" href="#flow">発火の流れを見る</a>
+        <a class="action" href="#review">レビュー導線を見る</a>
         <a class="action" href="README.md">README.mdを読む</a>
       </div>
     </div>
@@ -368,6 +445,13 @@
       <figcaption class="caption">README表紙画像: 個人の机で、AI相棒とFDEの道具箱を開く。</figcaption>
     </figure>
   </header>
+
+  <div class="status-strip" aria-label="現在のレビュー状態">
+    <div class="status-item"><b>Local only</b><span>private local MVP は完了。public approval ではありません。</span></div>
+    <div class="status-item"><b>Review</b><span>初見レビューは visual.html から始める。</span></div>
+    <div class="status-item"><b>Gate</b><span>MVP gate、roadmap gate、pre-publication gate で確認する。</span></div>
+    <div class="status-item"><b>Stop line</b><span>公開、外部送信、visibility変更は別承認まで止める。</span></div>
+  </div>
 
   <main>
     <section>
@@ -469,6 +553,20 @@
           <li>patent / public kernel gateを確認する</li>
           <li>対象repositoryを明示して人間レビューと承認を取る</li>
         </ul>
+      </div>
+    </section>
+
+    <section id="review">
+      <h2>レビュー導線</h2>
+      <p class="section-lead">
+        Product Design / Creative Production のレビューでは、見た目だけでなく「どこから読み、何を確認し、どこで止まるか」を見ます。
+      </p>
+      <div class="review-path" aria-label="FDEレビュー導線">
+        <a class="review-card" href="visual.html"><b>1</b><strong>visual.html</strong><span>初見で目的、発火順、停止線が分かるかを見る。</span></a>
+        <a class="review-card" href="README.md"><b>2</b><strong>README.md</strong><span>概念説明、主要file、配置ルールがつながっているかを見る。</span></a>
+        <a class="review-card" href="ROADMAP.md"><b>3</b><strong>ROADMAP.md</strong><span>goal、evidence、gate、owner、done_when が揃っているかを見る。</span></a>
+        <a class="review-card" href="OPERATIONAL_GUARANTEE.md"><b>4</b><strong>運用保証</strong><span>private local complete と public approval が分かれているかを見る。</span></a>
+        <a class="review-card" href="PUBLIC_KERNEL_PLAN.md"><b>5</b><strong>公開境界</strong><span>public-kernel、rights、patent、visibility が混ざっていないかを見る。</span></a>
       </div>
     </section>
 

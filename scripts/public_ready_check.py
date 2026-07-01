@@ -21,6 +21,7 @@ REQUIRED_FILES = (
     "OPERATIONAL_GUARANTEE.md",
     ".github/workflows/public-ready.yml",
     "ROADMAP.md",
+    "ai-contact-safety-contract.md",
     "mvp-axis-operating-card.md",
     "scripts/mvp_gate_check.py",
     "scripts/run_mvp_gate.ps1",
@@ -29,6 +30,8 @@ REQUIRED_FILES = (
     "scripts/adr_next.py",
     "decisions/README.md",
     "decisions/ADR-0001-development-card-adr-numbering.md",
+    "decisions/ADR-0002-product-creative-review-path.md",
+    "decisions/ADR-0003-ai-contact-safety-contract.md",
 )
 
 LOCAL_AI_WORKSPACE_PATHS = (
@@ -85,9 +88,12 @@ JAPANESE_REQUIRED_DOCS = (
     "OPERATIONAL_GUARANTEE.md",
     "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md",
     "ROADMAP.md",
+    "ai-contact-safety-contract.md",
     "mvp-axis-operating-card.md",
     "decisions/README.md",
     "decisions/ADR-0001-development-card-adr-numbering.md",
+    "decisions/ADR-0002-product-creative-review-path.md",
+    "decisions/ADR-0003-ai-contact-safety-contract.md",
     "PUBLIC_KERNEL_PLAN.md",
     "SECURITY.md",
     "public-kernel/README.md",

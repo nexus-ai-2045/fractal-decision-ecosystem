@@ -18,10 +18,10 @@
 | lane | goal | evidence | gate | owner | done_when |
 |---|---|---|---|---|---|
 | Core/Product | FDE の価値仮説と使い方を1つの入口へ束ねる | `README.md` / `operating-card.md` / `ROADMAP.md` | roadmap gate | Codex + human | 最初のPRで roadmap gate が通る |
-| UX/Product Design | 読む人が迷わず入口、境界、次アクションを見つけられるようにする | `README.md` / `visual.html` | human review | human | 目視で入口と境界が確認される |
+| UX/Product Design | 読む人が迷わず入口、境界、次アクションを見つけられるようにする | `README.md` / `visual.html` / `decisions/ADR-0002-product-creative-review-path.md` | human review | human | 目視で入口、レビュー導線、境界が確認される |
 | Security | 公開・secret・visibility・LLM security の停止線を維持する | `PUBLIC_READY.md` / `SECURITY.md` / scripts | pre-publication gate | Codex | local gate が external action false で通る |
 | AI/OpenAI Dev | AI実装を eval / smoke / preflight で閉じる | `tests/` / `scripts/` | pytest + mvp gate | Codex | pytest と MVP gate が通る |
-| Creative/Comms | 公開候補素材と説明素材を human review 前提に分ける | `assets/` / `PUBLIC_KERNEL_PLAN.md` | publication containment gate | human | 公開前の未承認境界が明記される |
+| Creative/Comms | 公開候補素材と説明素材を human review 前提に分ける | `assets/` / `PUBLIC_KERNEL_PLAN.md` / `decisions/ADR-0002-product-creative-review-path.md` | publication containment gate | human | 公開前の未承認境界とレビュー観点が明記される |
 | Operations | PR、review、merge の手順を外部影響ゲートつきで運用する | Git branch / PR / checks | human review before merge | Codex + human | PR作成後、merge前に人間確認が残る |
 
 ## Next
@@ -29,12 +29,15 @@
 - Local implementation residue: none.
 - Roadmap gate is already connected to `scripts/mvp_gate_check.py`.
 - Development card / ADR / auto-numbering adoption is recorded in `decisions/ADR-0001-development-card-adr-numbering.md`.
+- Product / Creative review path is recorded in `decisions/ADR-0002-product-creative-review-path.md`.
+- AI contact safety contract is recorded in `ai-contact-safety-contract.md` and `decisions/ADR-0003-ai-contact-safety-contract.md`.
 - Product Design / Security / Creative / OpenAI Dev の追加TDDサイクルは、次に明示された実装要求が出た場合だけ切る。
 - PR / merge / public release は、このロードマップでは承認しない。必要な場合は `smoke -> preflight -> diff review -> PR -> human review -> merge` の順序を別承認で記録する。
 
 ## Future
 
 - design system maturity、SAMM/SSDF maturity、eval-driven AI development、creative operations governance を lane 別の成熟度表へ落とす。
+- device app / OS service / avatar / voice / nearby AI contact の製品仕様は FDE 本体に入れず、必要なら別 product / life-commons-system 側へ分離する。
 - public kernel と private operating package の差分を、公開前チェックで機械確認できるようにする。
 - human review 後の merge receipt と post-merge verification を `OPERATIONAL_GUARANTEE.md` に反映する。
 

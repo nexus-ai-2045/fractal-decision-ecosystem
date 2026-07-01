@@ -65,6 +65,47 @@ def test_mvp_axis_operating_card_has_13_items_and_boundaries() -> None:
         assert term in text
 
 
+def test_product_creative_review_path_adr_is_connected() -> None:
+    text = (
+        public_ready_check.ROOT / "decisions" / "ADR-0002-product-creative-review-path.md"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Product / Creative review path",
+        "visual.html",
+        "ROADMAP.md",
+        "OPERATIONAL_GUARANTEE.md",
+        "PUBLIC_KERNEL_PLAN.md",
+        "publication、external sending、repository visibility changes",
+    ):
+        assert term in text
+
+
+def test_ai_contact_safety_contract_is_reviewable_without_external_action() -> None:
+    note = (public_ready_check.ROOT / "ai-contact-safety-contract.md").read_text(encoding="utf-8")
+    adr = (
+        public_ready_check.ROOT / "decisions" / "ADR-0003-ai-contact-safety-contract.md"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Contact Identity Contract",
+        "Data Boundary Contract",
+        "blocked",
+        "revocation",
+        "replay_protection",
+        "no_raw_source_pointer",
+        "transport adapter は未承認",
+    ):
+        assert term in note
+    for term in (
+        "AI contact safety contract",
+        "identity",
+        "consent",
+        "data boundary",
+        "自動 contact",
+        "public release",
+    ):
+        assert term in adr
+
+
 def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> None:
     packet = tmp_path / "patent-packet"
     packet.mkdir()
