@@ -24,6 +24,11 @@ FDE は、次の三層で作業を routing します。
 - Publication containment
 - Done verification closeout
 
+Scope routing には、作業を main runtime だけで閉じるか bounded delegate へ
+分けるかを判定する `Orchestration Probe` を含めます。これは public kernel
+の gate 数を増やすものではなく、size、risk、stopline、delegate plan を
+最初に分けるための補助 contract です。
+
 ## Rights Posture
 
 この public kernel は limited review のための source-available artifact です。
