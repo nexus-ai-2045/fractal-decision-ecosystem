@@ -29,6 +29,12 @@ Scope routing には、作業を main runtime だけで閉じるか bounded dele
 の gate 数を増やすものではなく、size、risk、stopline、delegate plan を
 最初に分けるための補助 contract です。
 
+非trivialな作業では、FDE は `Team Formation Gate` も使います。Team Creator
+は特定ツール名ではなく、必要な role、delegate plan、return contract、
+adoption gate、stopline owner を作る FDE 内 role です。delegate は evidence
+を返す補助であり、final decision と publication approval は main runtime が
+保持します。
+
 ## Rights Posture
 
 この public kernel は limited review のための source-available artifact です。

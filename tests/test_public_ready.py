@@ -11,6 +11,7 @@ from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
+from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap_gate
 
 
@@ -39,6 +40,91 @@ def test_roadmap_gate_has_first_iteration_contract_without_external_write() -> N
     assert result["overall"] == "ok", result["errors"]
     assert result["external_actions_performed"] is False
     assert result["first_iteration"]["status"] == "ready"
+
+
+def test_residual_zero_goal_check_passes_without_external_write() -> None:
+    result = evaluate_residual_zero_goal()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["goal"]["status"] == "ready"
+
+
+def test_residual_zero_goal_defines_three_pr_closeout() -> None:
+    text = (public_ready_check.ROOT / "RESIDUAL_ZERO_GOAL_2026-07-05.md").read_text(
+        encoding="utf-8"
+    )
+    for term in (
+        "implementation",
+        "operation",
+        "external/public",
+        "Blocker Ledger",
+        "Three-PR Plan",
+        "PR 1: Team Formation + Residual Zero Goal",
+        "PR 2: Contact Safety + Residual Operation Smoke",
+        "PR 3: Public Boundary Package + Operational Closeout",
+        "no_transport_contact_check.py",
+        "verify_residual_zero_contract.py",
+        "visual_html_smoke.py",
+        "public_kernel_diff_manifest.py",
+        "human_review_packet_check.py",
+        "external actions remain false",
+    ):
+        assert term in text
+
+
+def test_roadmap_implementation_plan_is_guarded_by_tests() -> None:
+    text = (public_ready_check.ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+    for term in (
+        "Implementation Orchestration",
+        "Implementation Roadmap",
+        "Sprint 0: Post-Merge Verification Receipt",
+        "Status: local complete",
+        "Sprint 1: Roadmap / Gate Drift Guard",
+        "Sprint 2: AI Contact Safety Contract Hardening",
+        "Sprint 2.5: Team Formation / Orchestration Gate",
+        "Status: next FDE-native implementation",
+        "Team Creator",
+        "team_plan",
+        "no_team_reason",
+        "return_contract",
+        "adoption_gate",
+        "Sprint 4: Public Kernel / Rights Diff Automation",
+        "Sprint 6: Human-Gated Publication / Filing Package",
+        "public release、visibility 変更、patent filing",
+    ):
+        assert term in text
+
+
+def test_operational_guarantee_records_post_merge_receipts_without_public_approval() -> None:
+    text = (public_ready_check.ROOT / "OPERATIONAL_GUARANTEE.md").read_text(encoding="utf-8")
+    for term in (
+        "Post-Merge Receipts",
+        "未実装ロードマップ",
+        "future scope",
+        "#7",
+        "af1af13e444c2dad0f9878e77d243ae98c469fb9",
+        "#8",
+        "a627c1683a2cd7b08cc29a31bacd4bae73d2e034",
+        "public release、repository visibility 変更、external sending、patent filing の承認ではありません",
+    ):
+        assert term in text
+
+
+def test_mvp_scope_review_records_smoke_preflight_and_scope_boundary() -> None:
+    text = (public_ready_check.ROOT / "MVP_SCOPE_REVIEW_2026-07-02.md").read_text(encoding="utf-8")
+    for term in (
+        "local smoke / preflight review complete",
+        "External actions: none",
+        "FDE MVP GATE CHECK OK",
+        "18 passed",
+        "entry -> packet -> evidence -> decision -> closure",
+        "Sprint 0 is locally complete",
+        "Sprint 1 is locally complete",
+        "Sprint 2 is the next FDE-native work",
+        "Device app, OS service, avatar, voice UI, Bluetooth, Wi-Fi, P2P, cloud relay",
+        "Publication remains approval-gated",
+    ):
+        assert term in text
 
 
 def test_adr_auto_numbering_uses_next_repo_local_number(tmp_path) -> None:
@@ -104,6 +190,36 @@ def test_ai_contact_safety_contract_is_reviewable_without_external_action() -> N
         "public release",
     ):
         assert term in adr
+
+
+def test_team_formation_orchestration_gate_is_reviewable_without_external_action() -> None:
+    roadmap = (public_ready_check.ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+    adr = (
+        public_ready_check.ROOT / "decisions" / "ADR-0004-team-formation-orchestration-gate.md"
+    ).read_text(encoding="utf-8")
+    public_gate = (public_ready_check.ROOT / "public-kernel" / "GATES.md").read_text(encoding="utf-8")
+
+    for term in (
+        "Team Formation / Orchestration",
+        "Team Creator",
+        "team_plan",
+        "no_team_reason",
+        "return_contract",
+        "adoption_gate",
+        "stopline_owner",
+    ):
+        assert term in roadmap
+        assert term in adr
+
+    for term in (
+        "Team Formation Gate",
+        "Team Creator",
+        "return_contract",
+        "adoption_gate",
+        "no_team_reason",
+        "final decision",
+    ):
+        assert term in public_gate
 
 
 def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> None:

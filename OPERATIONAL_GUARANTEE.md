@@ -23,6 +23,8 @@
 
 運用残務: なし
 
+未実装ロードマップ: あり。ただし future scope として `ROADMAP.md` に分離済みであり、現在の private repository package の実装残務ではない。
+
 public release 残務: 人間承認が必要
 
 patent decision 残務: なし
@@ -30,6 +32,21 @@ patent decision 残務: なし
 patent filing 実行残務: なし（optional / approval-gated）
 
 現在の visibility: private
+
+## Post-Merge Receipts
+
+この節は、merge 後の local/remote 同期と運用証跡を残すための receipt です。これは public release、repository visibility 変更、external sending、patent filing の承認ではありません。
+
+| PR | scope | state | merge commit | merged at |
+|---|---|---|---|---|
+| [#7](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/7) | ADR採番ワークフロー | MERGED | `af1af13e444c2dad0f9878e77d243ae98c469fb9` | 2026-06-22T20:18:37+09:00 |
+| [#8](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/8) | AI contact安全契約とレビュー導線 | MERGED | `a627c1683a2cd7b08cc29a31bacd4bae73d2e034` | 2026-07-02T06:07:22+09:00 |
+
+Post-merge local sync evidence:
+
+- `main...origin/main` に同期済み。
+- #8 の squash merge 後、local duplicate commit は rebase skip で remote main に合わせた。
+- `codex/unimplemented-roadmap-20260702` は future roadmap 作業ブランチであり、public action approval ではない。
 
 ## 必須検証
 

@@ -16,3 +16,4 @@ FDE の repo-local ADR 置き場。
 | [ADR-0001-development-card-adr-numbering.md](ADR-0001-development-card-adr-numbering.md) | 開発カード、ADR採番、local evidence の扱い | 実装判断と運用カード |
 | [ADR-0002-product-creative-review-path.md](ADR-0002-product-creative-review-path.md) | Product / Creative review path | 全体デザイン、視覚入口、公開境界 |
 | [ADR-0003-ai-contact-safety-contract.md](ADR-0003-ai-contact-safety-contract.md) | AI contact safety contract | AI同士のcontactをFDE packet / consent / evidence / closureへ戻す抽象契約 |
+| [ADR-0004-team-formation-orchestration-gate.md](ADR-0004-team-formation-orchestration-gate.md) | Team Formation / Orchestration Gate | 意思決定に必要なteam creator、delegate配役、return contract、adoption gate |

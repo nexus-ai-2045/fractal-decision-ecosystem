@@ -18,6 +18,7 @@
 | lane | goal | evidence | gate | owner | done_when |
 |---|---|---|---|---|---|
 | Core/Product | FDE の価値仮説と使い方を1つの入口へ束ねる | `README.md` / `operating-card.md` / `ROADMAP.md` | roadmap gate | Codex + human | 最初のPRで roadmap gate が通る |
+| Team Formation / Orchestration | 意思決定に必要な分岐、役割、回収形式、採否権限を先に設計する | `search-orchestration.md` / `operating-card.md` / `decisions/ADR-0004-team-formation-orchestration-gate.md` | team formation gate | Codex + delegated reviewers | 非trivial作業で team plan または no-team reason が残る |
 | UX/Product Design | 読む人が迷わず入口、境界、次アクションを見つけられるようにする | `README.md` / `visual.html` / `decisions/ADR-0002-product-creative-review-path.md` | human review | human | 目視で入口、レビュー導線、境界が確認される |
 | Security | 公開・secret・visibility・LLM security の停止線を維持する | `PUBLIC_READY.md` / `SECURITY.md` / scripts | pre-publication gate | Codex | local gate が external action false で通る |
 | AI/OpenAI Dev | AI実装を eval / smoke / preflight で閉じる | `tests/` / `scripts/` | pytest + mvp gate | Codex | pytest と MVP gate が通る |
@@ -31,6 +32,8 @@
 - Development card / ADR / auto-numbering adoption is recorded in `decisions/ADR-0001-development-card-adr-numbering.md`.
 - Product / Creative review path is recorded in `decisions/ADR-0002-product-creative-review-path.md`.
 - AI contact safety contract is recorded in `ai-contact-safety-contract.md` and `decisions/ADR-0003-ai-contact-safety-contract.md`.
+- Team formation / orchestration is recorded in `decisions/ADR-0004-team-formation-orchestration-gate.md`.
+- MVP smoke / preflight scope review is recorded in `MVP_SCOPE_REVIEW_2026-07-02.md`.
 - Product Design / Security / Creative / OpenAI Dev の追加TDDサイクルは、次に明示された実装要求が出た場合だけ切る。
 - PR / merge / public release は、このロードマップでは承認しない。必要な場合は `smoke -> preflight -> diff review -> PR -> human review -> merge` の順序を別承認で記録する。
 
@@ -40,6 +43,223 @@
 - device app / OS service / avatar / voice / nearby AI contact の製品仕様は FDE 本体に入れず、必要なら別 product / life-commons-system 側へ分離する。
 - public kernel と private operating package の差分を、公開前チェックで機械確認できるようにする。
 - human review 後の merge receipt と post-merge verification を `OPERATIONAL_GUARANTEE.md` に反映する。
+
+## Implementation Orchestration
+
+未実装予定は、次の lane を常時並走できる単位として扱う。ただし public release、repository visibility 変更、外部送信、patent filing、hook/settings/credential 変更は、この roadmap では実行しない。
+
+| lane | 目的 | 主な入力 | 主な出力 | 通常ゲート |
+|---|---|---|---|---|
+| Core FDE | entry -> packet -> evidence -> decision -> closure を壊さず拡張する | `README.md` / `operating-card.md` / `root-router.md` | routing contract、operating card更新 | roadmap gate、MVP gate |
+| Team Formation / Orchestration | 判断に必要な分岐、役割、実行順、回収条件を設計し、必要なら Team Creator として delegate を作る | `search-orchestration.md` / `operating-card.md` / `dependency-registry.md` | team_plan、delegate_plan、return_contract、adoption_gate、no_team_reason | team formation gate、roadmap gate |
+| Review UX | 初見レビューで入口、境界、次アクションを迷わせない | `visual.html` / ADR-0002 / `README.md` | review path、目視レビュー観点 | Product Design review、HTML smoke |
+| Safety / Security | 公開、secret、visibility、AI contact の停止線を維持する | `PUBLIC_READY.md` / `SECURITY.md` / ADR-0003 | gate、threat model、finding log | public-ready、pre-publication gate、codex-security scoped scan |
+| AI Contact Contract | 隣接productの接触構想をFDEの判断契約へ戻す | `ai-contact-safety-contract.md` / ADR-0003 | identity、consent、data boundary、closure checks | pytest、MVP gate、no-transport check |
+| Public Kernel / Rights | private operating package と public candidate を分ける | `PUBLIC_KERNEL_PLAN.md` / `TODO_FDE_PUBLIC_KERNEL_RIGHTS.md` / patent packet | diff manifest、review package | pre-publication gate、human review |
+| Operations | PR、merge、post-merge receipt を安全に閉じる | PR、checks、merge commit | merge receipt、local sync、residual report | readiness preflight、post-merge verification |
+
+推奨するオーケストレーション:
+
+- FDEの意思決定は、単独判断ではなく、必要な team formation を設計することまで含む。Team Creator は外部ツール名ではなく、`task -> roles -> delegates -> return contract -> adoption gate` を作るFDE内の役割として扱う。
+- まず `chat-orchestrator` で workstream を `implementation / verification / public-boundary` に分ける。
+- 非trivial作業、複数surface、設計比較、smoke/preflight、レビュー回収、分岐実装は、`team_plan` または `no_team_reason` を残す。
+- 変更が FDE routing、ADR、source pointer、保証語彙に触れる場合は、FDE skill と roadmap gate を先に使う。
+- security、secret、public kernel、AI contact、publication boundary に触れる場合は `codex-security` または threat-model 観点を併用する。
+- visual、review path、creative explanation に触れる場合は Product Design / Creative Production 観点を使う。ただし asset や説明素材は private draft として止める。
+- OpenAI API、agent、eval へ進む場合は、公式docs確認、key管理、adversarial smoke、no-external-action gate を先に置く。
+
+## Implementation Roadmap
+
+ここから先は、ここまで出てきた未実装予定を実行順へ並べ直したもの。完了と言える範囲は、常に private repo 内の local guarantee に限定する。
+
+### Sprint 0: Post-Merge Verification Receipt
+
+Status: local complete
+
+目的:
+
+merge 済み変更を、local main、remote main、PR receipt、gate evidence で再確認できる状態にする。
+
+実装:
+
+- #7 / #8 などの merge receipt を `OPERATIONAL_GUARANTEE.md` または closeout note に残す。
+- local main と origin/main の同期状態を確認する。
+- `visual.html`、ADR、README、ROADMAP のリンクが post-merge 後も壊れていないことを確認する。
+
+スモーク:
+
+- `git status --short --branch`
+- `git log -1 --oneline`
+- `python -m pytest -q`
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
+
+停止ライン:
+
+- local main と origin/main が説明不能に diverge している。
+- merge receipt が取れない。
+
+### Sprint 1: Roadmap / Gate Drift Guard
+
+Status: local complete
+
+目的:
+
+未実装ロードマップが prose-only で drift しないように、roadmap gate と tests で最低限の用語を見張る。
+
+実装:
+
+- `scripts/roadmap_gate_check.py` に Implementation Orchestration / Implementation Roadmap の必須語を追加する。
+- Future の候補が FDE本体実装か、隣接product側の実装かを明記する。
+- `tests/test_public_ready.py` の roadmap gate test で落ちるようにする。
+
+スモーク:
+
+- `python scripts\roadmap_gate_check.py --json`
+- `python -m pytest -q`
+- MVP gate
+
+停止ライン:
+
+- Roadmap が public release、visibility 変更、patent filing の承認に読める。
+
+### Sprint 2: AI Contact Safety Contract Hardening
+
+Status: next FDE-native implementation
+
+目的:
+
+AI同士の contact を、transport 実装ではなく `identity / consent / data boundary / evidence / closure` の判断契約として強化する。
+
+実装:
+
+- `ai-contact-safety-contract.md` に contact packet schema の候補を追加する。
+- `blocked` 条件、revocation、replay protection、TTL、checksum、human approval をテストで見る。
+- transport adapter を未承認のままにする check を追加する。
+
+スモーク:
+
+- contract text check
+- pytest
+- MVP gate
+
+停止ライン:
+
+- Wi-Fi、Bluetooth、P2P、cloud relay、external AI send を実装しようとする。
+
+### Sprint 2.5: Team Formation / Orchestration Gate
+
+Status: next FDE-native implementation
+
+目的:
+
+FDEの意思決定に、必要な分岐設計、team creator、delegate配役、回収契約、採否ゲートを含める。FDEは「決めるだけ」ではなく、決めるための最小チームを設計し、結果を本線へ戻す。
+
+実装:
+
+- `team_plan` の最小項目を `task / roles / delegate_plan / return_contract / adoption_gate / stopline_owner` として固定する。
+- `no_team_reason` を許可するが、tiny作業、tool不在、停止線、overhead過多など理由を必須にする。
+- delegate は証拠、diff、smoke結果、blockerを返す補助であり、final decision、publication approval、credential/auth/settings/destructive operation は本線が保持する。
+- `Team Creator` は、役割生成と回収形式を作るFDE内 role として扱い、特定外部ツール名には固定しない。
+
+スモーク:
+
+- roadmap gate
+- pytest
+- MVP gate
+
+停止ライン:
+
+- delegate に final decision、公開承認、secret/auth/settings/destructive operation を渡す。
+- team を作ったのに return contract、採否条件、stopline owner がない。
+
+### Sprint 3: Review UX / Visual Smoke
+
+目的:
+
+初見レビューで「何を見るか」「何が未承認か」「次に何を判断するか」が分かる状態をさらに強くする。
+
+実装:
+
+- `visual.html` のレビュー導線を、MVP gate、public kernel、AI contact contract、stop line の4観点で整理する。
+- HTMLリンクスモークを追加する。
+- 必要ならスクリーンショット/visual QAを private artifact として残す。
+
+スモーク:
+
+- link existence check
+- HTML content smoke
+- Product Design review checklist
+
+停止ライン:
+
+- visual が public approval や launch material に見える。
+
+### Sprint 4: Public Kernel / Rights Diff Automation
+
+目的:
+
+private operating package と public candidate の差分を、公開前に機械確認できるようにする。
+
+実装:
+
+- `public-kernel/` と private root の差分 manifest を生成する。
+- patent packet、rights notice、PUBLIC_READY、SECURITY、license boundary を同じ pre-publication gate で確認する。
+- public package に入れてはいけない source pointer / personal path / secret pattern を検査する。
+
+スモーク:
+
+- `python scripts\pre_publication_gate_check.py --json`
+- `python scripts\public_ready_check.py`
+- secret / personal path scan
+
+停止ライン:
+
+- public kernel が private operating package と同一視される。
+- repository visibility 変更を同時に実行しようとする。
+
+### Sprint 5: Eval-Driven FDE Operations
+
+目的:
+
+FDEの判断ルートが、会話の揺れや曖昧な依頼でも発火することを評価できるようにする。
+
+実装:
+
+- `publication`, `review`, `merge`, `AI contact`, `source pointer`, `residual-zero` などの会話fixtureを作る。
+- expected route、required gate、stop line、final closeout の評価を作る。
+- OpenAI API等を使う場合は key管理と no-external-action を先に固定する。
+
+スモーク:
+
+- fixture dry run
+- route expectation check
+- no-public-action check
+
+停止ライン:
+
+- eval が外部送信、credential保存、public-facing write を必要とする。
+
+### Sprint 6: Human-Gated Publication / Filing Package
+
+目的:
+
+公開、GitHub public 化、patent filing など外部影響のある作業を、実行前レビュー可能な package として整える。
+
+実装:
+
+- README、license、SECURITY、PUBLIC_READY、rights notice、secret scan、personal path scan の証跡を束ねる。
+- patent filing を行う場合の packet hash、receipt、application number の保存先を決める。
+- 実行コマンド、対象repo、visibleになる内容、未review項目を事前に列挙する。
+
+スモーク:
+
+- pre-publication gate
+- readiness preflight
+- human review checklist
+
+停止ライン:
+
+- 明示GOなしに public release、visibility 変更、patent filing、announcement を実行しようとする。
 
 ## Stop Lines
 

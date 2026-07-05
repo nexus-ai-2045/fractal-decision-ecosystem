@@ -19,6 +19,7 @@ from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publicat
 from scripts.public_ready_check import main as public_ready_main
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
+from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 
 
 REQUIRED_STATUS_TERMS = (
@@ -38,14 +39,17 @@ REQUIRED_TRACKED_FILES = (
     "scripts/public_ready_check.py",
     "scripts/roadmap_gate_check.py",
     "scripts/chinju_guidance_check.py",
+    "scripts/residual_zero_goal_check.py",
     "scripts/adr_next.py",
     "ROADMAP.md",
+    "RESIDUAL_ZERO_GOAL_2026-07-05.md",
     "ai-contact-safety-contract.md",
     "mvp-axis-operating-card.md",
     "decisions/README.md",
     "decisions/ADR-0001-development-card-adr-numbering.md",
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
+    "decisions/ADR-0004-team-formation-orchestration-gate.md",
     "tests/test_public_ready.py",
     ".chinju/manifest.json",
     ".chinju/policy.json",
@@ -95,6 +99,16 @@ def _run_chinju_guidance() -> dict[str, object]:
     return {
         "name": "chinju_guidance_check",
         "ok": result["overall"] == "ok",
+        "result": result,
+    }
+
+
+def _run_residual_zero_goal() -> dict[str, object]:
+    result = evaluate_residual_zero_goal()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "residual_zero_goal_check",
+        "ok": ok,
         "result": result,
     }
 
@@ -163,6 +177,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_pre_publication(),
         _run_roadmap(),
         _run_chinju_guidance(),
+        _run_residual_zero_goal(),
         _check_mvp_status_file(),
         _check_required_files_tracked(),
     ]
