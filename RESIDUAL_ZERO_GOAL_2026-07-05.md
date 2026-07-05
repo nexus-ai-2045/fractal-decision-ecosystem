@@ -25,16 +25,25 @@ FDE repository の残務ゼロは、次の3層を混ぜずに達成します。
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` -> `FDE MVP GATE CHECK OK`
 - `python scripts\pre_publication_gate_check.py --json` -> `overall: ok`
 - `python scripts\public_ready_check.py` -> `PUBLIC READY CHECK PASSED`
-- PR #10 `FDEにTeam Formation Orchestration Gateを追加` -> open、CI `public-ready` pass
+- PR #10 `FDEにTeam Formationと残務ゼロゴールを追加` -> merged、CI `public-ready` pass
+- PR #11 `AI contact安全契約と残務ゼロsmokeを強化` -> merged、CI `public-ready` pass
+- PR #12 `公開境界レビューpacketと差分checkを追加` -> merged、CI `public-ready` pass
+
+2026-07-06 post-merge 実測:
+
+- local `main` and `origin/main` point to `0658300873d83bc8b7e11f588ed65d6224a1b69d`
+- `python -m pytest -q` -> 27 passed
+- `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1` -> `FDE MVP GATE CHECK OK`
+- GitHub Actions `Public Ready` for `0658300873d83bc8b7e11f588ed65d6224a1b69d` -> success
+- open PR count -> 0
+- repository visibility -> PRIVATE
 
 ## Blocker Ledger
 
 | blocker | kind | owner | unblock condition |
 |---|---|---|---|
-| PR #10 is not merged | repo integration | human + Codex | human review、merge approval、post-merge verification |
-| AI contact schema hardening is not implemented | FDE implementation | Codex | no-transport contact check、schema examples、tests、MVP gate |
-| residual-zero / visual smoke is not implemented | FDE operation | Codex | `verify_residual_zero_contract.py`、`visual_html_smoke.py`、tests、MVP gate |
-| public kernel diff / human publication packet is not implemented | FDE public-boundary package | Codex | `public_kernel_diff_manifest.py`、`human_review_packet_check.py`、pre-publication gate |
+| local implementation blockers | FDE implementation | Codex | resolved by PR #10 / #11 / #12 and post-merge gates |
+| local operation blockers | FDE operation | Codex | resolved by post-merge receipt、pytest、MVP gate、GitHub Actions |
 | public release / repository visibility / patent filing | external approval | human | exact current-conversation approval for the exact target and operation |
 | ignored `.chinju/sessions/` can be included by manual zip/upload | package hygiene | Codex + human | keep ignored path outside repo package、document manual-package warning、public-ready check remains green |
 
@@ -42,7 +51,7 @@ FDE repository の残務ゼロは、次の3層を混ぜずに達成します。
 
 ### PR 1: Team Formation + Residual Zero Goal
 
-Status: in progress as PR #10.
+Status: merged as PR #10.
 
 Scope:
 
@@ -58,11 +67,13 @@ Pre-review:
 
 Done when:
 
-- PR #10 の CI が pass する。
-- local MVP gate が pass する。
-- human review 後に merge され、post-merge receipt が残る。
+- PR #10 の CI が pass する。Done.
+- local MVP gate が pass する。Done.
+- human review 後に merge され、post-merge receipt が残る。Done.
 
 ### PR 2: Contact Safety + Residual Operation Smoke
+
+Status: merged as PR #11.
 
 Scope:
 
@@ -79,10 +90,12 @@ Pre-review:
 
 Done when:
 
-- pytest、new smoke checks、MVP gate が pass する。
-- external actions remain false。
+- pytest、new smoke checks、MVP gate が pass する。Done.
+- external actions remain false。Done.
 
 ### PR 3: Public Boundary Package + Operational Closeout
+
+Status: merged as PR #12 plus post-merge receipt commit.
 
 Scope:
 
@@ -99,10 +112,10 @@ Pre-review:
 
 Done when:
 
-- pre-publication gate、public-ready check、pytest、MVP gate が pass する。
-- post-merge verification receipt が残る。
-- local implementation residue and local operation residue are zero。
-- external/public actions remain approval-gated and unperformed。
+- pre-publication gate、public-ready check、pytest、MVP gate が pass する。Done.
+- post-merge verification receipt が残る。Done.
+- local implementation residue and local operation residue are zero。Done.
+- external/public actions remain approval-gated and unperformed。Done.
 
 ## Close Condition
 
