@@ -41,12 +41,16 @@ patent filing 実行残務: なし（optional / approval-gated）
 |---|---|---|---|---|
 | [#7](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/7) | ADR採番ワークフロー | MERGED | `af1af13e444c2dad0f9878e77d243ae98c469fb9` | 2026-06-22T20:18:37+09:00 |
 | [#8](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/8) | AI contact安全契約とレビュー導線 | MERGED | `a627c1683a2cd7b08cc29a31bacd4bae73d2e034` | 2026-07-02T06:07:22+09:00 |
+| [#10](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/10) | Team Formation と残務ゼロゴール | MERGED | `57b0146c46d47be6eb6c8793df3f825fad875a11` | 2026-07-06T00:12:21+09:00 |
+| [#11](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/11) | AI contact安全契約と残務ゼロsmoke | MERGED | `075939b32de6ab5de6086adf810c919f57c2120b` | 2026-07-06T00:14:15+09:00 |
+| [#12](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/12) | 公開境界レビューpacketと差分check | MERGED | `c8404c9c0a44bbac8047ce676f260970e15dbdc2` | 2026-07-06T00:15:47+09:00 |
 
 Post-merge local sync evidence:
 
 - `main...origin/main` に同期済み。
 - #8 の squash merge 後、local duplicate commit は rebase skip で remote main に合わせた。
-- `codex/unimplemented-roadmap-20260702` は future roadmap 作業ブランチであり、public action approval ではない。
+- #10 / #11 / #12 は stacked PR として review 後に squash merge し、#11 / #12 は `main` へ retarget して GitHub Actions `public-ready` pass 後に merge した。
+- #10 / #11 / #12 の merge は private repository main への反映であり、public action approval ではない。
 
 ## 必須検証
 
