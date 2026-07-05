@@ -20,6 +20,9 @@ from scripts.public_ready_check import main as public_ready_main
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
+from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
+from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
+from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
 
 
 REQUIRED_STATUS_TERMS = (
@@ -40,6 +43,9 @@ REQUIRED_TRACKED_FILES = (
     "scripts/roadmap_gate_check.py",
     "scripts/chinju_guidance_check.py",
     "scripts/residual_zero_goal_check.py",
+    "scripts/no_transport_contact_check.py",
+    "scripts/verify_residual_zero_contract.py",
+    "scripts/visual_html_smoke.py",
     "scripts/adr_next.py",
     "ROADMAP.md",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
@@ -113,6 +119,36 @@ def _run_residual_zero_goal() -> dict[str, object]:
     }
 
 
+def _run_no_transport_contact() -> dict[str, object]:
+    result = evaluate_no_transport_contact()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "no_transport_contact_check",
+        "ok": ok,
+        "result": result,
+    }
+
+
+def _run_residual_zero_contract() -> dict[str, object]:
+    result = evaluate_residual_zero_contract()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "verify_residual_zero_contract",
+        "ok": ok,
+        "result": result,
+    }
+
+
+def _run_visual_html_smoke() -> dict[str, object]:
+    result = evaluate_visual_html_smoke()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "visual_html_smoke",
+        "ok": ok,
+        "result": result,
+    }
+
+
 def _run_pytest() -> dict[str, object]:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q"],
@@ -178,6 +214,9 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_roadmap(),
         _run_chinju_guidance(),
         _run_residual_zero_goal(),
+        _run_no_transport_contact(),
+        _run_residual_zero_contract(),
+        _run_visual_html_smoke(),
         _check_mvp_status_file(),
         _check_required_files_tracked(),
     ]

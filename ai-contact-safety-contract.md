@@ -50,6 +50,47 @@ contact に渡す data は、便利な文脈束ではなく、最小化された
 | `human_approved_at` | 人間確認が必要なpayloadの承認時刻 |
 | `no_raw_source_pointer` | private source pointer を丸ごと送らない条件 |
 
+## Contact Packet Schema Candidate
+
+FDE で扱う contact packet は、transport 実装ではなく reviewable な判断入力です。
+この schema candidate は、実際に送る payload ではなく、事前レビューで不足を見つけるための最小形です。
+
+```text
+contact_packet:
+  packet_id:
+  actor:
+  peer:
+  purpose:
+  identity:
+    verification_method:
+    verification_evidence:
+  consent:
+    consent_scope:
+    expiry:
+    revocation:
+  data_boundary:
+    sensitivity:
+    recipient_class:
+    allowed_fields:
+    redaction_required:
+    ttl:
+    checksum:
+    human_approved_at:
+    no_raw_source_pointer:
+  safety:
+    blocklist:
+    replay_protection:
+    transport_adapter_status: unapproved
+  closure:
+    decision:
+    next_contact_allowed:
+    evidence_pointer:
+```
+
+`packet_id`、`verification_method`、`consent_scope`、`ttl`、`checksum`、
+`human_approved_at`、`replay_protection`、`transport_adapter_status` が未設定なら、
+contact は `blocked` とします。
+
 ## Transport Boundary
 
 FDE は transport を実装しません。transport adapter は未承認であり、identity / consent / data boundary が通るまで採用しません。

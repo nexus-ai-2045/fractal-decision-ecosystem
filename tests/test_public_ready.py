@@ -11,8 +11,11 @@ from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
+from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap_gate
+from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
+from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
 
 
 def test_mvp_gate_is_the_top_level_gate_without_recursive_pytest() -> None:
@@ -70,6 +73,27 @@ def test_residual_zero_goal_defines_three_pr_closeout() -> None:
         "external actions remain false",
     ):
         assert term in text
+
+
+def test_no_transport_contact_check_passes_without_external_write() -> None:
+    result = evaluate_no_transport_contact()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["transport_adapter_approved"] is False
+
+
+def test_residual_zero_contract_check_passes_without_external_write() -> None:
+    result = evaluate_residual_zero_contract()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["residual_zero_scope"] == "private local implementation and operation only"
+
+
+def test_visual_html_smoke_passes_without_external_write() -> None:
+    result = evaluate_visual_html_smoke()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["href_count"] > 0
 
 
 def test_roadmap_implementation_plan_is_guarded_by_tests() -> None:
@@ -174,9 +198,12 @@ def test_ai_contact_safety_contract_is_reviewable_without_external_action() -> N
     for term in (
         "Contact Identity Contract",
         "Data Boundary Contract",
+        "Contact Packet Schema Candidate",
+        "contact_packet:",
         "blocked",
         "revocation",
         "replay_protection",
+        "transport_adapter_status: unapproved",
         "no_raw_source_pointer",
         "transport adapter は未承認",
     ):
