@@ -53,6 +53,8 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - [x] `python scripts\public_ready_check.py`
 - [x] `python -m pytest -q`
 - [x] `python scripts\pre_publication_gate_check.py --json`
+- [x] `python scripts\public_kernel_diff_manifest.py --check`
+- [x] `python scripts\human_review_packet_check.py --json`
 - [x] `public-kernel/` に local paths / private source pointers / secrets / absorbed dialogues / private workflow details がないことを確認する
 - [x] `PUBLIC_READY.md` が current rights posture / patent gate / public-kernel gate に合っている
 - [x] External issue tracker is not required before `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
@@ -67,6 +69,7 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 
 ## Current Local Evidence
 
+- `PUBLICATION_REVIEW_PACKET.md`: human review packet; public action approval ではない
 - `PUBLIC_KERNEL_PLAN.md`: public-kernel boundary
 - `DEFENSIVE_PATENT_REVIEW.md`: defensive patent context
 - `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md`: provisional patent disclosure draft
@@ -74,6 +77,8 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - `public-kernel/`: sanitized public-kernel candidate
 - `patent-packet/`: already-exported private PDF patent packet and SHA256 manifest
 - `scripts/pre_publication_gate_check.py`: pre-publication gate
+- `scripts/public_kernel_diff_manifest.py`: public-kernel diff manifest check
+- `scripts/human_review_packet_check.py`: publication review packet check
 - `scripts/run_mvp_gate.ps1`: Windows local supported MVP gate entrypoint
 - `scripts/mvp_gate_check.py`: private local MVP gate implementation
 - `MVP_STATUS.md`: MVP status and next milestone

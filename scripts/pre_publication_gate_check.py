@@ -11,7 +11,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 PUBLIC_KERNEL = ROOT / "public-kernel"
+
+from scripts.human_review_packet_check import evaluate as evaluate_human_review_packet
+from scripts.public_kernel_diff_manifest import evaluate as evaluate_public_kernel_diff
 
 REQUIRED_ROOT_FILES = (
     "LICENSE",
@@ -21,6 +26,7 @@ REQUIRED_ROOT_FILES = (
     "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
     "INVENTION_RECORD.md",
     "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md",
+    "PUBLICATION_REVIEW_PACKET.md",
     "patent-packet/README.md",
     "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
     "patent-packet/MANIFEST.sha256",
@@ -260,6 +266,12 @@ def evaluate() -> dict[str, object]:
         check_public_kernel(errors)
         check_public_ready(errors)
         check_invention_record(errors)
+        public_kernel_diff = evaluate_public_kernel_diff()
+        human_review_packet = evaluate_human_review_packet()
+        if public_kernel_diff["overall"] != "ok":
+            errors.extend(str(error) for error in public_kernel_diff["errors"])
+        if human_review_packet["overall"] != "ok":
+            errors.extend(str(error) for error in human_review_packet["errors"])
     return {
         "overall": "ok" if not errors else "error",
         "error": len(errors),

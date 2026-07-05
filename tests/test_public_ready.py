@@ -11,7 +11,9 @@ from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
+from scripts.human_review_packet_check import evaluate as evaluate_human_review_packet
 from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
+from scripts.public_kernel_diff_manifest import evaluate as evaluate_public_kernel_diff
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap_gate
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
@@ -96,6 +98,21 @@ def test_visual_html_smoke_passes_without_external_write() -> None:
     assert result["href_count"] > 0
 
 
+def test_public_kernel_diff_manifest_passes_without_public_action() -> None:
+    result = evaluate_public_kernel_diff()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["manifest"]["status"] == "local_public_kernel_diff_manifest"
+    assert result["manifest"]["files"]
+
+
+def test_human_review_packet_check_passes_without_public_action() -> None:
+    result = evaluate_human_review_packet()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["approved_operation_now"] == "none"
+
+
 def test_roadmap_implementation_plan_is_guarded_by_tests() -> None:
     text = (public_ready_check.ROOT / "ROADMAP.md").read_text(encoding="utf-8")
     for term in (
@@ -130,6 +147,23 @@ def test_operational_guarantee_records_post_merge_receipts_without_public_approv
         "#8",
         "a627c1683a2cd7b08cc29a31bacd4bae73d2e034",
         "public release、repository visibility 変更、external sending、patent filing の承認ではありません",
+        "scripts/public_kernel_diff_manifest.py",
+        "scripts/human_review_packet_check.py",
+    ):
+        assert term in text
+
+
+def test_publication_review_packet_is_not_public_approval() -> None:
+    text = (public_ready_check.ROOT / "PUBLICATION_REVIEW_PACKET.md").read_text(encoding="utf-8")
+    for term in (
+        "Status: review packet only / no public action approved",
+        "Repository: `nexus-ai-2045/fractal-decision-ecosystem`",
+        "Current visibility: private",
+        "Approved operation now: none",
+        "External actions performed by this packet: false",
+        "gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public",
+        "Do not make the repository public from this packet",
+        "Do not treat local gate success as publication approval",
     ):
         assert term in text
 

@@ -23,6 +23,8 @@ from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_
 from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
 from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
+from scripts.public_kernel_diff_manifest import evaluate as evaluate_public_kernel_diff
+from scripts.human_review_packet_check import evaluate as evaluate_human_review_packet
 
 
 REQUIRED_STATUS_TERMS = (
@@ -46,9 +48,12 @@ REQUIRED_TRACKED_FILES = (
     "scripts/no_transport_contact_check.py",
     "scripts/verify_residual_zero_contract.py",
     "scripts/visual_html_smoke.py",
+    "scripts/public_kernel_diff_manifest.py",
+    "scripts/human_review_packet_check.py",
     "scripts/adr_next.py",
     "ROADMAP.md",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
+    "PUBLICATION_REVIEW_PACKET.md",
     "ai-contact-safety-contract.md",
     "mvp-axis-operating-card.md",
     "decisions/README.md",
@@ -149,6 +154,26 @@ def _run_visual_html_smoke() -> dict[str, object]:
     }
 
 
+def _run_public_kernel_diff() -> dict[str, object]:
+    result = evaluate_public_kernel_diff()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "public_kernel_diff_manifest",
+        "ok": ok,
+        "result": result,
+    }
+
+
+def _run_human_review_packet() -> dict[str, object]:
+    result = evaluate_human_review_packet()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "human_review_packet_check",
+        "ok": ok,
+        "result": result,
+    }
+
+
 def _run_pytest() -> dict[str, object]:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q"],
@@ -217,6 +242,8 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_no_transport_contact(),
         _run_residual_zero_contract(),
         _run_visual_html_smoke(),
+        _run_public_kernel_diff(),
+        _run_human_review_packet(),
         _check_mvp_status_file(),
         _check_required_files_tracked(),
     ]
