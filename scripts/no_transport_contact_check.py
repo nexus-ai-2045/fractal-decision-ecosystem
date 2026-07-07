@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "ai-contact-safety-contract.md"
 
 REQUIRED_CONTRACT_TERMS = (
-    "Contact Packet Schema Candidate",
+    "contact packet schema 候補",
     "contact_packet:",
     "packet_id:",
     "verification_method:",

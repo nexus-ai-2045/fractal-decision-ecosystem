@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the human publication review packet without performing public actions."""
+"""人間向け公開レビューpacketを、public actionなしで検証する。"""
 
 from __future__ import annotations
 
@@ -12,25 +12,25 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET = ROOT / "PUBLICATION_REVIEW_PACKET.md"
 
 REQUIRED_TERMS = (
-    "Status: review packet only / no public action approved",
+    "状態: review packet のみ / public action 承認なし",
     "Repository: `nexus-ai-2045/fractal-decision-ecosystem`",
-    "Current visibility: private",
-    "Approved operation now: none",
-    "External actions performed by this packet: false",
+    "現在の visibility: private",
+    "現時点で承認された操作: なし",
+    "この packet による external action 実行: false",
     "gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public",
-    "target repository in `owner/name` form",
+    "target repository を `owner/name` form で確認する",
     "exact operation / command",
-    "visible content summary",
-    "README review",
-    "LICENSE review",
-    "SECURITY.md review",
-    "PUBLIC_READY.md review",
+    "web上で visible になる内容を要約する",
+    "README をレビューする",
+    "LICENSE をレビューする",
+    "SECURITY.md をレビューする",
+    "PUBLIC_READY.md をレビューする",
     "personal path scan",
     "secret scan",
     "public-kernel diff manifest",
     "Patent Pending",
-    "Do not make the repository public from this packet",
-    "Do not treat local gate success as publication approval",
+    "この packet から repository public 化を実行しない",
+    "local gate success を publication approval として扱わない",
 )
 
 

@@ -31,7 +31,7 @@ private repository の主検証は `pwsh -NoProfile -ExecutionPolicy Bypass -Fil
 人間 review と repository visibility approval は実装残務ではなく、必須の publication gate です。
 `nexus-ai-2045/fractal-decision-ecosystem` についてこの gate が明示完了するまで、repository は private のまま維持します。
 
-## Patent / Publication Blockers
+## 特許 / 公開ブロッカー
 
 - patent / filing 方針は意図的に broad に保つ。local operation の必須残務にはしない。
 - inventor / owner / assignee decision は記録済み。

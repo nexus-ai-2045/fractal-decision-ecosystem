@@ -11,26 +11,4 @@ build/
 .env.*
 !.env.example
 
-# chinju generated artifacts:start
-.chinju/settings.json
-.chinju/sessions/
-.chinju/jobs/
-.chinju/specs/
-.chinju/tui/
-.chinju/reports/
-.chinju/memory/
-.chinju/tmp/
-.chinju/usage/
-.chinju/triage/
-.chinju/layout-audit/
-!.chinju/
-!.chinju/manifest.json
-!.chinju/README.md
-!.chinju/agent-guidance.md
-!.chinju/project.md
-!.chinju/workflow.md
-!.chinju/quality-gates.md
-!.chinju/policy.json
-!.chinju/knowledge/
-!.chinju/knowledge/*.md
-# chinju generated artifacts:end
+.chinju/

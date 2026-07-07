@@ -45,7 +45,6 @@ FDE repository の残務ゼロは、次の3層を混ぜずに達成します。
 | local implementation blockers | FDE implementation | Codex | resolved by PR #10 / #11 / #12 and post-merge gates |
 | local operation blockers | FDE operation | Codex | resolved by post-merge receipt、pytest、MVP gate、GitHub Actions |
 | public release / repository visibility / patent filing | external approval | human | exact current-conversation approval for the exact target and operation |
-| ignored `.chinju/sessions/` can be included by manual zip/upload | package hygiene | Codex + human | keep ignored path outside repo package、document manual-package warning、public-ready check remains green |
 
 ## Three-PR Plan
 

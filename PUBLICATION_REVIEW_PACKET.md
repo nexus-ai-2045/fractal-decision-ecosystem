@@ -1,20 +1,20 @@
-# FDE Publication Review Packet
+# FDE 公開レビューpacket
 
-Status: review packet only / no public action approved
-Date: 2026-07-05
+状態: review packet のみ / public action 承認なし
+日付: 2026-07-05
 
 この packet は、将来 public release、repository visibility 変更、external send、
 patent filing を検討する時の人間レビュー用 checklist です。
 この file 自体は、それらの action を承認しません。
 
-## Target
+## 対象
 
 - Repository: `nexus-ai-2045/fractal-decision-ecosystem`
-- Current visibility: private
-- Approved operation now: none
-- External actions performed by this packet: false
+- 現在の visibility: private
+- 現時点で承認された操作: なし
+- この packet による external action 実行: false
 
-## If Repository Visibility Changes
+## Repository Visibility を変更する場合
 
 GitHub repository を public に変更すると、少なくとも次が web 上で visible になります。
 
@@ -31,23 +31,23 @@ Visibility change は、次の exact operation が現在の会話で明示承認
 gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public
 ```
 
-## Required Human Review Before Any Public Action
+## Public Action 前に必須の人間レビュー
 
-- target repository in `owner/name` form
-- exact operation / command
-- visible content summary
-- README review
-- LICENSE review
-- SECURITY.md review
-- PUBLIC_READY.md review
-- personal path scan
-- secret scan
-- public-kernel diff manifest
-- patent / rights wording review
-- confirmation that `Patent Pending` is not used before actual filing
-- confirmation that private source pointers and machine-local procedures are not included in public candidate
+- target repository を `owner/name` form で確認する
+- exact operation / command を確認する
+- web上で visible になる内容を要約する
+- README をレビューする
+- LICENSE をレビューする
+- SECURITY.md をレビューする
+- PUBLIC_READY.md をレビューする
+- personal path scan を確認する
+- secret scan を確認する
+- public-kernel diff manifest を確認する
+- patent / rights wording をレビューする
+- `Patent Pending` が実際の filing 前に使われていないことを確認する
+- private source pointers と machine-local procedures が public candidate に含まれないことを確認する
 
-## Local Evidence Bundle
+## ローカル証跡bundle
 
 - `PUBLIC_READY.md`
 - `SECURITY.md`
@@ -61,10 +61,10 @@ gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public
 - `scripts/public_kernel_diff_manifest.py`
 - `scripts/human_review_packet_check.py`
 
-## Stop Lines
+## 停止線
 
-- Do not make the repository public from this packet.
-- Do not submit a patent filing from this packet.
-- Do not send external messages from this packet.
-- Do not treat local gate success as publication approval.
-- Do not treat public-kernel candidate as the full private operating package.
+- この packet から repository public 化を実行しない。
+- この packet から patent filing を submit しない。
+- この packet から external message を送信しない。
+- local gate success を publication approval として扱わない。
+- public-kernel candidate を full private operating package として扱わない。

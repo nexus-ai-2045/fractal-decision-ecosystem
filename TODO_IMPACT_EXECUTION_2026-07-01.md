@@ -24,7 +24,6 @@ Order:
 |---:|---|---|---|---|---|---|
 | P0 | Verify private MVP gate still runs from the supported Windows entrypoint | Use `scripts/run_mvp_gate.ps1` as the top-level wrapper so Python launcher differences are absorbed | Run wrapper and require the real MVP gate marker/output, not only exit 0 | No code change needed | `FDE MVP GATE CHECK OK`; `external_actions_performed: false` | Private local MVP remains complete; public release is still approval-gated |
 | P0 | Verify roadmap contract remains connected to the MVP gate | Keep `ROADMAP.md` as goal/evidence/gate/owner/done_when contract, not a feature wishlist | Run `scripts/roadmap_gate_check.py` | No code change needed | `FDE ROADMAP GATE CHECK OK`; `first_iteration_status: ready` | Roadmap gate remains operationally connected |
-| P0 | Verify local Chinju guidance remains FDE-specific and local-first | Keep `.chinju/` guidance as local project instructions; `.chinju/sessions/` stays outside the repository package | Run `scripts/chinju_guidance_check.py` | No code change needed | `CHINJU GUIDANCE CHECK OK`; `external_actions_performed: false` | Local guidance is usable without external writes |
 | P1 | Verify pre-publication packet and public-kernel boundary | Treat public kernel as a candidate only; keep private operating package and rights/patent boundaries separate | Run `scripts/pre_publication_gate_check.py --json` and inspect blockers | No code change needed | `overall: ok`; remaining blocker is exact GitHub visibility approval before public release | Pre-publication packet is locally consistent, but publication remains unapproved |
 | P1 | Verify public readiness check | Confirm required files, links, handle/path patterns, workflow contract, and guarantee wording | Run `scripts/public_ready_check.py` | No code change needed | `PUBLIC READY CHECK PASSED` | Public-readiness checks pass locally without performing publication |
 | P1 | Verify test suite | Keep focused regression tests around gates, ADR numbering, local AI workspace boundary, and wrapper behavior | Run `python -m pytest -q` | No code change needed | `13 passed` | Regression coverage is green for the current gate surface |
@@ -47,7 +46,6 @@ These remain intentionally incomplete because executing them would cross a human
 
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`: OK
 - `python scripts\roadmap_gate_check.py`: OK
-- `python scripts\chinju_guidance_check.py`: OK
 - `python scripts\pre_publication_gate_check.py --json`: OK
 - `python scripts\public_ready_check.py`: OK
 - `python -m pytest -q`: 13 passed
@@ -60,8 +58,7 @@ Before saying "residue zero" again, rerun the supported closeout bundle:
 
 1. `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
 2. `python scripts\roadmap_gate_check.py`
-3. `python scripts\chinju_guidance_check.py`
-4. `python -m compileall -q scripts tests`
-5. `python -m pytest -q`
-6. `git diff --check`
-7. Confirm no public/external/visibility action was performed unless explicitly approved.
+3. `python -m compileall -q scripts tests`
+4. `python -m pytest -q`
+5. `git diff --check`
+6. Confirm no public/external/visibility action was performed unless explicitly approved.

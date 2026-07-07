@@ -1,6 +1,6 @@
 # AI contact safety contract
 
-Status: active concept / review-ready
+状態: active concept / review-ready
 
 ## 目的
 
@@ -20,7 +20,7 @@ contact entry
 -> closure
 ```
 
-## Contact Identity Contract
+## Contact identity 契約
 
 自動 contact は、次の項目が未設計なら `blocked` とします。
 
@@ -35,7 +35,7 @@ contact entry
 | `blocklist` | 再接触拒否、なりすまし、危険相手の停止線 |
 | `replay_protection` | 過去の同意や古い文脈を再利用しないための条件 |
 
-## Data Boundary Contract
+## data boundary 契約
 
 contact に渡す data は、便利な文脈束ではなく、最小化された reviewable payload とします。
 
@@ -50,7 +50,7 @@ contact に渡す data は、便利な文脈束ではなく、最小化された
 | `human_approved_at` | 人間確認が必要なpayloadの承認時刻 |
 | `no_raw_source_pointer` | private source pointer を丸ごと送らない条件 |
 
-## Contact Packet Schema Candidate
+## contact packet schema 候補
 
 FDE で扱う contact packet は、transport 実装ではなく reviewable な判断入力です。
 この schema candidate は、実際に送る payload ではなく、事前レビューで不足を見つけるための最小形です。
@@ -91,13 +91,13 @@ contact_packet:
 `human_approved_at`、`replay_protection`、`transport_adapter_status` が未設定なら、
 contact は `blocked` とします。
 
-## Transport Boundary
+## transport 境界
 
 FDE は transport を実装しません。transport adapter は未承認であり、identity / consent / data boundary が通るまで採用しません。
 
 通信方式の候補名はこの contract の採用根拠ではありません。近距離通信、peer通信、cloud relay、音声、avatar のどれであっても、FDE では contact packet と evidence を同じ形で扱います。
 
-## Closure
+## closure
 
 contact 後は次を残します。
 
@@ -107,7 +107,7 @@ contact 後は次を残します。
 - 何を採用、保留、拒否したか。
 - 次の contact を許可するか、止めるか。
 
-## Stop Lines
+## 停止線
 
 - この contract は外部送信、相手AIへの自動contact、Wi-Fi / Bluetooth / P2P / cloud relay 実装を承認しません。
 - device app、OS service、avatar、音声UI、download data bundle の製品設計は FDE 本体ではなく別 product 設計へ分離します。

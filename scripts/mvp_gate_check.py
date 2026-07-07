@@ -18,7 +18,8 @@ if str(ROOT) not in sys.path:
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.public_ready_check import main as public_ready_main
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
-from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
+from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_architecture_drift
+from scripts.fde_workflow_check import evaluate as evaluate_fde_workflow
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
@@ -28,13 +29,13 @@ from scripts.human_review_packet_check import evaluate as evaluate_human_review_
 
 
 REQUIRED_STATUS_TERMS = (
-    "MVP status: complete for private local gate",
-    "Repository visibility: private",
-    "No external publication action performed",
-    "Inventor decision: user-confirmed sole inventor",
-    "Owner decision: user retains ownership",
-    "Rights strategy: keep patent / filing details intentionally broad until a separate filing decision or action is approved",
-    "Next milestone: publication approval only if public release is requested",
+    "MVP状態: private local gate として完了",
+    "リポジトリ可視性: private",
+    "外部公開 action: 未実行",
+    "発明者判断: ユーザー単独発明者として確認済み",
+    "所有者判断: ユーザーが保持",
+    "権利方針: 出願または公開の別判断があるまで、特許・出願詳細は意図的に広めに保つ",
+    "次の節目: public release が要求された場合だけ、publication approval に進む",
 )
 
 REQUIRED_TRACKED_FILES = (
@@ -43,7 +44,6 @@ REQUIRED_TRACKED_FILES = (
     "scripts/mvp_gate_check.py",
     "scripts/public_ready_check.py",
     "scripts/roadmap_gate_check.py",
-    "scripts/chinju_guidance_check.py",
     "scripts/residual_zero_goal_check.py",
     "scripts/no_transport_contact_check.py",
     "scripts/verify_residual_zero_contract.py",
@@ -62,16 +62,6 @@ REQUIRED_TRACKED_FILES = (
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
     "tests/test_public_ready.py",
-    ".chinju/manifest.json",
-    ".chinju/policy.json",
-    ".chinju/README.md",
-    ".chinju/agent-guidance.md",
-    ".chinju/project.md",
-    ".chinju/workflow.md",
-    ".chinju/quality-gates.md",
-    ".chinju/knowledge/invariants.md",
-    ".chinju/knowledge/incidents.md",
-    ".chinju/knowledge/edge-cases.md",
 )
 
 
@@ -105,11 +95,22 @@ def _run_roadmap() -> dict[str, object]:
     }
 
 
-def _run_chinju_guidance() -> dict[str, object]:
-    result = evaluate_chinju_guidance()
+def _run_fde_workflow() -> dict[str, object]:
+    result = evaluate_fde_workflow()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
     return {
-        "name": "chinju_guidance_check",
-        "ok": result["overall"] == "ok",
+        "name": "fde_workflow_check",
+        "ok": ok,
+        "result": result,
+    }
+
+
+def _run_fde_architecture_drift() -> dict[str, object]:
+    result = evaluate_fde_architecture_drift()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "fde_architecture_drift_check",
+        "ok": ok,
         "result": result,
     }
 
@@ -237,7 +238,8 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_public_ready(),
         _run_pre_publication(),
         _run_roadmap(),
-        _run_chinju_guidance(),
+        _run_fde_workflow(),
+        _run_fde_architecture_drift(),
         _run_residual_zero_goal(),
         _run_no_transport_contact(),
         _run_residual_zero_contract(),

@@ -25,10 +25,10 @@ REQUIRED_OPERATIONAL_TERMS = (
 )
 
 REQUIRED_MVP_TERMS = (
-    "MVP status: complete for private local gate",
-    "Repository visibility: private",
-    "No external publication action performed",
-    "Next milestone: publication approval only if public release is requested",
+    "MVP状態: private local gate として完了",
+    "リポジトリ可視性: private",
+    "外部公開 action: 未実行",
+    "次の節目: public release が要求された場合だけ、publication approval に進む",
 )
 
 REQUIRED_GOAL_TERMS = (

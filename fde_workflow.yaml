@@ -1,0 +1,31 @@
+schema_version: fde.workflow.v1
+control_plane: FDE
+external_actions_performed: false
+states:
+  - intake
+  - scope
+  - orchestrate
+  - implement
+  - verify
+  - review_packet
+  - closeout
+  - external_approval_required
+blocked_transitions:
+  - public_release
+  - repository_visibility_change
+  - external_send
+  - patent_filing
+  - credential_change
+  - auth_settings_change
+  - destructive_operation
+required_local_gates:
+  - public_ready_check
+  - pre_publication_gate_check
+  - roadmap_gate_check
+  - residual_zero_goal_check
+  - no_transport_contact_check
+  - verify_residual_zero_contract
+  - visual_html_smoke
+  - public_kernel_diff_manifest
+  - human_review_packet_check
+  - pytest

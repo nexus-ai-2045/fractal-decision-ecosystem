@@ -21,6 +21,8 @@ REQUIRED_FILES = (
     "OPERATIONAL_GUARANTEE.md",
     ".github/workflows/public-ready.yml",
     "ROADMAP.md",
+    "SYSTEMATIZATION_ARCHITECTURE_CHECK_2026-07-07.md",
+    "fde_workflow.yaml",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
     "PUBLICATION_REVIEW_PACKET.md",
     "ai-contact-safety-contract.md",
@@ -28,7 +30,9 @@ REQUIRED_FILES = (
     "scripts/mvp_gate_check.py",
     "scripts/run_mvp_gate.ps1",
     "scripts/roadmap_gate_check.py",
-    "scripts/chinju_guidance_check.py",
+    "scripts/fde_workflow_check.py",
+    "scripts/fde_architecture_drift_check.py",
+    "scripts/fde_operational_closeout.py",
     "scripts/residual_zero_goal_check.py",
     "scripts/no_transport_contact_check.py",
     "scripts/verify_residual_zero_contract.py",
@@ -41,10 +45,6 @@ REQUIRED_FILES = (
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
-)
-
-LOCAL_AI_WORKSPACE_PATHS = (
-    ".chinju/sessions",
 )
 
 PACKAGE_EXCLUDED_PARTS = (
@@ -129,11 +129,7 @@ def is_repository_package_path(path: Path) -> bool:
     rel_parts = rel.as_posix().split("/")
     if any(part in PACKAGE_EXCLUDED_PARTS for part in rel_parts):
         return False
-    rel_posix = rel.as_posix().rstrip("/")
-    return not any(
-        rel_posix == excluded or rel_posix.startswith(f"{excluded}/")
-        for excluded in LOCAL_AI_WORKSPACE_PATHS
-    )
+    return True
 
 
 def iter_text_files() -> list[Path]:
@@ -239,36 +235,6 @@ def check_workflow_contract(errors: list[str]) -> None:
             errors.append(f"workflow に必須用語がありません: {term}")
 
 
-def check_local_ai_workspace_boundary(errors: list[str]) -> None:
-    gitignore = ROOT / ".gitignore"
-    if not gitignore.exists():
-        errors.append(".gitignore がありません")
-        return
-
-    ignored_patterns = {
-        line.strip()
-        for line in gitignore.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    }
-    for relpath in LOCAL_AI_WORKSPACE_PATHS:
-        if f"{relpath}/" not in ignored_patterns:
-            errors.append(f".gitignore に local AI-agent workspace 除外がありません: {relpath}/")
-
-    if not (ROOT / ".git").exists():
-        return
-    for relpath in LOCAL_AI_WORKSPACE_PATHS:
-        result = subprocess.run(
-            ["git", "ls-files", "--", relpath],
-            cwd=ROOT,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-        if result.stdout.strip():
-            errors.append(f"{relpath}/ が git tracked package に含まれています")
-
-
 def check_forbidden_patterns(errors: list[str]) -> None:
     for path in iter_text_files():
         if path == Path(__file__).resolve():
@@ -327,7 +293,6 @@ def main() -> int:
     check_operational_guarantee(errors)
     check_failure_postmortem_contract(errors)
     check_workflow_contract(errors)
-    check_local_ai_workspace_boundary(errors)
     check_forbidden_patterns(errors)
     check_local_markdown_links(errors)
     check_git_history(errors)

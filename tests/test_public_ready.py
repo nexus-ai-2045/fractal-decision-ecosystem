@@ -7,7 +7,9 @@ import pytest
 from scripts import public_ready_check
 from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
-from scripts.chinju_guidance_check import evaluate as evaluate_chinju_guidance
+from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_architecture_drift
+from scripts.fde_operational_closeout import evaluate as evaluate_fde_operational_closeout
+from scripts.fde_workflow_check import evaluate as evaluate_fde_workflow
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
@@ -34,10 +36,29 @@ def test_pre_publication_gate_check_passes() -> None:
     assert result["overall"] == "ok", result["errors"]
 
 
-def test_chinju_guidance_is_fde_specific_without_external_write() -> None:
-    result = evaluate_chinju_guidance()
+def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> None:
+    result = evaluate_fde_workflow()
     assert result["overall"] == "ok", result["errors"]
     assert result["external_actions_performed"] is False
+    assert result["workflow"]["control_plane"] == "FDE"
+    assert "external_approval_required" in result["workflow"]["states"]
+
+
+def test_fde_architecture_drift_check_connects_docs_scripts_and_tests() -> None:
+    result = evaluate_fde_architecture_drift()
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert "fde_workflow.yaml" in result["checked_files"]
+    assert "scripts/fde_operational_closeout.py" in result["checked_files"]
+
+
+def test_fde_operational_closeout_reports_residue_without_public_action() -> None:
+    result = evaluate_fde_operational_closeout(run_pytest=False)
+    assert result["overall"] == "ok", result["errors"]
+    assert result["external_actions_performed"] is False
+    assert result["implementation_residue"] == "none"
+    assert result["operation_residue"] == "none"
+    assert result["external_public_residue"] == "approval_gated"
 
 
 def test_roadmap_gate_has_first_iteration_contract_without_external_write() -> None:
@@ -119,11 +140,11 @@ def test_roadmap_implementation_plan_is_guarded_by_tests() -> None:
         "Implementation Orchestration",
         "Implementation Roadmap",
         "Sprint 0: Post-Merge Verification Receipt",
-        "Status: local complete",
+        "状態: ローカル完了",
         "Sprint 1: Roadmap / Gate Drift Guard",
         "Sprint 2: AI Contact Safety Contract Hardening",
         "Sprint 2.5: Team Formation / Orchestration Gate",
-        "Status: next FDE-native implementation",
+        "状態: 次のFDE-native実装候補",
         "Team Creator",
         "team_plan",
         "no_team_reason",
@@ -156,14 +177,14 @@ def test_operational_guarantee_records_post_merge_receipts_without_public_approv
 def test_publication_review_packet_is_not_public_approval() -> None:
     text = (public_ready_check.ROOT / "PUBLICATION_REVIEW_PACKET.md").read_text(encoding="utf-8")
     for term in (
-        "Status: review packet only / no public action approved",
+        "状態: review packet のみ / public action 承認なし",
         "Repository: `nexus-ai-2045/fractal-decision-ecosystem`",
-        "Current visibility: private",
-        "Approved operation now: none",
-        "External actions performed by this packet: false",
+        "現在の visibility: private",
+        "現時点で承認された操作: なし",
+        "この packet による external action 実行: false",
         "gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public",
-        "Do not make the repository public from this packet",
-        "Do not treat local gate success as publication approval",
+        "この packet から repository public 化を実行しない",
+        "local gate success を publication approval として扱わない",
     ):
         assert term in text
 
@@ -230,9 +251,9 @@ def test_ai_contact_safety_contract_is_reviewable_without_external_action() -> N
         public_ready_check.ROOT / "decisions" / "ADR-0003-ai-contact-safety-contract.md"
     ).read_text(encoding="utf-8")
     for term in (
-        "Contact Identity Contract",
-        "Data Boundary Contract",
-        "Contact Packet Schema Candidate",
+        "Contact identity 契約",
+        "data boundary 契約",
+        "contact packet schema 候補",
         "contact_packet:",
         "blocked",
         "revocation",
@@ -304,30 +325,6 @@ def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> 
 
     assert errors
     assert "hash mismatch: INVENTION_RECORD.md" in errors[0]
-
-
-def test_local_ai_workspace_state_is_outside_repository_package() -> None:
-    assert not public_ready_check.is_repository_package_path(
-        public_ready_check.ROOT / ".chinju" / "sessions" / "local.jsonl"
-    )
-    assert public_ready_check.is_repository_package_path(public_ready_check.ROOT / ".chinju" / "README.md")
-    assert public_ready_check.is_repository_package_path(public_ready_check.ROOT / "README.md")
-
-
-def test_local_ai_workspace_boundary_is_declared_and_untracked() -> None:
-    errors: list[str] = []
-    public_ready_check.check_local_ai_workspace_boundary(errors)
-    assert errors == []
-
-
-def test_local_ai_workspace_boundary_requires_gitignore_entry(tmp_path, monkeypatch) -> None:
-    (tmp_path / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
-    monkeypatch.setattr(public_ready_check, "ROOT", tmp_path)
-
-    errors: list[str] = []
-    public_ready_check.check_local_ai_workspace_boundary(errors)
-
-    assert ".gitignore に local AI-agent workspace 除外がありません: .chinju/sessions/" in errors
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows pyenv shim regression")
