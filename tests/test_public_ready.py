@@ -119,6 +119,25 @@ def test_visual_html_smoke_passes_without_external_write() -> None:
     assert result["href_count"] > 0
 
 
+def test_system_overview_visualizes_fde_control_plane() -> None:
+    text = (public_ready_check.ROOT / "SYSTEM_OVERVIEW.md").read_text(encoding="utf-8")
+    for term in (
+        "FDE 全体図",
+        "```mermaid",
+        "判断制御面",
+        "ローカル運用面",
+        "公開境界面",
+        "entry -> packet -> evidence -> decision -> closure",
+        "visual.html",
+        "fde_workflow.yaml",
+        "scripts/fde_operational_closeout.py",
+        "隣接product adapter",
+        "機能マップ",
+        "roadmap funnel",
+    ):
+        assert term in text
+
+
 def test_public_kernel_diff_manifest_passes_without_public_action() -> None:
     result = evaluate_public_kernel_diff()
     assert result["overall"] == "ok", result["errors"]
@@ -354,7 +373,8 @@ def test_run_mvp_gate_rejects_broken_windows_pyenv_shim(tmp_path) -> None:
         ],
         cwd=public_ready_check.ROOT,
         env=env,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,
@@ -403,7 +423,8 @@ def test_run_mvp_gate_requires_mvp_gate_output_even_when_python_exits_zero(tmp_p
         ],
         cwd=public_ready_check.ROOT,
         env=env,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,

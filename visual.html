@@ -180,7 +180,8 @@
 
     .problem-grid,
     .parts-grid,
-    .file-grid {
+    .file-grid,
+    .map-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
@@ -265,6 +266,40 @@
       color: var(--muted);
       font-size: 14px;
       overflow-wrap: anywhere;
+    }
+
+    .system-lanes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .lane {
+      min-height: 168px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .lane b {
+      display: block;
+      color: var(--teal);
+      font-size: 14px;
+    }
+
+    .lane strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+
+    .lane span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .band {
@@ -409,9 +444,11 @@
       .problem-grid,
       .parts-grid,
       .file-grid,
+      .map-grid,
       .review-path,
       .status-strip,
-      .flow {
+      .flow,
+      .system-lanes {
         grid-template-columns: 1fr;
       }
 
@@ -436,6 +473,7 @@
       </p>
       <div class="actions">
         <a class="action primary" href="#flow">発火の流れを見る</a>
+        <a class="action" href="#system-map">全体図を見る</a>
         <a class="action" href="#review">レビュー導線を見る</a>
         <a class="action" href="README.md">README.mdを読む</a>
       </div>
@@ -508,6 +546,35 @@
       </div>
     </section>
 
+    <section id="system-map">
+      <h2>全体図</h2>
+      <p class="section-lead">
+        FDEはproduct runtimeではなく、判断制御面です。詳しい図は <a href="SYSTEM_OVERVIEW.md">SYSTEM_OVERVIEW.md</a> に置き、HTMLではレビューで迷いやすい4層だけを見える化します。
+      </p>
+      <div class="system-lanes" aria-label="FDE全体図">
+        <div class="lane"><b>Control</b><strong>判断制御面</strong><span>entry、packet、evidence、decision、closureを揃える。</span></div>
+        <div class="lane"><b>Operation</b><strong>ローカル運用面</strong><span>pytest、MVP gate、roadmap gate、operational closeoutで保証する。</span></div>
+        <div class="lane"><b>Boundary</b><strong>公開境界面</strong><span>public-kernel、human review、visibility stopを分ける。</span></div>
+        <div class="lane"><b>Adapter</b><strong>隣接product adapter</strong><span>LCS、device app、avatar、transportはFDE本体へ吸収しない。</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>機能マップ</h2>
+      <p class="section-lead">
+        README、ROADMAP、TODO、workflow、closeoutを機能別に読むための入口です。実装済みと外部承認待ちを混ぜないため、各機能は必ずgateと一緒に見ます。
+      </p>
+      <div class="map-grid" aria-label="FDE機能マップ">
+        <a class="review-card" href="SYSTEM_OVERVIEW.md"><b>A</b><strong>System overview</strong><span>層、workflow、機能、roadmap funnelを1枚で見る。</span></a>
+        <a class="review-card" href="fde_workflow.yaml"><b>B</b><strong>Workflow manifest</strong><span>intakeからexternal approval stopまでのstateを見る。</span></a>
+        <a class="review-card" href="scripts/fde_operational_closeout.py"><b>C</b><strong>Operational closeout</strong><span>implementation、operation、external/public residueを分ける。</span></a>
+        <a class="review-card" href="OPERATIONAL_GUARANTEE.md"><b>D</b><strong>Operational guarantee</strong><span>private local complete と public approval の分離を見る。</span></a>
+        <a class="review-card" href="TODO_IMPACT_EXECUTION_2026-07-01.md"><b>E</b><strong>TODO</strong><span>実行済みTODO、外部承認TODO、closeout bundleを見る。</span></a>
+        <a class="review-card" href="ROADMAP.md"><b>F</b><strong>Roadmap</strong><span>Now / Next / Future と gate を見る。</span></a>
+        <a class="review-card" href="PUBLIC_READY.md"><b>G</b><strong>Public boundary</strong><span>公開準備と未承認の停止線を見る。</span></a>
+      </div>
+    </section>
+
     <section>
       <h2>何で発火させるか</h2>
       <p class="section-lead">
@@ -563,10 +630,10 @@
       </p>
       <div class="review-path" aria-label="FDEレビュー導線">
         <a class="review-card" href="visual.html"><b>1</b><strong>visual.html</strong><span>初見で目的、発火順、停止線が分かるかを見る。</span></a>
-        <a class="review-card" href="README.md"><b>2</b><strong>README.md</strong><span>概念説明、主要file、配置ルールがつながっているかを見る。</span></a>
-        <a class="review-card" href="ROADMAP.md"><b>3</b><strong>ROADMAP.md</strong><span>goal、evidence、gate、owner、done_when が揃っているかを見る。</span></a>
-        <a class="review-card" href="OPERATIONAL_GUARANTEE.md"><b>4</b><strong>運用保証</strong><span>private local complete と public approval が分かれているかを見る。</span></a>
-        <a class="review-card" href="PUBLIC_KERNEL_PLAN.md"><b>5</b><strong>公開境界</strong><span>public-kernel、rights、patent、visibility が混ざっていないかを見る。</span></a>
+        <a class="review-card" href="SYSTEM_OVERVIEW.md"><b>2</b><strong>SYSTEM_OVERVIEW</strong><span>判断制御面、運用面、公開境界、adapterが分かれているかを見る。</span></a>
+        <a class="review-card" href="README.md"><b>3</b><strong>README.md</strong><span>概念説明、主要file、配置ルールがつながっているかを見る。</span></a>
+        <a class="review-card" href="ROADMAP.md"><b>4</b><strong>ROADMAP.md</strong><span>goal、evidence、gate、owner、done_when が揃っているかを見る。</span></a>
+        <a class="review-card" href="TODO_IMPACT_EXECUTION_2026-07-01.md"><b>5</b><strong>TODO</strong><span>実行済みTODOと外部承認TODOが混ざっていないかを見る。</span></a>
       </div>
     </section>
 

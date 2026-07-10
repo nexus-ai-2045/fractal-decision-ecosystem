@@ -29,7 +29,8 @@ def _git(args: list[str]) -> str:
     result = subprocess.run(
         ["git", *args],
         cwd=ROOT,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         check=False,
@@ -51,7 +52,8 @@ def _run_pytest() -> dict[str, object]:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q"],
         cwd=ROOT,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,

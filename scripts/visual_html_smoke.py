@@ -16,6 +16,10 @@ REQUIRED_TEXT = (
     "private local MVP は完了。public approval ではありません。",
     "MVP gate、roadmap gate、pre-publication gate",
     "未実装ロードマップ",
+    "全体図",
+    "機能マップ",
+    "SYSTEM_OVERVIEW.md",
+    "scripts/fde_operational_closeout.py",
     "AI contact safety",
     "transportは実装しない",
     "Public kernel diff",
@@ -23,7 +27,9 @@ REQUIRED_TEXT = (
 
 REQUIRED_HREFS = (
     "README.md",
+    "SYSTEM_OVERVIEW.md",
     "ROADMAP.md",
+    "TODO_IMPACT_EXECUTION_2026-07-01.md",
     "OPERATIONAL_GUARANTEE.md",
     "PUBLIC_KERNEL_PLAN.md",
     "ai-contact-safety-contract.md",

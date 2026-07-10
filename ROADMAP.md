@@ -25,6 +25,18 @@ FDE の完成図は、次の3つが揃った状態です。
 
 今の private repository package は、判断制御面とローカル運用面を閉じています。公開境界面は、公開・repo public化・外部送信・patent filing を未承認のまま止めるところまでが完了状態です。
 
+## 可視化マップ
+
+レビュー時は、文字量の多い正本へ入る前に次の図で全体の位置を合わせます。
+
+| 見たいもの | 可視化入口 | 確認すること |
+|---|---|---|
+| 全体構造 | `SYSTEM_OVERVIEW.md` | 判断制御面、ローカル運用面、公開境界面、隣接product adapter が混ざっていないか |
+| 初見レビュー | `visual.html` | 目的、発火順、停止線、未実装ロードマップが一画面で追えるか |
+| workflow | `fde_workflow.yaml` | intake から closeout までが state machine として読めるか |
+| TODOと残務 | `TODO_IMPACT_EXECUTION_2026-07-01.md` | 実行済みTODO、外部承認TODO、closeout bundle が分かれているか |
+| 運用保証 | `scripts/fde_operational_closeout.py --json` | implementation、operation、external/public residue が分かれているか |
+
 ## Now
 
 | lane | goal | evidence | gate | owner | done_when |

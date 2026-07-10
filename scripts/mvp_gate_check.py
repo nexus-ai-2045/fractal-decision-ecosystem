@@ -52,6 +52,7 @@ REQUIRED_TRACKED_FILES = (
     "scripts/human_review_packet_check.py",
     "scripts/adr_next.py",
     "ROADMAP.md",
+    "SYSTEM_OVERVIEW.md",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
     "PUBLICATION_REVIEW_PACKET.md",
     "ai-contact-safety-contract.md",
@@ -179,7 +180,8 @@ def _run_pytest() -> dict[str, object]:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q"],
         cwd=ROOT,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=False,

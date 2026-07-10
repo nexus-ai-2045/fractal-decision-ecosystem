@@ -30,6 +30,17 @@ Order:
 | P2 | Verify syntax/import surface | Compile scripts and tests | Run `python -m compileall -q scripts tests` | No code change needed | Passed with no output | Python files compile cleanly |
 | P2 | Verify whitespace/diff hygiene | Keep changes reviewable before handoff | Run `git diff --check` | This TODO log added after the initial clean diff check | Initial check passed; rerun after this file if committing | No whitespace issue observed before adding this log |
 
+## 2026-07-07 Visualization / Systematization Cycle
+
+| impact | todo | design / plan | test plan | implementation | test result | operation guarantee |
+|---:|---|---|---|---|---|---|
+| P0 | Merge FDE systematization PR | Use guarded merge with current-turn human merge approval, CI success, account match, and clean merge state | `github_pr_readiness_preflight.py`, `pr_merge_guarded.py` dry-run, GitHub Actions check | PR #13 was marked ready and squash-merged into `main` | `public-ready` passed; guarded merge returned `decision: merged` | main contains workflow manifest, drift check, closeout runner, and `.chinju` package separation |
+| P0 | Save machine-readable workflow | Treat FDE as control plane, not product runtime | `scripts/fde_workflow_check.py --json` | `fde_workflow.yaml` records intake -> closeout plus external approval stop state | `overall: ok`; `external_actions_performed: false` | Local workflow can be verified without public action |
+| P1 | Add system visualization | Add a single map for README / ROADMAP / TODO / feature / gate review | `test_system_overview_visualizes_fde_control_plane` | `SYSTEM_OVERVIEW.md` adds Mermaid diagrams and feature map | Test guards required terms and file pointers | Reviewers can start from one visual overview before reading long docs |
+| P1 | Keep visual HTML as first-screen review entry | Mirror system overview and feature map into `visual.html` without implying publication approval | `scripts/visual_html_smoke.py` and pytest | `visual.html` links to system overview, roadmap, TODO, and closeout evidence | HTML smoke checks required text and href targets | Visual review remains local-only and approval-gated |
+| P1 | Refresh README / ROADMAP / TODO routing | Make the docs agree on where to read whole-system state | pytest, roadmap gate, MVP gate | README review path and ROADMAP visualization map point to `SYSTEM_OVERVIEW.md`; review-fix cycle added the adapter plane, feature map, and roadmap funnel to `SYSTEM_OVERVIEW.md` | `python -m pytest -q`: 27 passed; `python scripts\fde_architecture_drift_check.py --json`: ok; `python scripts\roadmap_gate_check.py --json`: ok; `run_mvp_gate.ps1`: `FDE MVP GATE CHECK OK`; `git diff --check`: OK | Docs close through pytest, the architecture drift check, the roadmap gate, and the MVP gate rerun after the review-fix cycle |
+| P1 | Make subprocess output decoding shell-agnostic | `subprocess.run(..., text=True)` decoded child output with the locale-dependent encoding, so the two Windows shim tests crashed with `UnicodeDecodeError` (byte `0x81`) when pytest ran under a UTF-8 shell (e.g. Git Bash) while `pwsh` emitted CP932 bytes | Reproduce the 2 failures under Git Bash (RED), then rerun the full suite under both Git Bash and native PowerShell (GREEN) | Pinned all decoded subprocess output to `encoding="utf-8", errors="replace"`: 2 sites in `tests/test_public_ready.py`, `_git` / `_run_pytest` in `scripts/fde_operational_closeout.py`, `_run_pytest` in `scripts/mvp_gate_check.py`, `check_git_history` in `scripts/public_ready_check.py` (asserted markers and JSON output are ASCII, so lossy replacement cannot affect any check) | Git Bash: 27 passed; PowerShell: 27 passed; `run_mvp_gate.ps1`: `FDE MVP GATE CHECK OK`; `fde_operational_closeout.py --json --skip-pytest`: ok | Gate and test results no longer depend on the invoking shell's console code page |
+
 ## Active External / Human-Gated TODOs
 
 These remain intentionally incomplete because executing them would cross a human-review or external-action boundary.
@@ -49,16 +60,23 @@ These remain intentionally incomplete because executing them would cross a human
 - `python scripts\pre_publication_gate_check.py --json`: OK
 - `python scripts\public_ready_check.py`: OK
 - `python -m pytest -q`: 13 passed
+- `python -m pytest -q`: 26 passed after PR #13 merge
 - `python -m compileall -q scripts tests`: OK
 - `git diff --check`: OK before this log was added
+- `python scripts\fde_operational_closeout.py --json --skip-pytest`: OK after PR #13 merge
+- `python -m pytest -q`: 27 passed after PR #14 review-fix cycle (adapter plane, feature map, roadmap funnel added to `SYSTEM_OVERVIEW.md`)
+- `python -m pytest -q`: 27 passed under both native PowerShell and Git Bash after pinning subprocess output decoding to `encoding="utf-8", errors="replace"`; the previous Git Bash-only `UnicodeDecodeError` in the two Windows shim tests was a locale-dependent decoding bug in the repo, now fixed
 
 ## Next Closeout Rule
 
 Before saying "residue zero" again, rerun the supported closeout bundle:
 
 1. `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
-2. `python scripts\roadmap_gate_check.py`
-3. `python -m compileall -q scripts tests`
-4. `python -m pytest -q`
-5. `git diff --check`
-6. Confirm no public/external/visibility action was performed unless explicitly approved.
+2. `python scripts\fde_workflow_check.py --json`
+3. `python scripts\fde_architecture_drift_check.py --json`
+4. `python scripts\fde_operational_closeout.py --json`
+5. `python scripts\roadmap_gate_check.py --json`
+6. `python -m compileall -q scripts tests`
+7. `python -m pytest -q`
+8. `git diff --check`
+9. Confirm no public/external/visibility action was performed unless explicitly approved.

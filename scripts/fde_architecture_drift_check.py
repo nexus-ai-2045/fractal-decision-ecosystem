@@ -11,7 +11,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CHECKS = {
     "README.md": ("## 完成図", "軽く賢く", "entry -> packet -> evidence -> decision -> closure"),
-    "ROADMAP.md": ("## 完成図", "判断制御面", "ローカル運用面", "公開境界面"),
+    "ROADMAP.md": ("## 完成図", "## 可視化マップ", "判断制御面", "ローカル運用面", "公開境界面"),
+    "SYSTEM_OVERVIEW.md": (
+        "FDE 全体図",
+        "判断制御面",
+        "fde_workflow.yaml",
+        "scripts/fde_operational_closeout.py",
+        "隣接product adapter",
+        "機能マップ",
+    ),
     "SYSTEMATIZATION_ARCHITECTURE_CHECK_2026-07-07.md": (
         "小さな state machine と gate bundle",
         "scripts/fde_operational_closeout.py",
