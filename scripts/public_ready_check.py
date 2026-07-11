@@ -78,7 +78,7 @@ ARCHIVED_WORKSPACE_PATTERN = "|".join(
 
 FORBIDDEN_PATTERNS = {
     "personal absolute path": re.compile(
-        r"(C:\\Users\\|C:/Users/|/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+)"
+        r"([A-Za-z]:\\+Users\\+|[A-Za-z]:/+Users/+|/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+)"
     ),
     "archived workspace path": re.compile(ARCHIVED_WORKSPACE_PATTERN),
     "private handle": re.compile(PRIVATE_HANDLE_PATTERN, re.IGNORECASE),
@@ -266,12 +266,34 @@ def check_local_markdown_links(errors: list[str]) -> None:
                 errors.append(f"{path.relative_to(ROOT).as_posix()}: local link の参照先がありません: {raw}")
 
 
+GIT_HISTORY_LOG_FORMAT = "%an <%ae> %cn <%ce> %s%n%b"
+
+GIT_HISTORY_FORBIDDEN_LABELS = ("private handle", "personal absolute path")
+
+
+def scan_git_log_text_for_forbidden_patterns(text: str) -> list[str]:
+    """git log 出力 (author/committer/subject/body) から禁止 pattern を検出する。
+
+    commit body には `Co-authored-by:` trailer や検証コマンドの貼り付けが入るため、
+    subject 行だけでなく body 全体を検査しないと個人名義やローカル絶対パスが
+    素通りする (実際に private handle と Windows 絶対パスが commit body 経由で
+    紛れ込んだ実績がある)。この関数は subprocess を呼ばない純粋関数にして、
+    実 git 履歴を汚さずに文字列 fixture だけで単体テストできるようにしている。
+    """
+    found: list[str] = []
+    for label in GIT_HISTORY_FORBIDDEN_LABELS:
+        pattern = FORBIDDEN_PATTERNS[label]
+        if pattern.search(text):
+            found.append(f"git history に禁止 pattern が含まれています: {label}")
+    return found
+
+
 def check_git_history(errors: list[str]) -> None:
     git_dir = ROOT / ".git"
     if not git_dir.exists():
         return
     result = subprocess.run(
-        ["git", "log", "--all", "--format=%an <%ae> %cn <%ce> %s"],
+        ["git", "log", "--all", f"--format={GIT_HISTORY_LOG_FORMAT}"],
         cwd=ROOT,
         encoding="utf-8",
         errors="replace",
@@ -281,11 +303,7 @@ def check_git_history(errors: list[str]) -> None:
     )
     if result.returncode != 0:
         return
-    pattern = FORBIDDEN_PATTERNS["private handle"]
-    for line in result.stdout.splitlines():
-        if pattern.search(line):
-            errors.append("git history に private handle/email が含まれています")
-            return
+    errors.extend(scan_git_log_text_for_forbidden_patterns(result.stdout))
 
 
 def main() -> int:

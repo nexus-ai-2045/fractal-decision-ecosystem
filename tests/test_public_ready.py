@@ -31,6 +31,90 @@ def test_public_ready_check_passes_as_nested_mvp_check() -> None:
     assert public_ready_main() == 0
 
 
+def _fake_private_handle_trailer() -> str:
+    # このリポジトリ自身が check_forbidden_patterns() で全 .py file を走査するため、
+    # fixture 内の禁止 token をソース上で非連続に組み立て、file scan の誤検知を避ける。
+    handle = "say" + "_yas"
+    email_user = "tama" + "goe"
+    return f"Co-authored-by: {handle} <{email_user}@gmail.com>\n"
+
+
+def _fake_windows_path_fragment() -> str:
+    drive = "C:"
+    sep = "\\" + "Users" + "\\"
+    return drive + sep + "example" + "\\Projects\\shared\\scripts\\preflight.py"
+
+
+def _fake_posix_path_fragment() -> str:
+    return "/" + "Users" + "/example/Projects/shared/scripts/preflight.py"
+
+
+def test_git_history_scan_passes_on_clean_log_text() -> None:
+    clean_log_text = (
+        "Nexus AI <noreply@nexus-ai.local> Nexus AI <noreply@nexus-ai.local> "
+        "Add roadmap gate drift guard\n"
+        "\n"
+        "## 概要\n"
+        "roadmap gate に必須語を追加した。\n"
+        "\n"
+        "## 検証\n"
+        "- `python -m pytest -q`\n"
+        "\n"
+        "Co-authored-by: Nexus AI <noreply@nexus-ai.local>\n"
+    )
+
+    assert public_ready_check.scan_git_log_text_for_forbidden_patterns(clean_log_text) == []
+
+
+def test_git_history_scan_detects_private_handle_in_commit_body_trailer() -> None:
+    dirty_log_text = (
+        "nexus_ai <nexus.ai.2045@gmail.com> nexus_ai <nexus.ai.2045@gmail.com> "
+        "Add roadmap gate drift guard (#3)\n"
+        "\n"
+        "## 概要\n"
+        "roadmap gate に必須語を追加した。\n"
+        "\n"
+        "Co-authored-by: Nexus AI <noreply@nexus-ai.local>\n"
+        f"{_fake_private_handle_trailer()}"
+    )
+
+    errors = public_ready_check.scan_git_log_text_for_forbidden_patterns(dirty_log_text)
+
+    assert any("private handle" in error for error in errors)
+
+
+def test_git_history_scan_detects_windows_local_path_in_commit_body() -> None:
+    dirty_log_text = (
+        "nexus_ai <nexus.ai.2045@gmail.com> nexus_ai <nexus.ai.2045@gmail.com> "
+        "Add AI contact safety contract (#8)\n"
+        "\n"
+        "## 検証\n"
+        f"- `python {_fake_windows_path_fragment()}`\n"
+        "\n"
+        "Co-authored-by: Nexus AI <noreply@nexus-ai.local>\n"
+    )
+
+    errors = public_ready_check.scan_git_log_text_for_forbidden_patterns(dirty_log_text)
+
+    assert any("personal absolute path" in error for error in errors)
+
+
+def test_git_history_scan_detects_posix_style_local_path_in_commit_body() -> None:
+    dirty_log_text = (
+        "nexus_ai <nexus.ai.2045@gmail.com> nexus_ai <nexus.ai.2045@gmail.com> "
+        "Add AI contact safety contract (#8)\n"
+        "\n"
+        "## 検証\n"
+        f"- `python {_fake_posix_path_fragment()}`\n"
+        "\n"
+        "Co-authored-by: Nexus AI <noreply@nexus-ai.local>\n"
+    )
+
+    errors = public_ready_check.scan_git_log_text_for_forbidden_patterns(dirty_log_text)
+
+    assert any("personal absolute path" in error for error in errors)
+
+
 def test_pre_publication_gate_check_passes() -> None:
     result = evaluate_pre_publication()
     assert result["overall"] == "ok", result["errors"]
