@@ -1,10 +1,10 @@
 # 運用保証
 
-状態: private repository 運用として保証済み
+状態: public repository 運用として保証済み
 
 ## 対象範囲
 
-この保証は、Fractal Decision Ecosystem（FDE）の現在の private repository package を対象にします。
+この保証は、Fractal Decision Ecosystem（FDE）の現在の public repository package を対象にします。
 
 - repository content
 - local MVP gate script
@@ -14,7 +14,7 @@
 - private handle と personal path の確認
 - roadmap first iteration gate の local readiness
 
-この保証は repository の public 化を承認しません。
+この保証は repository の public 化の事実を記録するものであり、追加の public action を新たに承認するものではありません。
 
 ## 残務
 
@@ -30,7 +30,7 @@ patent decision 残務: なし
 
 patent filing 実行残務: なし（optional / approval-gated）
 
-現在の visibility: private
+現在の visibility: public
 
 ## Post-Merge Receipts
 
@@ -66,7 +66,7 @@ Post-merge local sync evidence:
 - `python -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
 - Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
-- 明示的な publication approval まで repository visibility が private のままである
+- repository visibility は既に public 化の明示承認を経て変更済みであり、それ以上の visibility 変更には改めて明示承認が必要である
 - `Patent Pending` / `特許出願中` は application filed 後だけ使う
 - 外部 review 失敗には `failure_kind` と `postmortem_action` がある
 
@@ -89,5 +89,5 @@ lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。
 
-現在の plan では、この private repository に GitHub branch protection と GitHub native secret scanning はありません。
+現在の plan では、この repository に GitHub branch protection と GitHub native secret scanning はありません。
 その代わりに、local readiness check と CI workflow で補完します。

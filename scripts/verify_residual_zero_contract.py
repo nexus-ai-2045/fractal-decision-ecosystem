@@ -16,18 +16,18 @@ if str(ROOT) not in sys.path:
 from scripts.residual_zero_goal_check import evaluate as evaluate_goal
 
 REQUIRED_OPERATIONAL_TERMS = (
-    "状態: private repository 運用として保証済み",
+    "状態: public repository 運用として保証済み",
     "実装残務: なし",
     "運用残務: なし",
     "public release 残務: 人間承認が必要",
-    "現在の visibility: private",
-    "この保証は repository の public 化を承認しません",
+    "現在の visibility: public",
+    "この保証は repository の public 化の事実を記録するものであり、追加の public action を新たに承認するものではありません",
 )
 
 REQUIRED_MVP_TERMS = (
-    "MVP状態: private local gate として完了",
-    "リポジトリ可視性: private",
-    "外部公開 action: 未実行",
+    "MVP状態: public repository 運用として完了",
+    "リポジトリ可視性: public",
+    "外部公開 action: 実行済み",
     "次の節目: public release が要求された場合だけ、publication approval に進む",
 )
 

@@ -1,11 +1,11 @@
 # FDE MVP状態
 
-MVP状態: private local gate として完了
+MVP状態: public repository 運用として完了
 
 ## 現在の判断
 
-- リポジトリ可視性: private
-- 外部公開 action: 未実行
+- リポジトリ可視性: public
+- 外部公開 action: 実行済み（2026-07、visibility 変更）
 - 特許出願 action: 未実行。出願は optional で、別途承認が必要
 - connector write action: 未実行
 - 発明者判断: ユーザー単独発明者として確認済み
@@ -28,7 +28,7 @@ MVP状態: private local gate として完了
 - 後で出願する場合は、現在の会話で明示承認を得てから実行する
 - 出願した場合は、filing receipt / application number / submitted PDF / file hash を保存する
 - `Patent Pending` / `特許出願中` は、application が実際に filed されるまで使わない
-- GitHub repository visibility は、対象repoを明示した承認が出るまで private のまま維持する
+- GitHub repository visibility は、明示承認を経て public に変更済み。さらなる visibility 変更には改めて明示承認が必要である
 
 ## 次の節目
 

@@ -14,7 +14,9 @@ PACKET = ROOT / "PUBLICATION_REVIEW_PACKET.md"
 REQUIRED_TERMS = (
     "状態: review packet のみ / public action 承認なし",
     "Repository: `nexus-ai-2045/fractal-decision-ecosystem`",
-    "現在の visibility: private",
+    "現在の visibility: public",
+    "visibility 変更は実施済み",
+    "以後の変更は再承認制",
     "現時点で承認された操作: なし",
     "この packet による external action 実行: false",
     "gh repo edit nexus-ai-2045/fractal-decision-ecosystem --visibility public",

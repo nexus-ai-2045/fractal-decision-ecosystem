@@ -89,13 +89,17 @@ REQUIRED_TODO_PATENT_PACKET_TERMS = (
 )
 
 REQUIRED_PUBLIC_READY_TERMS = (
-    "public 化は patent / public kernel gate で保留",
+    "patent filing は patent / public kernel gate で保留",
     "patent / filing 方針は意図的に broad",
     "inventor / owner / assignee",
     "user-confirmed sole inventor",
     "assignee は none / unassigned",
     "public-kernel/",
     "Patent Pending",
+    "外部送信",
+    "announcement",
+    "visibility 変更",
+    "public release の宣言",
 )
 
 REQUIRED_INVENTION_RECORD_TERMS = (
@@ -278,7 +282,8 @@ def evaluate() -> dict[str, object]:
         "errors": errors,
         "manifest": build_manifest(),
         "remaining_human_or_external_blockers": [
-            "approve exact GitHub repository visibility change before any public release",
+            "repository visibility change is already approved and applied (public)",
+            "further visibility changes, external sending, announcement, and patent filing still require explicit approval in the current turn",
         ],
     }
 

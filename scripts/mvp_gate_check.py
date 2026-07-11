@@ -29,9 +29,9 @@ from scripts.human_review_packet_check import evaluate as evaluate_human_review_
 
 
 REQUIRED_STATUS_TERMS = (
-    "MVP状態: private local gate として完了",
-    "リポジトリ可視性: private",
-    "外部公開 action: 未実行",
+    "MVP状態: public repository 運用として完了",
+    "リポジトリ可視性: public",
+    "外部公開 action: 実行済み",
     "発明者判断: ユーザー単独発明者として確認済み",
     "所有者判断: ユーザーが保持",
     "権利方針: 出願または公開の別判断があるまで、特許・出願詳細は意図的に広めに保つ",
@@ -258,8 +258,8 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
     return {
         "overall": "ok" if ok else "error",
         "external_actions_performed": False,
-        "repository_visibility_expected": "private",
-        "mvp_status": "complete_for_private_local_gate" if ok else "blocked",
+        "repository_visibility_expected": "public",
+        "mvp_status": "complete_for_public_repository_operation" if ok else "blocked",
         "next_milestone": "publication approval only if public release is requested",
         "checks": checks,
     }

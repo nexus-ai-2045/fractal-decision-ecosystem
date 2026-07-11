@@ -183,7 +183,7 @@ def check_operational_guarantee(errors: list[str]) -> None:
         "public release 残務: 人間承認が必要",
         "patent decision 残務: なし",
         "patent filing 実行残務: なし（optional / approval-gated）",
-        "現在の visibility: private",
+        "現在の visibility: public",
         "failure_kind",
         "postmortem_action",
     )
