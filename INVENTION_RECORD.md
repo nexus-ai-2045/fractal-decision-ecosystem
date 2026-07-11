@@ -28,8 +28,10 @@ Status: private working record. Do not publish.
 - Generated 50-skill layer.
 - Validation outputs.
 - Rights and license changes.
-- Provisional patent disclosure draft.
-- Patent packet PDF and SHA256 manifest in `patent-packet/`.
+- Provisional patent disclosure draft (local-only; removed from public git tracking
+  2026-07 after an unintended public exposure, see `PATENT_DISCLOSURE_RECORD.md`).
+- Patent packet PDF and SHA256 manifest (local-only generation via
+  `scripts/build_patent_packet.py`; not tracked in the public repository).
 - Pre-publication gate output from `python scripts\pre_publication_gate_check.py --json`.
 - Private MVP gate output from `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`.
 - Test output from `python -m pytest -q`.

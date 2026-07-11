@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,13 +24,19 @@ REQUIRED_ROOT_FILES = (
     "RIGHTS_NOTICE.md",
     "PUBLIC_KERNEL_PLAN.md",
     "DEFENSIVE_PATENT_REVIEW.md",
-    "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
     "INVENTION_RECORD.md",
     "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md",
     "PUBLICATION_REVIEW_PACKET.md",
-    "patent-packet/README.md",
-    "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-    "patent-packet/MANIFEST.sha256",
+    "PATENT_DISCLOSURE_RECORD.md",
+)
+
+# PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md と patent-packet/ は 2026-07 の repository
+# public 化に伴い誤って公開されたため、tracked file から除去し .gitignore に追加した
+# (PATENT_DISCLOSURE_RECORD.md 参照)。この 2 つは REQUIRED_ROOT_FILES に含めず、代わりに
+# check_no_public_patent_material() で「tracked として存在しないこと」を検査する。
+FORBIDDEN_PATENT_MATERIAL_GITIGNORE_ENTRIES = (
+    "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
+    "patent-packet/",
 )
 
 REQUIRED_PUBLIC_KERNEL_FILES = (
@@ -69,23 +76,19 @@ REQUIRED_LICENSE_TERMS = (
     "No trademark license is granted",
 )
 
-REQUIRED_PATENT_DRAFT_TERMS = (
-    "Do not publish this draft",
-    "Do not mark FDE as \"Patent Pending\" unless an",
-    "Recursive Source-Pointer Skill Routing",
-    "Figure 1: Recursive Routing Stack",
-    "Figure 2: Containment and Completion Loop",
-    "Figure 3: Public/Private Split",
-    "Candidate Claim Concepts",
-    "Export this document to PDF as",
-    "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-    "Record packet integrity in `patent-packet/MANIFEST.sha256`",
+REQUIRED_TODO_PATENT_PACKET_TERMS = (
+    "を git 追跡から除去し `.gitignore` に追加する",
+    "PATENT_DISCLOSURE_RECORD.md",
+    "local-only 生成物",
 )
 
-REQUIRED_TODO_PATENT_PACKET_TERMS = (
-    "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-    "patent-packet/MANIFEST.sha256",
-    "already-exported private PDF patent packet",
+REQUIRED_PATENT_DISCLOSURE_RECORD_TERMS = (
+    "事実記録のみ。法的助言ではない",
+    "2026-07 に public 化された",
+    "patent-packet/",
+    "git 履歴の書き換え",
+    "専門家",
+    "出願する / しない",
 )
 
 REQUIRED_PUBLIC_READY_TERMS = (
@@ -183,28 +186,55 @@ def validate_sha256_manifest(root: Path, manifest_rel: str, required_rels: tuple
 
 
 def check_patent_packet(errors: list[str]) -> None:
-    text = read(ROOT / "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md")
-    for term in REQUIRED_PATENT_DRAFT_TERMS:
-        if term not in text:
-            errors.append(f"PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md missing: {term}")
     todo_text = read(ROOT / "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md")
     for term in REQUIRED_TODO_PATENT_PACKET_TERMS:
         if term not in todo_text:
             errors.append(f"TODO_FDE_PUBLIC_KERNEL_RIGHTS.md missing: {term}")
-    if "Patent Pending" in text and "unless an\napplication is actually filed" not in text:
-        errors.append("Patent Pending wording is not guarded by filing requirement")
-    errors.extend(
-        validate_sha256_manifest(
-            ROOT,
-            "patent-packet/MANIFEST.sha256",
-            (
-                "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
-                "patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-                "DEFENSIVE_PATENT_REVIEW.md",
-                "INVENTION_RECORD.md",
-            ),
-        )
+
+
+def check_patent_disclosure_record(errors: list[str]) -> None:
+    text = read(ROOT / "PATENT_DISCLOSURE_RECORD.md")
+    for term in REQUIRED_PATENT_DISCLOSURE_RECORD_TERMS:
+        if term not in text:
+            errors.append(f"PATENT_DISCLOSURE_RECORD.md missing: {term}")
+
+
+def forbidden_patent_material_paths(tracked_files: list[str]) -> list[str]:
+    """git 管理下の tracked file から、除去対象の特許素材だけを抽出する。"""
+    forbidden = []
+    for rel in tracked_files:
+        if rel == "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md" or rel.startswith("patent-packet/"):
+            forbidden.append(rel)
+    return forbidden
+
+
+def check_no_public_patent_material(errors: list[str]) -> None:
+    """公開 repo の tracked file に特許素材 (draft / packet) が存在しないことを検査する。"""
+    gitignore_text = read(ROOT / ".gitignore") if (ROOT / ".gitignore").exists() else ""
+    for pattern in FORBIDDEN_PATENT_MATERIAL_GITIGNORE_ENTRIES:
+        if pattern not in gitignore_text:
+            errors.append(f".gitignore missing patent-material entry: {pattern}")
+
+    git_dir = ROOT / ".git"
+    if not git_dir.exists():
+        return
+    result = subprocess.run(
+        ["git", "ls-files"],
+        cwd=ROOT,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
     )
+    if result.returncode != 0:
+        return
+    tracked = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    forbidden = forbidden_patent_material_paths(tracked)
+    if forbidden:
+        errors.append(
+            "patent material is tracked in the public repository: " + ", ".join(sorted(forbidden))
+        )
 
 
 def check_public_kernel(errors: list[str]) -> None:
@@ -237,14 +267,12 @@ def check_invention_record(errors: list[str]) -> None:
 
 def build_manifest() -> dict[str, object]:
     files = [
-        ROOT / "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
         ROOT / "DEFENSIVE_PATENT_REVIEW.md",
         ROOT / "INVENTION_RECORD.md",
+        ROOT / "PATENT_DISCLOSURE_RECORD.md",
         ROOT / "PUBLIC_KERNEL_PLAN.md",
         ROOT / "RIGHTS_NOTICE.md",
         ROOT / "LICENSE",
-        ROOT / "patent-packet" / "FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf",
-        ROOT / "patent-packet" / "MANIFEST.sha256",
     ]
     return {
         "status": "local_pre_publication_packet",
@@ -264,9 +292,11 @@ def build_manifest() -> dict[str, object]:
 def evaluate() -> dict[str, object]:
     errors: list[str] = []
     check_required_files(errors)
+    check_no_public_patent_material(errors)
     if not errors:
         check_license(errors)
         check_patent_packet(errors)
+        check_patent_disclosure_record(errors)
         check_public_kernel(errors)
         check_public_ready(errors)
         check_invention_record(errors)

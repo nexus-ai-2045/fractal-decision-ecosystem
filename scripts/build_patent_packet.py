@@ -20,6 +20,9 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when reportlab is ab
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# SOURCE and OUT_DIR are both local-only paths (see .gitignore). After the
+# 2026-07 patent material removal, the public repository does not commit
+# either the draft source or the generated packet; see PATENT_DISCLOSURE_RECORD.md.
 SOURCE = ROOT / "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md"
 OUT_DIR = ROOT / "patent-packet"
 PDF = OUT_DIR / "FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf"

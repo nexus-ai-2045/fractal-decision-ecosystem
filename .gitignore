@@ -12,3 +12,9 @@ build/
 !.env.example
 
 .chinju/
+
+# Patent draft / packet material: local-only. See PATENT_DISCLOSURE_RECORD.md.
+# scripts/build_patent_packet.py can still regenerate this locally; it is
+# intentionally not tracked so it cannot be committed to the public repo again.
+PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md
+patent-packet/

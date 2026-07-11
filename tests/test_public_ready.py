@@ -11,6 +11,7 @@ from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_archit
 from scripts.fde_operational_closeout import evaluate as evaluate_fde_operational_closeout
 from scripts.fde_workflow_check import evaluate as evaluate_fde_workflow
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
+from scripts.pre_publication_gate_check import forbidden_patent_material_paths
 from scripts.pre_publication_gate_check import validate_sha256_manifest
 from scripts.public_ready_check import main as public_ready_main
 from scripts.human_review_packet_check import evaluate as evaluate_human_review_packet
@@ -430,6 +431,61 @@ def test_pre_publication_gate_detects_stale_patent_packet_manifest(tmp_path) -> 
 
     assert errors
     assert "hash mismatch: INVENTION_RECORD.md" in errors[0]
+
+
+def test_forbidden_patent_material_paths_detects_draft_and_packet() -> None:
+    tracked = [
+        "README.md",
+        "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
+        "patent-packet/MANIFEST.sha256",
+        "patent-packet/README.md",
+        "scripts/build_patent_packet.py",
+    ]
+
+    forbidden = forbidden_patent_material_paths(tracked)
+
+    assert forbidden == [
+        "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md",
+        "patent-packet/MANIFEST.sha256",
+        "patent-packet/README.md",
+    ]
+
+
+def test_forbidden_patent_material_paths_is_empty_for_clean_tree() -> None:
+    tracked = ["README.md", "scripts/build_patent_packet.py", "TODO_FDE_PUBLIC_KERNEL_RIGHTS.md"]
+
+    assert forbidden_patent_material_paths(tracked) == []
+
+
+def test_pre_publication_gate_rejects_tracked_patent_material_in_public_repo() -> None:
+    result = subprocess.run(
+        ["git", "ls-files", "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md", "patent-packet"],
+        cwd=public_ready_check.ROOT,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    tracked = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+    assert forbidden_patent_material_paths(tracked) == []
+    gitignore_text = (public_ready_check.ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md" in gitignore_text
+    assert "patent-packet/" in gitignore_text
+
+
+def test_patent_disclosure_record_documents_removal_without_legal_advice() -> None:
+    text = (public_ready_check.ROOT / "PATENT_DISCLOSURE_RECORD.md").read_text(encoding="utf-8")
+    for term in (
+        "事実記録のみ。法的助言ではない",
+        "2026-07 に public 化された",
+        "patent-packet/",
+        "git 履歴の書き換え",
+        "専門家",
+        "出願する / しない",
+    ):
+        assert term in text
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows pyenv shim regression")

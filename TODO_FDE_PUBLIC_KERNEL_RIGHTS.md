@@ -20,10 +20,12 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 
 ## Patent / Filing
 
-- [x] `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` を用意する
+- [x] `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` を local-only draft として用意する (git 追跡対象外)
 - [x] Diagrams / processing flow / generator pseudocode が含まれることを確認する
-- [x] Filing packet を `patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf` として PDF 化する
-- [x] `patent-packet/MANIFEST.sha256` に PDF packet の integrity hash を記録する
+- [x] Filing packet を `patent-packet/FDE_PROVISIONAL_PATENT_DISCLOSURE_DRAFT.pdf` として local-only で PDF 化できるようにする (`scripts/build_patent_packet.py`)
+- [x] `patent-packet/MANIFEST.sha256` に PDF packet の integrity hash を記録できるようにする (local-only 生成)
+- [x] 2026-07 の repository public 化で `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md` と `patent-packet/` が誤って世界公開されたため、両方を git 追跡から除去し `.gitignore` に追加する
+- [x] 除去の事実と公開自体は取り消せないことの証跡を `PATENT_DISCLOSURE_RECORD.md` に記録する
 - [ ] If later chosen, 別途承認後に chosen filing path で submit する
 - [ ] If filed, filing receipt / application number / submitted PDF / file hash を private に保存する
 - [ ] If filed, 12-month nonprovisional / PCT follow-up deadline を calendar 化する
@@ -72,10 +74,11 @@ Purpose: FDE を private に維持したまま、rights posture・defensive prov
 - `PUBLICATION_REVIEW_PACKET.md`: human review packet; public action approval ではない
 - `PUBLIC_KERNEL_PLAN.md`: public-kernel boundary
 - `DEFENSIVE_PATENT_REVIEW.md`: defensive patent context
-- `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md`: provisional patent disclosure draft
+- `PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md`: provisional patent disclosure draft (local-only, git 追跡対象外、`.gitignore` 済み)
 - `INVENTION_RECORD.md`: private invention record
+- `PATENT_DISCLOSURE_RECORD.md`: 特許素材の公開・除去に関する事実記録 (法的助言ではない)
 - `public-kernel/`: sanitized public-kernel candidate
-- `patent-packet/`: already-exported private PDF patent packet and SHA256 manifest
+- `patent-packet/`: local-only 生成物 (`scripts/build_patent_packet.py` で再生成可能)。git 追跡対象外、`.gitignore` 済み
 - `scripts/pre_publication_gate_check.py`: pre-publication gate
 - `scripts/public_kernel_diff_manifest.py`: public-kernel diff manifest check
 - `scripts/human_review_packet_check.py`: publication review packet check
