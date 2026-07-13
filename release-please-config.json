@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "81804ccf7e493f64d9d383012604db0c115fbe00",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "fractal-decision-ecosystem",
+      "include-v-in-tag": true
+    }
+  }
+}
