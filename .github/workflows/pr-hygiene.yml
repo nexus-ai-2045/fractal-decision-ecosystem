@@ -1,0 +1,31 @@
+name: PR Hygiene
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-body-hygiene:
+    name: pr-body-hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      # PR title/body は攻撃者が制御できる untrusted input。run: の shell
+      # 文字列へ ${{ github.event.pull_request.title/body }} を直接埋め込むと
+      # script injection の典型的な穴になるため、env: 経由で渡す。
+      - name: Scan PR title and body for PII / local paths
+        env:
+          PR_HYGIENE_TITLE: ${{ github.event.pull_request.title }}
+          PR_HYGIENE_BODY: ${{ github.event.pull_request.body }}
+          PR_HYGIENE_DENYLIST: ${{ secrets.PR_HYGIENE_DENYLIST }}
+        run: python scripts/pr_body_hygiene_check.py
