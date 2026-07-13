@@ -14,8 +14,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import yaml
-
 from scripts import public_ready_check
 from scripts.pr_body_hygiene_check import evaluate
 
@@ -235,12 +233,16 @@ def test_pr_hygiene_workflow_triggers_on_edited_and_reads_env_not_inline() -> No
     workflow_path = ROOT / ".github" / "workflows" / "pr-hygiene.yml"
     assert workflow_path.exists()
     text = workflow_path.read_text(encoding="utf-8")
-    parsed = yaml.safe_load(text)
 
-    pull_request_config = parsed.get("on", parsed.get(True, {})).get("pull_request", {})
-    types = pull_request_config.get("types", [])
+    # PyYAML は CI の test 依存に含めない (pytest のみ install する方針) ため、
+    # workflow の trigger 検証は types 宣言行を素の文字列として確認する。
+    types_line = next(
+        (line for line in text.splitlines() if line.strip().startswith("types:")),
+        "",
+    )
+    assert types_line, "pull_request の types: 宣言が必要"
     for required_type in ("opened", "edited", "synchronize", "reopened"):
-        assert required_type in types
+        assert required_type in types_line
 
     assert "PR_HYGIENE_TITLE" in text
     assert "PR_HYGIENE_BODY" in text
