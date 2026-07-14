@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema", "workflow_id", "manifest_digest", "trust_attestation", "evidence_integrity", "state", "approval_gate", "checks", "expected_check_count", "implementation_residue", "operation_residue", "external_public_residue", "external_actions_performed"],
+  "properties": {
+    "schema": {"const": "fde.target_workflow_receipt.v1"},
+    "workflow_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "manifest_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "evidence_integrity": {"const": "local_unsealed_consistency"},
+    "trust_attestation": {
+      "type": "object",
+      "required": ["registry_id", "base_commit", "head", "tree", "script_hashes"],
+      "properties": {
+        "registry_id": {"type": "string"},
+        "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "script_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      },
+      "additionalProperties": false
+    },
+    "state": {"enum": ["blocked", "human_review_required"]},
+    "approval_gate": {"const": "review_packet"},
+    "checks": {"type": "array", "items": {"type": "object", "required": ["name", "check_digest", "status", "exit_code", "duration_ms", "output_digest"], "properties": {"name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"}, "check_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "status": {"enum": ["passed", "failed", "timeout"]}, "exit_code": {"type": "integer"}, "duration_ms": {"type": "integer", "minimum": 0}, "output_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false}},
+    "expected_check_count": {"type": "integer", "minimum": 1},
+    "implementation_residue": {"enum": ["none", "check_failed"]},
+    "operation_residue": {"enum": ["human_review_required", "retry_required"]},
+    "external_public_residue": {"const": "approval_gated"},
+    "external_actions_performed": {"const": false}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "fde.trusted_targets.v1",
+  "targets": {
+    "discord-context-bridge": {
+      "remote": "https://github.com/nexus-ai-2045/discord-context-bridge.git",
+      "registry_id": "dcb-gates-2026-07-14-v1",
+      "base_commit": "6a5dacc647041fc8a1ed590c384771f2574b184b",
+      "head": "6a5dacc647041fc8a1ed590c384771f2574b184b",
+      "tree": "794d0d46eb625f1768a93d1c1bd60f78af4c6770",
+      "commands": {
+        "ops": {"argv": ["python", "scripts/ops_check.py", "--profile", "full"], "script_sha256": "e0f5c370aa3ab0d79cd41e43496c11ae07dd53e6fef7079278de0331d97ae3a9"},
+        "pr_readiness": {"argv": ["python", "scripts/pr_readiness_preflight.py", "--json"], "script_sha256": "7ce5df9ed34c5b3ef0dbb41f0ebfd4ac75d23711ae54d5a7adbf83ff4110ad66"}
+      }
+    }
+  }
+}

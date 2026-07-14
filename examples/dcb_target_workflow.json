@@ -1,0 +1,11 @@
+{
+  "schema": "fde.target_workflow.v1",
+  "workflow_id": "dcb-site-adapter-runtime",
+  "target_id": "discord-context-bridge",
+  "repo_root": "${TARGET_REPO}",
+  "approval_gate": "review_packet",
+  "checks": [
+    {"name": "ops", "argv": ["python", "scripts/ops_check.py", "--profile", "full"], "timeout_seconds": 180},
+    {"name": "pr_readiness", "argv": ["python", "scripts/pr_readiness_preflight.py", "--json"], "timeout_seconds": 120}
+  ]
+}
