@@ -225,7 +225,7 @@ def check_workflow_contract(errors: list[str]) -> None:
     required_terms = (
         "scripts/run_mvp_gate.ps1",
         "shell: pwsh",
-        "python -m pip install pytest",
+        "python -m pip install -r requirements-dev.txt",
         "actions/checkout@v6",
         "actions/setup-python@v6",
         "pull_request:",

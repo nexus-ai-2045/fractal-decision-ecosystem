@@ -20,6 +20,9 @@ REQUIRED_TERMS = (
     "external_send",
     "patent_filing",
     "pytest",
+    "target_workflow_runner",
+    "stop_at: review_packet",
+    "receipt: metadata_only",
 )
 
 REQUIRED_STATES = (

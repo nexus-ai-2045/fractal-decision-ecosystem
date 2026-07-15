@@ -1,6 +1,7 @@
 import hashlib
 import os
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -127,6 +128,11 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
     assert result["external_actions_performed"] is False
     assert result["workflow"]["control_plane"] == "FDE"
     assert "external_approval_required" in result["workflow"]["states"]
+
+
+def test_public_ready_ci_installs_declared_project_dependencies() -> None:
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "public-ready.yml").read_text(encoding="utf-8")
+    assert "python -m pip install -r requirements-dev.txt" in workflow
 
 
 def test_fde_architecture_drift_check_connects_docs_scripts_and_tests() -> None:

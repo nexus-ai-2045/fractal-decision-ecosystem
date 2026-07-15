@@ -8,6 +8,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from jsonschema import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -23,6 +24,7 @@ from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
 from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
+from scripts.fde_target_workflow import _verify_trust, load_manifest
 
 
 def _git(args: list[str]) -> str:
@@ -65,7 +67,7 @@ def _run_pytest() -> dict[str, object]:
     }
 
 
-def evaluate(run_pytest: bool = True) -> dict[str, object]:
+def evaluate(run_pytest: bool = True, target_receipt: Path | None = None, target_manifest: Path | None = None, target_repo: Path | None = None) -> dict[str, object]:
     checks: dict[str, dict[str, object]] = {
         "workflow": evaluate_workflow(),
         "public_ready": _run_public_ready(),
@@ -80,6 +82,24 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
     }
     if run_pytest:
         checks["pytest"] = _run_pytest()
+    if target_receipt is not None:
+        try:
+            if target_manifest is None:
+                raise ValueError("target manifest required")
+            receipt = json.loads(target_receipt.read_text(encoding="utf-8"))
+            manifest = load_manifest(target_manifest, target_repo=target_repo)
+            schema = json.loads((ROOT / "schemas/fde_target_workflow_receipt.v1.schema.json").read_text(encoding="utf-8"))
+            validate(receipt, schema)
+            expected = {item["name"]: __import__("hashlib").sha256(json.dumps(item, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest() for item in manifest["checks"]}
+            actual = {item["name"]: item.get("check_digest") for item in receipt["checks"]}
+            complete = len(receipt["checks"]) == receipt["expected_check_count"] == len(manifest["checks"]) and all(item.get("status") == "passed" for item in receipt["checks"])
+            current_trust = _verify_trust(manifest)
+            bound = receipt["workflow_id"] == manifest["workflow_id"] and receipt["manifest_digest"] == manifest["manifest_digest"] and actual == expected and isinstance(current_trust, dict) and receipt["trust_attestation"] == current_trust
+            residues = receipt.get("implementation_residue") == "none" and receipt.get("operation_residue") == "human_review_required" and receipt.get("external_public_residue") == "approval_gated"
+            ok = receipt["state"] == "human_review_required" and complete and bound and residues and receipt["external_actions_performed"] is False
+            checks["target_workflow"] = {"ok": ok, "consistency_ok": ok, "evidence_integrity": "local_unsealed_consistency", "state": receipt.get("state"), "manifest_digest": receipt.get("manifest_digest"), "operational_guarantee": "human_review_required", "external_actions_performed": False}
+        except Exception:
+            checks["target_workflow"] = {"ok": False, "state": "receipt_invalid", "external_actions_performed": False}
 
     errors: list[str] = []
     for name, result in checks.items():
@@ -90,6 +110,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
     branch = _git(["branch", "--show-current"])
     head = _git(["rev-parse", "--short", "HEAD"])
     relation = _git(["status", "--short", "--branch"]).splitlines()[0]
+    target_review_required = bool(checks.get("target_workflow", {}).get("ok"))
 
     return {
         "overall": "ok" if not errors else "error",
@@ -99,9 +120,10 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         "head": head,
         "branch_relation": relation,
         "implementation_residue": "none" if not errors else "unknown",
-        "operation_residue": "none" if not errors else "unknown",
+        "operation_residue": "human_review_required" if target_review_required else ("none" if not errors else "unknown"),
         "external_public_residue": "approval_gated",
-        "next_required_human_decision": "publication approval only if public release is requested",
+        "next_required_human_decision": "target PR human review" if target_review_required else "publication approval only if public release is requested",
+        "later_publication_gate": "publication approval only if public release is requested",
         "checks": checks,
     }
 
@@ -110,8 +132,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--skip-pytest", action="store_true")
+    parser.add_argument("--target-receipt", type=Path)
+    parser.add_argument("--target-manifest", type=Path)
+    parser.add_argument("--target-repo", type=Path)
     args = parser.parse_args()
-    result = evaluate(run_pytest=not args.skip_pytest)
+    result = evaluate(run_pytest=not args.skip_pytest, target_receipt=args.target_receipt, target_manifest=args.target_manifest, target_repo=args.target_repo)
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
