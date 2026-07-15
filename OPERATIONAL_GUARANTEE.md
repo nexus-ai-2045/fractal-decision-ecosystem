@@ -22,7 +22,7 @@
 
 運用残務: なし
 
-未実装ロードマップ: あり。ただし future scope として `ROADMAP.md` に分離済みであり、現在の private repository package の実装残務ではない。
+未実装ロードマップ: あり。ただし future scope として `ROADMAP.md` に分離済みであり、現在の repository package の実装残務ではない。
 
 public release 残務: 人間承認が必要
 
@@ -49,21 +49,22 @@ Post-merge local sync evidence:
 - `main...origin/main` に同期済み。
 - #8 の squash merge 後、local duplicate commit は rebase skip で remote main に合わせた。
 - #10 / #11 / #12 は stacked PR として review 後に squash merge し、#11 / #12 は `main` へ retarget して GitHub Actions `public-ready` pass 後に merge した。
-- #10 / #11 / #12 の merge は private repository main への反映であり、public action approval ではない。
+- #10 / #11 / #12 の merge は当時privateだったrepository mainへの反映であり、追加のpublic action approvalではない。
 
 ## 必須検証
 
 この package は、以下の check がすべて通った時だけ運用可能とみなします。
 
 - `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1`
-- `python scripts/roadmap_gate_check.py`
-- `python scripts/residual_zero_goal_check.py`
-- `python scripts/no_transport_contact_check.py`
-- `python scripts/verify_residual_zero_contract.py`
-- `python scripts/visual_html_smoke.py`
-- `python scripts/public_kernel_diff_manifest.py --check`
-- `python scripts/human_review_packet_check.py --json`
-- `python -m compileall -q scripts tests`
+- `python3 scripts/roadmap_gate_check.py`
+- `python3 scripts/residual_zero_goal_check.py`
+- `python3 scripts/no_transport_contact_check.py`
+- `python3 scripts/verify_residual_zero_contract.py`
+- `python3 scripts/visual_html_smoke.py`
+- `python3 scripts/public_kernel_diff_manifest.py --check`
+- `python3 scripts/human_review_packet_check.py --json`
+- `python3 scripts/fde_workflow_check.py`
+- `python3 -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
 - Git history の author / committer が `Nexus AI <noreply@nexus-ai.local>` である
 - repository visibility は既に public 化の明示承認を経て変更済みであり、それ以上の visibility 変更には改めて明示承認が必要である
@@ -77,6 +78,10 @@ Post-merge local sync evidence:
 MVP gate 本体の出力 marker が確認できない場合も、wrapper 成功ではなく gate 未実行として失敗扱いにします。
 `scripts/mvp_gate_check.py` は、public readiness check、pre-publication gate、
 `MVP_STATUS.md`、pytest を集約する private MVP gate です。
+`scripts/fde_workflow_check.py` は、goal / capability inventory / roadmap / preflight / implementation / verification / operational guarantee / feedback / system update の順序、`lint / unit / integration / smoke / e2e / regression` の検証層、学習の更新先と adoption 条件を read-only で検証します。
+`scripts/fde_operational_closeout.py --json --require-delivery-ready` は、gate healthに加えてworktree、upstream、ahead/behind、delivery residue、保存すべきcontextを検査し、未commit・未pushの状態を残務ゼロと誤判定しません。
+`--require-remote-ci`はcurrent HEADのGitHub Actions `Public Ready`成功とHEAD一致を必須化します。`--record-human-review <reviewer>`はstaged treeへの明示レビューをreceipt化し、commit treeとの一致を検証します。`--write-context-receipt`はrunごとのgoal、boundary、planned transitionとcompleted/blocked実績、検証layerの適用/waiver、feedback、full HEAD、gate digestをignored `.fde-runtime/closeout-receipts/`へatomicかつ追記型で保存します。
+macOS / Linuxのsupported entrypointは`python3`、Windowsのtop-level supported entrypointは`scripts/run_mvp_gate.ps1`です。存在しない`python`commandを前提にしません。
 `scripts/roadmap_gate_check.py` は、`ROADMAP.md` の Now / Next / Future、
 lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 merge 境界を検証します。
 `scripts/residual_zero_goal_check.py` は、implementation / operation / external-public を分けた

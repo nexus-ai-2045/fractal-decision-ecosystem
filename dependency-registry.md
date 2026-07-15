@@ -78,6 +78,10 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | runtime-boot | `Documents/brain/runtime-boot-branching.md` | runtime 起動入口の正本 | external-authority |
 | codex-restart | `Documents/brain/codex-restart-protocol.md` | Codex 起動・復帰 protocol | external-authority |
 | official-capability | `Documents/brain/official-capability-inventory-first.md` | 新規機構前の公式機能 / 既存例確認 gate | external-authority |
+| measurement-gate | `Documents/brain/measurement-gate.md` | 測定可能な claim の実測、shadow 観測、昇格判断の正本 | external-authority |
+| operational-command-smoke | `Documents/brain/operational-command-smoke-contract.md` | command の dry-run / smoke / verify / report / regression 接続契約 | external-authority |
+| runtime-guarantee-matrix | `Documents/references/runtime-guarantee-matrix.md` | runtime ごとの hard / warn / fail-closed / fail-open 保証差の正本 | external-authority |
+| low-pdca-orchestrator | `shared/skills/low-pdca-orchestrator/SKILL.md` | goal / decomposition / dispatch / check / act を回す shared skill 正本 | external-authority |
 | cross-runtime-primitives | `Documents/brain/cross-runtime-operational-primitives.md` | runtime 横断 primitive / 共通操作語彙 | external-authority |
 | fdecc-review-workspace | `this repositoryCC/` | 基盤 / Cloud Code による FDE review / improvement workspace | external-authority |
 | fde-v1-draft-report | `Documents/reports/fde/2026-05-13-fde-v1-draft.md` | historical draft, not normal entry | external-authority |
@@ -176,4 +180,3 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | knowledge | 知見 | `dependency-registry:lessons` / `dependency-registry:reports` |
 
 closure_rule: active
-

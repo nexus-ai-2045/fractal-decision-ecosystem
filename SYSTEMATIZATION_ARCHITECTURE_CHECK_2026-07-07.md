@@ -117,3 +117,13 @@
 - このcontext noteがrepo内に存在する
 - 追加後もlocal testsとMVP gateが通る
 - public action、external send、repository visibility changeを実行しない
+
+## 2026-07-15 Closed-Loop Implementation Context
+
+- repo-local machine SSOT: `fde_workflow.yaml` v2
+- workspace operating authority: `Documents/brain/fde/operating-card.md`
+- external detail authorities: `dependency-registry.md` の measurement / command smoke / runtime guarantee / low-PDCA pointers
+- strict validator: comment、duplicate key、unknown key、invalid syntax、state/transition/evidence/gate driftをfail-closedで拒否
+- closeout: worktree、upstream、ahead/behind、gate healthを分離し、`--require-delivery-ready`時は未commit・未pushをエラーにする
+- current visibility: public。古いprivate表記はhistorical evidenceでありcurrent SSOTではない
+- context resume source: `scripts/fde_operational_closeout.py --json --require-delivery-ready` のfull HEAD、gate receipt、residue、`context_to_preserve`、`resume_checks`

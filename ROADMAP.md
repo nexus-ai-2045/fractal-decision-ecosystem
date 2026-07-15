@@ -243,18 +243,25 @@ private operating package と public candidate の差分を、公開前に機械
 
 ### Sprint 5: Eval-Driven FDE Operations
 
+状態: closed-loop workflow contract 実装済み / 会話fixture拡張は future scope
+
 目的:
 
-FDEの判断ルートが、会話の揺れや曖昧な依頼でも発火することを評価できるようにする。
+FDEの判断ルートを `goal -> evidence -> operational guarantee -> feedback -> system update` まで閉じ、会話の揺れや曖昧な依頼でも発火することを評価できるようにする。
 
 実装:
 
+- `fde_workflow.yaml` に goal / capability inventory / roadmap / preflight / verification layers / operational guarantee / feedback / system update の順序を固定する。
+- `scripts/fde_workflow_check.py` で閉ループ順序、検証層、学習先、採用条件を機械検証する。
+- 学習の更新先を `route / skill / gate / test / ssot / roadmap` に限定し、`evidence / rollback_path / adoption_gate` を必須化する。
 - `publication`, `review`, `merge`, `AI contact`, `source pointer`, `residual-zero` などの会話fixtureを作る。
 - expected route、required gate、stop line、final closeout の評価を作る。
 - OpenAI API等を使う場合は key管理と no-external-action を先に固定する。
 
 スモーク:
 
+- `python3 scripts/fde_workflow_check.py`
+- malformed workflow regression test
 - fixture dry run
 - route expectation check
 - no-public-action check
