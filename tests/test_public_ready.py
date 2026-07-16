@@ -2,9 +2,11 @@ import hashlib
 import copy
 import os
 import subprocess
+from pathlib import Path
 
 import pytest
 
+from scripts import fde_operational_closeout
 from scripts import public_ready_check
 from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
@@ -178,6 +180,12 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
         binding.startswith("verify=compileall+git_diff_check+pytest")
         for binding in result["workflow"]["state_gate_bindings"]
     )
+    assert result["workflow"]["target_workflow_runner"] == {
+        "manifest_schema": "fde.target_workflow.v1",
+        "stop_at": "review_packet",
+        "receipt": "metadata_only",
+        "external_actions_performed": False,
+    }
 
 
 def test_fde_workflow_rejects_an_incomplete_learning_contract(tmp_path) -> None:
@@ -235,6 +243,17 @@ def test_fde_workflow_rejects_an_out_of_order_closed_loop(tmp_path) -> None:
             lambda text: text.replace("  - pytest\n", ""),
             "required_local_gates is missing, contains unknown values, or is out of order",
         ),
+        (
+            lambda text: text.replace("  stop_at: review_packet", "  stop_at: merge"),
+            "target_workflow_runner is missing, contains unknown values, or has invalid values",
+        ),
+        (
+            lambda text: text.replace(
+                "  receipt: metadata_only",
+                "  receipt: metadata_only\n  bypass: allowed",
+            ),
+            "unknown mapping key in target_workflow_runner: bypass",
+        ),
     ),
 )
 def test_fde_workflow_fails_closed_on_ambiguous_or_spoofed_input(
@@ -250,6 +269,11 @@ def test_fde_workflow_fails_closed_on_ambiguous_or_spoofed_input(
 
     assert result["overall"] == "error"
     assert any(expected_error in error for error in result["errors"])
+
+
+def test_public_ready_ci_installs_declared_project_dependencies() -> None:
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "public-ready.yml").read_text(encoding="utf-8")
+    assert "python -m pip install -r requirements-dev.txt" in workflow
 
 
 def test_fde_architecture_drift_check_connects_docs_scripts_and_tests() -> None:
@@ -321,6 +345,40 @@ def test_fde_operational_closeout_delivery_state_is_machine_readable() -> None:
     }
     assert receipt["check_events"]
     assert all(len(event["result_sha256"]) == 64 for event in receipt["check_events"])
+
+
+def test_fde_operational_closeout_reads_updated_artifacts_from_pr_merge_commit(
+    monkeypatch,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_git(args: list[str], *, allow_failure: bool = False) -> str:
+        calls.append(args)
+        return "scripts/fde_operational_closeout.py\ntests/test_public_ready.py"
+
+    monkeypatch.setattr(fde_operational_closeout, "_git", fake_git)
+
+    artifacts = fde_operational_closeout._implemented_artifacts(
+        {"changed_entries": []},
+        "merge-head",
+    )
+
+    assert artifacts == [
+        "scripts/fde_operational_closeout.py",
+        "tests/test_public_ready.py",
+    ]
+    assert calls == [
+        [
+            "diff-tree",
+            "--root",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            "-m",
+            "--first-parent",
+            "merge-head",
+        ]
+    ]
 
 
 def test_fde_closed_loop_e2e_contract_reaches_closeout() -> None:

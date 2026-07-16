@@ -97,6 +97,7 @@ blocked_transitions:
   - auth_settings_change
   - destructive_operation
 required_local_gates:
+  - target_workflow_runner
   - public_ready_check
   - pre_publication_gate_check
   - roadmap_gate_check
@@ -107,3 +108,8 @@ required_local_gates:
   - public_kernel_diff_manifest
   - human_review_packet_check
   - pytest
+target_workflow_runner:
+  manifest_schema: fde.target_workflow.v1
+  stop_at: review_packet
+  receipt: metadata_only
+  external_actions_performed: false

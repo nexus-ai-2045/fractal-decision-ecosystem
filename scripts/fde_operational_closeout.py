@@ -12,6 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from jsonschema import validate
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -28,6 +30,7 @@ from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
 from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
+from scripts.fde_target_workflow import _verify_trust, load_manifest
 
 RUNTIME_DIR = ROOT / ".fde-runtime"
 HUMAN_REVIEW_RECEIPT = RUNTIME_DIR / "human-review-receipt.json"
@@ -90,6 +93,30 @@ def _delivery_state() -> dict[str, object]:
         "delivery_residue": delivery_residue,
         "git_errors": git_errors,
     }
+
+
+def _implemented_artifacts(delivery: dict[str, object], head: str) -> list[str]:
+    changed_entries = delivery.get("changed_entries", [])
+    implemented_artifacts = (
+        list(changed_entries) if isinstance(changed_entries, list) else []
+    )
+    if implemented_artifacts or head == "unknown":
+        return implemented_artifacts
+    try:
+        return _git(
+            [
+                "diff-tree",
+                "--root",
+                "--no-commit-id",
+                "--name-only",
+                "-r",
+                "-m",
+                "--first-parent",
+                head,
+            ]
+        ).splitlines()
+    except RuntimeError:
+        return []
 
 
 def _human_review_state(head: str) -> dict[str, object]:
@@ -332,6 +359,77 @@ def _run_git_diff_check() -> dict[str, object]:
     return {"ok": result.returncode == 0, "output": result.stdout.strip().splitlines()}
 
 
+def _evaluate_target_workflow(
+    target_receipt: Path,
+    target_manifest: Path | None,
+    target_repo: Path | None,
+) -> dict[str, object]:
+    try:
+        if target_manifest is None:
+            raise ValueError("target manifest required")
+        receipt = json.loads(target_receipt.read_text(encoding="utf-8"))
+        manifest = load_manifest(target_manifest, target_repo=target_repo)
+        schema = json.loads(
+            (ROOT / "schemas/fde_target_workflow_receipt.v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        validate(receipt, schema)
+        expected = {
+            item["name"]: hashlib.sha256(
+                json.dumps(
+                    item,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode()
+            ).hexdigest()
+            for item in manifest["checks"]
+        }
+        actual = {item["name"]: item.get("check_digest") for item in receipt["checks"]}
+        complete = (
+            len(receipt["checks"])
+            == receipt["expected_check_count"]
+            == len(manifest["checks"])
+            and all(item.get("status") == "passed" for item in receipt["checks"])
+        )
+        current_trust = _verify_trust(manifest)
+        bound = (
+            receipt["workflow_id"] == manifest["workflow_id"]
+            and receipt["manifest_digest"] == manifest["manifest_digest"]
+            and actual == expected
+            and isinstance(current_trust, dict)
+            and receipt["trust_attestation"] == current_trust
+        )
+        residues = (
+            receipt.get("implementation_residue") == "none"
+            and receipt.get("operation_residue") == "human_review_required"
+            and receipt.get("external_public_residue") == "approval_gated"
+        )
+        ok = (
+            receipt["state"] == "human_review_required"
+            and complete
+            and bound
+            and residues
+            and receipt["external_actions_performed"] is False
+        )
+        return {
+            "ok": ok,
+            "consistency_ok": ok,
+            "evidence_integrity": "local_unsealed_consistency",
+            "state": receipt.get("state"),
+            "manifest_digest": receipt.get("manifest_digest"),
+            "operational_guarantee": "human_review_required",
+            "external_actions_performed": False,
+        }
+    except Exception:
+        return {
+            "ok": False,
+            "state": "receipt_invalid",
+            "external_actions_performed": False,
+        }
+
+
 def _remote_ci_state(branch: str, head: str) -> dict[str, object]:
     try:
         result = subprocess.run(
@@ -377,6 +475,9 @@ def evaluate(
     run_pytest: bool = True,
     require_delivery_ready: bool = False,
     require_remote_ci: bool = False,
+    target_receipt: Path | None = None,
+    target_manifest: Path | None = None,
+    target_repo: Path | None = None,
 ) -> dict[str, object]:
     check_specs = (
         ("workflow", evaluate_workflow),
@@ -423,6 +524,27 @@ def evaluate(
                 "completed_at": datetime.now(UTC).isoformat(),
                 "result_sha256": hashlib.sha256(
                     json.dumps(checks["pytest"], ensure_ascii=False, sort_keys=True).encode("utf-8")
+                ).hexdigest(),
+            }
+        )
+    if target_receipt is not None:
+        started_at = datetime.now(UTC).isoformat()
+        checks["target_workflow"] = _evaluate_target_workflow(
+            target_receipt,
+            target_manifest,
+            target_repo,
+        )
+        check_events.append(
+            {
+                "name": "target_workflow",
+                "started_at": started_at,
+                "completed_at": datetime.now(UTC).isoformat(),
+                "result_sha256": hashlib.sha256(
+                    json.dumps(
+                        checks["target_workflow"],
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ).encode("utf-8")
                 ).hexdigest(),
             }
         )
@@ -473,6 +595,7 @@ def evaluate(
         errors.append(f"remote CI is not successful: {remote_ci['status']}")
     local_residual_zero = delivery_local_zero and human_review["ok"] is True
     residual_zero = local_residual_zero and remote_ci["ok"] is True
+    target_review_required = bool(checks.get("target_workflow", {}).get("ok"))
 
     if not gate_health_ok:
         failure_kind = "gate_failure"
@@ -524,14 +647,7 @@ def evaluate(
         )
 
     rollback_path = f"git revert {head}" if delivery["worktree_clean"] else "not_available_before_commit"
-    implemented_artifacts = list(delivery["changed_entries"])
-    if not implemented_artifacts and head != "unknown":
-        try:
-            implemented_artifacts = _git(
-                ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"]
-            ).splitlines()
-        except RuntimeError:
-            implemented_artifacts = []
+    implemented_artifacts = _implemented_artifacts(delivery, head)
     feedback_receipt = {
         "failure_kind": failure_kind,
         "evidence": [gate_receipt_sha256],
@@ -597,6 +713,9 @@ def evaluate(
         "gate_health": "ok" if gate_health_ok else "error",
         "implementation_residue": "none" if gate_health_ok else "unknown",
         "operation_residue": (
+            "human_review_required"
+            if target_review_required
+            else
             "none"
             if gate_health_ok and delivery["worktree_clean"]
             else "uncommitted_changes"
@@ -616,7 +735,12 @@ def evaluate(
         "human_review": human_review,
         "context_receipt": context_receipt,
         "external_public_residue": "approval_gated",
-        "next_required_human_decision": "publication approval only if public release is requested",
+        "next_required_human_decision": (
+            "target PR human review"
+            if target_review_required
+            else "publication approval only if public release is requested"
+        ),
+        "later_publication_gate": "publication approval only if public release is requested",
         "context_to_preserve": [
             "fde_workflow.yaml is the machine-readable closed-loop SSOT",
             "dependency-registry.md points to external measurement, smoke, runtime guarantee, and PDCA authorities",
@@ -638,6 +762,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--skip-pytest", action="store_true")
+    parser.add_argument("--target-receipt", type=Path)
+    parser.add_argument("--target-manifest", type=Path)
+    parser.add_argument("--target-repo", type=Path)
     parser.add_argument(
         "--require-delivery-ready",
         action="store_true",
@@ -671,6 +798,9 @@ def main() -> int:
         run_pytest=not args.skip_pytest,
         require_delivery_ready=args.require_delivery_ready,
         require_remote_ci=args.require_remote_ci,
+        target_receipt=args.target_receipt,
+        target_manifest=args.target_manifest,
+        target_repo=args.target_repo,
     )
     if args.write_context_receipt:
         try:

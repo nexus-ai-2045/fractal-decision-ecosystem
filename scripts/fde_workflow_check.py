@@ -92,6 +92,7 @@ BLOCKED_TRANSITIONS = (
     "destructive_operation",
 )
 REQUIRED_LOCAL_GATES = (
+    "target_workflow_runner",
     "public_ready_check",
     "pre_publication_gate_check",
     "roadmap_gate_check",
@@ -103,6 +104,12 @@ REQUIRED_LOCAL_GATES = (
     "human_review_packet_check",
     "pytest",
 )
+TARGET_WORKFLOW_RUNNER = {
+    "manifest_schema": "fde.target_workflow.v1",
+    "stop_at": "review_packet",
+    "receipt": "metadata_only",
+    "external_actions_performed": False,
+}
 
 SCALAR_KEYS = {
     "schema_version",
@@ -127,9 +134,11 @@ LIST_CONTRACTS = {
     "blocked_transitions": BLOCKED_TRANSITIONS,
     "required_local_gates": REQUIRED_LOCAL_GATES,
 }
-ALLOWED_KEYS = SCALAR_KEYS | set(LIST_CONTRACTS)
+MAPPING_CONTRACTS = {"target_workflow_runner": TARGET_WORKFLOW_RUNNER}
+ALLOWED_KEYS = SCALAR_KEYS | set(LIST_CONTRACTS) | set(MAPPING_CONTRACTS)
 TOP_LEVEL = re.compile(r"^([a-z][a-z0-9_]*):(?: (.*))?$")
 LIST_ITEM = re.compile(r"^  - ([^\s].*)$")
+MAPPING_ITEM = re.compile(r"^  ([a-z][a-z0-9_]*): ([^\s].*)$")
 
 
 def _parse_manifest(text: str) -> tuple[dict[str, object], list[str]]:
@@ -137,6 +146,7 @@ def _parse_manifest(text: str) -> tuple[dict[str, object], list[str]]:
     data: dict[str, object] = {}
     errors: list[str] = []
     active_list: str | None = None
+    active_mapping: str | None = None
 
     for line_number, line in enumerate(text.splitlines(), start=1):
         if not line:
@@ -149,6 +159,7 @@ def _parse_manifest(text: str) -> tuple[dict[str, object], list[str]]:
         if top_match:
             key, raw_value = top_match.groups()
             active_list = None
+            active_mapping = None
             if key not in ALLOWED_KEYS:
                 errors.append(f"line {line_number}: unknown key: {key}")
                 continue
@@ -156,11 +167,15 @@ def _parse_manifest(text: str) -> tuple[dict[str, object], list[str]]:
                 errors.append(f"line {line_number}: duplicate key: {key}")
                 continue
             if raw_value is None:
-                if key not in LIST_CONTRACTS:
+                if key in LIST_CONTRACTS:
+                    data[key] = []
+                    active_list = key
+                elif key in MAPPING_CONTRACTS:
+                    data[key] = {}
+                    active_mapping = key
+                else:
                     errors.append(f"line {line_number}: scalar key requires a value: {key}")
                     continue
-                data[key] = []
-                active_list = key
             else:
                 if key not in SCALAR_KEYS:
                     errors.append(f"line {line_number}: list key cannot have a scalar value: {key}")
@@ -171,6 +186,28 @@ def _parse_manifest(text: str) -> tuple[dict[str, object], list[str]]:
                     data[key] = False
                 else:
                     data[key] = raw_value
+            continue
+
+        mapping_match = MAPPING_ITEM.fullmatch(line)
+        if mapping_match and active_mapping:
+            key, raw_value = mapping_match.groups()
+            target = data[active_mapping]
+            assert isinstance(target, dict)
+            expected_keys = MAPPING_CONTRACTS[active_mapping]
+            if key not in expected_keys:
+                errors.append(
+                    f"line {line_number}: unknown mapping key in {active_mapping}: {key}"
+                )
+            elif key in target:
+                errors.append(
+                    f"line {line_number}: duplicate mapping key in {active_mapping}: {key}"
+                )
+            elif raw_value == "true":
+                target[key] = True
+            elif raw_value == "false":
+                target[key] = False
+            else:
+                target[key] = raw_value
             continue
 
         item_match = LIST_ITEM.fullmatch(line)
@@ -215,6 +252,10 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
         if key in data and data[key] != list(expected):
             errors.append(f"{key} is missing, contains unknown values, or is out of order")
 
+    for key, expected in MAPPING_CONTRACTS.items():
+        if key in data and data[key] != expected:
+            errors.append(f"{key} is missing, contains unknown values, or has invalid values")
+
     return {
         "overall": "ok" if not errors else "error",
         "external_actions_performed": data.get("external_actions_performed"),
@@ -234,6 +275,7 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
             "state_evidence_contract": data.get("state_evidence_contract", []),
             "state_gate_bindings": data.get("state_gate_bindings", []),
             "learning_return_to": data.get("learning_return_to"),
+            "target_workflow_runner": data.get("target_workflow_runner", {}),
         },
     }
 
