@@ -1,5 +1,6 @@
 import hashlib
 import copy
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -186,6 +187,17 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
         "receipt": "metadata_only",
         "external_actions_performed": False,
     }
+
+
+def test_release_please_uses_existing_unprefixed_v_tag_contract() -> None:
+    root = public_ready_check.ROOT
+    config = json.loads((root / "release-please-config.json").read_text(encoding="utf-8"))
+    manifest = json.loads((root / ".release-please-manifest.json").read_text(encoding="utf-8"))
+    package = config["packages"]["."]
+
+    assert package["include-v-in-tag"] is True
+    assert package["include-component-in-tag"] is False
+    assert (root / "version.txt").read_text(encoding="utf-8").strip() == manifest["."]
 
 
 def test_fde_workflow_rejects_an_incomplete_learning_contract(tmp_path) -> None:
