@@ -64,7 +64,7 @@ def evaluate() -> dict[str, object]:
         "overall": "ok" if not errors else "error",
         "external_actions_performed": False,
         "errors": errors,
-        "residual_zero_scope": "private local implementation and operation only",
+        "residual_zero_scope": "repository-local implementation and operation only",
     }
 
 

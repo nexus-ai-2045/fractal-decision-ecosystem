@@ -1,5 +1,7 @@
 # FDE Chat Context Closeout
 
+> Historical snapshot: この文書のvisibility、branch、test件数は2026-07-06時点の証跡です。現在値の正本ではありません。現在値は `OPERATIONAL_GUARANTEE.md`、`fde_workflow.yaml`、`scripts/fde_operational_closeout.py --json --require-delivery-ready` で確認します。
+
 Status: done / private repository chat closeout
 Date: 2026-07-06
 

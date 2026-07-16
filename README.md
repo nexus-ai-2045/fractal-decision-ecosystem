@@ -16,9 +16,9 @@ tags: [fde, index, brain]
 
 レビュー導線: [visual.html](visual.html) → [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) → [ROADMAP.md](ROADMAP.md) → [TODO_IMPACT_EXECUTION_2026-07-01.md](TODO_IMPACT_EXECUTION_2026-07-01.md) → [OPERATIONAL_GUARANTEE.md](OPERATIONAL_GUARANTEE.md) / [MVP_STATUS.md](MVP_STATUS.md) → [PUBLIC_KERNEL_PLAN.md](PUBLIC_KERNEL_PLAN.md) → [TODO_FDE_PUBLIC_KERNEL_RIGHTS.md](TODO_FDE_PUBLIC_KERNEL_RIGHTS.md)
 
-Fractal Decision Ecosystem（FDE）は、AI が本来デフォルトで持っているはずの判断・整理・検証・接続・改善の能力を、毎回ちゃんと発揮させるための体系です。
+Fractal Decision Ecosystem（FDE）は、AI が本来デフォルトで持っているはずの判断・整理・開発・検証・運用・改善の能力を、目標設定から継続学習まで毎回ちゃんと発揮させるための自己最適化型 control plane です。
 
-AI は、問いを分解する、根拠を分ける、過去の文脈に接続する、危険な操作を止める、次の一手へ閉じる、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、入口、判断軸、根拠、閉じ方、発火条件をまとめた routing OS です。
+AI は、問いを分解する、根拠を分ける、既存資産を探す、実装する、テストする、危険な操作を止める、失敗から次の仕組みを直す、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、目標、境界、入口、判断軸、根拠、gate、運用保証、学習先をまとめた routing / development OS です。
 
 ## 完成図
 
@@ -37,6 +37,33 @@ FDE の完成図は、巨大なAIアプリではなく、AI作業を軽く賢く
 | 公開・送信・visibility変更が勢いで進みそうになる | human review と明示承認まで止める |
 
 つまり「軽くなる」は、読む量を減らすことです。「賢くなる」は、AIが毎回よい判断を思いつくことではなく、よい判断に必要な gate と evidence が自動で発火することです。
+
+## 閉ループの完成条件
+
+`entry -> packet -> evidence -> decision -> closure` は、1回の判断を閉じる内側の loop です。FDE 全体は、その外側で次を閉じます。
+
+```text
+goal_and_boundary
+-> capability_inventory
+-> roadmap
+-> preflight
+-> implement
+-> verify
+-> operational_guarantee
+-> feedback
+-> system_update
+-> goal_and_boundary
+```
+
+`capability_inventory` では公式機能、OSS、ローカルSSOT、既存wrapperの順に確認し、不足分だけを実装します。`verify` は `lint / unit / integration / smoke / e2e / regression` を対象リスクに応じて選びます。`feedback` は `failure_kind / evidence / system_update_target / regression_test / promotion_decision / rollback_path` を接続します。`system_update` は反省文ではなく、再発防止を `route / skill / gate / test / ssot / roadmap` のいずれかへ実装する段階です。
+
+実測、command smoke、runtime別保証、PDCAの詳細はFDE内へ複製せず、`dependency-registry:measurement-gate`、`dependency-registry:operational-command-smoke`、`dependency-registry:runtime-guarantee-matrix`、`dependency-registry:low-pdca-orchestrator` の外部正本を使います。
+
+自己更新は自動採用を意味しません。学習の採用には `evidence / rollback_path / adoption_gate` が必要で、公開、外部送信、credential、設定変更、破壊操作は引き続き人間承認まで停止します。machine-readableな正本は [fde_workflow.yaml](fde_workflow.yaml) です。
+
+SSOT境界は、閉ループのrepo-local machine contractを`fde_workflow.yaml`、毎turnのworkspace運用原則を`Documents/brain/fde/operating-card.md`、測定やPDCAの詳細を`dependency-registry.md`のexternal authorityが所有します。repo-local contractはworkspace全体の原則を置き換えません。`external_actions_performed: false`はこのcheck invocation自身が外部操作をしていないという意味で、repositoryの過去状態を表しません。
+
+このmanifestの`workflow_profile`は`repository_closeout`です。FDE一般の全task runtimeを実装するものではなく、このrepositoryの実装・検証・delivery・feedbackを閉じるadapter profileです。
 
 ## 何に困っている時の解決策か
 

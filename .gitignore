@@ -7,6 +7,7 @@ dist/
 build/
 *.egg-info/
 *.log
+.fde-runtime/
 .env
 .env.*
 !.env.example

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GOAL = ROOT / "RESIDUAL_ZERO_GOAL_2026-07-05.md"
 
 REQUIRED_TERMS = (
-    "Status: active goal design / private repository scope",
+    "Status: historical goal completed / current public repository residual semantics retained",
     "implementation",
     "operation",
     "external/public",
@@ -27,7 +27,7 @@ REQUIRED_TERMS = (
     "public_kernel_diff_manifest.py",
     "human_review_packet_check.py",
     "external actions remain false",
-    "repository visibility remains private",
+    "repository visibility is public; any further visibility change remains approval-gated",
 )
 
 
@@ -48,7 +48,7 @@ def evaluate() -> dict[str, object]:
         "external_actions_performed": False,
         "errors": errors,
         "goal": {
-            "scope": "private repository residual-zero goal",
+            "scope": "public repository local implementation and operation residual-zero semantics",
             "status": "ready" if not errors else "blocked",
             "requires_human_review_before_merge": True,
         },

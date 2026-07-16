@@ -1,15 +1,93 @@
-schema_version: fde.workflow.v1
+schema_version: fde.workflow.v2
 control_plane: FDE
+workflow_profile: repository_closeout
 external_actions_performed: false
+external_action_scope: this_check_invocation_only
+external_authority_policy: optional_workspace_enrichment
 states:
   - intake
+  - goal_and_boundary
+  - capability_inventory
   - scope
+  - roadmap
   - orchestrate
+  - preflight
   - implement
   - verify
+  - operational_guarantee
   - review_packet
+  - feedback
+  - system_update
   - closeout
   - external_approval_required
+closed_loop_sequence:
+  - goal_and_boundary
+  - capability_inventory
+  - roadmap
+  - preflight
+  - implement
+  - verify
+  - operational_guarantee
+  - feedback
+  - system_update
+capability_inventory_order:
+  - official_capability
+  - oss_prior_art
+  - local_ssot
+  - existing_wrapper_or_library
+  - gap_only_to_implement
+verification_layers:
+  - lint
+  - unit
+  - integration
+  - smoke
+  - e2e
+  - regression
+system_update_targets:
+  - route
+  - skill
+  - gate
+  - test
+  - ssot
+  - roadmap
+learning_return_to: goal_and_boundary
+learning_adoption_requires:
+  - evidence
+  - rollback_path
+  - adoption_gate
+feedback_contract:
+  - failure_kind
+  - evidence
+  - system_update_target
+  - regression_test
+  - promotion_decision
+  - rollback_path
+closed_loop_transitions:
+  - goal_and_boundary->capability_inventory
+  - capability_inventory->roadmap
+  - roadmap->preflight
+  - preflight->implement
+  - implement->verify
+  - verify->operational_guarantee
+  - operational_guarantee->feedback
+  - feedback->system_update
+  - system_update->goal_and_boundary
+state_evidence_contract:
+  - goal_and_boundary=goal+boundary
+  - capability_inventory=inventory+gap_only_to_implement
+  - roadmap=owner+done_when
+  - preflight=environment+authority+stopline
+  - implement=diff
+  - verify=test_evidence
+  - operational_guarantee=receipt+residue
+  - feedback=failure_kind+postmortem_action
+  - system_update=updated_artifact+regression_test+rollback_path
+state_gate_bindings:
+  - preflight=pre_publication_gate_check+fde_architecture_drift_check
+  - verify=compileall+git_diff_check+pytest+pre_publication_gate_check+visual_html_smoke+public_ready_check
+  - operational_guarantee=fde_operational_closeout+remote_ci+human_review_receipt
+  - system_update=fde_workflow_check+fde_architecture_drift_check+regression_test
+  - external_approval_required=human_review_packet_check
 blocked_transitions:
   - public_release
   - repository_visibility_change

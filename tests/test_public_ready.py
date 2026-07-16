@@ -1,15 +1,18 @@
 import hashlib
+import copy
 import os
 import subprocess
 from pathlib import Path
 
 import pytest
 
+from scripts import fde_operational_closeout
 from scripts import public_ready_check
 from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
 from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_architecture_drift
 from scripts.fde_operational_closeout import evaluate as evaluate_fde_operational_closeout
+from scripts.fde_operational_closeout import _validate_execution_receipt
 from scripts.fde_workflow_check import evaluate as evaluate_fde_workflow
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.pre_publication_gate_check import forbidden_patent_material_paths
@@ -128,6 +131,144 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
     assert result["external_actions_performed"] is False
     assert result["workflow"]["control_plane"] == "FDE"
     assert "external_approval_required" in result["workflow"]["states"]
+    assert result["workflow"]["closed_loop_sequence"] == [
+        "goal_and_boundary",
+        "capability_inventory",
+        "roadmap",
+        "preflight",
+        "implement",
+        "verify",
+        "operational_guarantee",
+        "feedback",
+        "system_update",
+    ]
+    assert result["workflow"]["capability_inventory_order"] == [
+        "official_capability",
+        "oss_prior_art",
+        "local_ssot",
+        "existing_wrapper_or_library",
+        "gap_only_to_implement",
+    ]
+    assert result["workflow"]["verification_layers"] == [
+        "lint",
+        "unit",
+        "integration",
+        "smoke",
+        "e2e",
+        "regression",
+    ]
+    assert result["workflow"]["system_update_targets"] == [
+        "route",
+        "skill",
+        "gate",
+        "test",
+        "ssot",
+        "roadmap",
+    ]
+    assert result["workflow"]["learning_return_to"] == "goal_and_boundary"
+    assert result["workflow"]["feedback_contract"] == [
+        "failure_kind",
+        "evidence",
+        "system_update_target",
+        "regression_test",
+        "promotion_decision",
+        "rollback_path",
+    ]
+    assert result["workflow"]["closed_loop_transitions"][-1] == "system_update->goal_and_boundary"
+    assert "verify=test_evidence" in result["workflow"]["state_evidence_contract"]
+    assert any(
+        binding.startswith("verify=compileall+git_diff_check+pytest")
+        for binding in result["workflow"]["state_gate_bindings"]
+    )
+    assert result["workflow"]["target_workflow_runner"] == {
+        "manifest_schema": "fde.target_workflow.v1",
+        "stop_at": "review_packet",
+        "receipt": "metadata_only",
+        "external_actions_performed": False,
+    }
+
+
+def test_fde_workflow_rejects_an_incomplete_learning_contract(tmp_path) -> None:
+    workflow = tmp_path / "fde_workflow.yaml"
+    text = (public_ready_check.ROOT / "fde_workflow.yaml").read_text(encoding="utf-8")
+    workflow.write_text(
+        text.replace("  - rollback_path\n", "", 1).replace("  - regression\n", ""),
+        encoding="utf-8",
+    )
+
+    result = evaluate_fde_workflow(workflow)
+
+    assert result["overall"] == "error"
+    assert "verification_layers is missing, contains unknown values, or is out of order" in result["errors"]
+    assert "learning_adoption_requires is missing, contains unknown values, or is out of order" in result["errors"]
+
+
+def test_fde_workflow_rejects_an_out_of_order_closed_loop(tmp_path) -> None:
+    workflow = tmp_path / "fde_workflow.yaml"
+    text = (public_ready_check.ROOT / "fde_workflow.yaml").read_text(encoding="utf-8")
+    workflow.write_text(
+        text.replace(
+            "  - feedback\n  - system_update\n  - closeout",
+            "  - system_update\n  - feedback\n  - closeout",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    result = evaluate_fde_workflow(workflow)
+
+    assert result["overall"] == "error"
+    assert "states is missing, contains unknown values, or is out of order" in result["errors"]
+
+
+@pytest.mark.parametrize(
+    "mutation, expected_error",
+    (
+        (lambda text: text + "invalid yaml\n", "invalid manifest syntax"),
+        (
+            lambda text: text.replace(
+                "external_actions_performed: false",
+                "external_actions_performed: true\n# external_actions_performed: false",
+            ),
+            "comments and tabs are not allowed",
+        ),
+        (
+            lambda text: text.replace(
+                "learning_return_to: goal_and_boundary",
+                "learning_return_to: nowhere\nlearning_return_to: goal_and_boundary",
+            ),
+            "duplicate key: learning_return_to",
+        ),
+        (
+            lambda text: text.replace("  - pytest\n", ""),
+            "required_local_gates is missing, contains unknown values, or is out of order",
+        ),
+        (
+            lambda text: text.replace("  stop_at: review_packet", "  stop_at: merge"),
+            "target_workflow_runner is missing, contains unknown values, or has invalid values",
+        ),
+        (
+            lambda text: text.replace(
+                "  receipt: metadata_only",
+                "  receipt: metadata_only\n  bypass: allowed",
+            ),
+            "unknown mapping key in target_workflow_runner: bypass",
+        ),
+    ),
+)
+def test_fde_workflow_fails_closed_on_ambiguous_or_spoofed_input(
+    tmp_path,
+    mutation,
+    expected_error,
+) -> None:
+    workflow = tmp_path / "fde_workflow.yaml"
+    text = (public_ready_check.ROOT / "fde_workflow.yaml").read_text(encoding="utf-8")
+    workflow.write_text(mutation(text), encoding="utf-8")
+
+    result = evaluate_fde_workflow(workflow)
+
+    assert result["overall"] == "error"
+    assert any(expected_error in error for error in result["errors"])
 
 
 def test_public_ready_ci_installs_declared_project_dependencies() -> None:
@@ -148,8 +289,159 @@ def test_fde_operational_closeout_reports_residue_without_public_action() -> Non
     assert result["overall"] == "ok", result["errors"]
     assert result["external_actions_performed"] is False
     assert result["implementation_residue"] == "none"
-    assert result["operation_residue"] == "none"
+    assert result["operation_residue"] in {"none", "uncommitted_changes"}
+    assert result["worktree_clean"] is (result["operation_residue"] == "none")
+    assert result["delivery_residue"] in {
+        "none",
+        "upstream_not_configured",
+        "branch_not_synchronized",
+        "git_state_unavailable",
+    }
+    assert result["local_residual_zero"] is (
+        result["operation_residue"] == "none"
+        and result["delivery_residue"] == "none"
+        and result["human_review"]["ok"] is True
+    )
+    assert result["residual_zero"] is (
+        result["local_residual_zero"] and result["remote_ci"]["ok"] is True
+    )
     assert result["external_public_residue"] == "approval_gated"
+    assert result["checks"]["architecture_drift"]["overall"] == "ok"
+    assert "fde_workflow.yaml is the machine-readable closed-loop SSOT" in result["context_to_preserve"]
+
+
+def test_fde_operational_closeout_delivery_state_is_machine_readable() -> None:
+    result = evaluate_fde_operational_closeout(
+        run_pytest=False,
+        require_delivery_ready=False,
+    )
+    for field in (
+        "gate_health",
+        "worktree_clean",
+        "changed_entries",
+        "upstream",
+        "ahead",
+        "behind",
+        "delivery_residue",
+        "residual_zero",
+        "context_to_preserve",
+        "resume_checks",
+        "workflow_execution_receipt",
+        "remote_ci",
+    ):
+        assert field in result
+    receipt = result["workflow_execution_receipt"]
+    assert receipt["schema_version"] == "fde.execution.receipt.v1"
+    assert len(receipt["gate_receipt_sha256"]) == 64
+    assert receipt["planned_transitions"][-1] == "system_update->goal_and_boundary"
+    assert receipt["transition_events"][-1]["status"] == "blocked"
+    assert set(receipt["verification"]) == {
+        "lint",
+        "unit",
+        "integration",
+        "smoke",
+        "e2e",
+        "regression",
+    }
+    assert receipt["check_events"]
+    assert all(len(event["result_sha256"]) == 64 for event in receipt["check_events"])
+
+
+def test_fde_operational_closeout_reads_updated_artifacts_from_pr_merge_commit(
+    monkeypatch,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_git(args: list[str], *, allow_failure: bool = False) -> str:
+        calls.append(args)
+        return "scripts/fde_operational_closeout.py\ntests/test_public_ready.py"
+
+    monkeypatch.setattr(fde_operational_closeout, "_git", fake_git)
+
+    artifacts = fde_operational_closeout._implemented_artifacts(
+        {"changed_entries": []},
+        "merge-head",
+    )
+
+    assert artifacts == [
+        "scripts/fde_operational_closeout.py",
+        "tests/test_public_ready.py",
+    ]
+    assert calls == [
+        [
+            "diff-tree",
+            "--root",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            "-m",
+            "--first-parent",
+            "merge-head",
+        ]
+    ]
+
+
+def test_fde_closed_loop_e2e_contract_reaches_closeout() -> None:
+    result = evaluate_fde_operational_closeout(run_pytest=False)
+    receipt = result["workflow_execution_receipt"]
+
+    assert result["gate_health"] == "ok"
+    assert receipt["planned_transitions"][0] == "goal_and_boundary->capability_inventory"
+    assert receipt["planned_transitions"][-1] == "system_update->goal_and_boundary"
+    assert receipt["transition_events"][-1]["status"] == "blocked"
+    assert {event["name"] for event in receipt["check_events"]} >= {
+        "workflow",
+        "architecture_drift",
+        "pre_publication",
+        "visual_html_smoke",
+        "compileall",
+        "git_diff_check",
+    }
+
+
+def test_fde_execution_receipt_validator_detects_tampering() -> None:
+    result = evaluate_fde_operational_closeout(run_pytest=False)
+    receipt = copy.deepcopy(result["workflow_execution_receipt"])
+    transitions = list(receipt["planned_transitions"])
+
+    assert _validate_execution_receipt(receipt, result["checks"], transitions) == []
+
+    receipt["gate_receipt_sha256"] = "0" * 64
+    receipt["transition_events"][-1]["evidence"] = []
+    errors = _validate_execution_receipt(receipt, result["checks"], transitions)
+
+    assert "execution receipt gate digest mismatch" in errors
+    assert "execution receipt transition event is incomplete" in errors
+
+
+def test_fde_execution_receipt_validator_rejects_duplicate_events_and_fake_evidence() -> None:
+    result = evaluate_fde_operational_closeout(run_pytest=False)
+    receipt = copy.deepcopy(result["workflow_execution_receipt"])
+    transitions = list(receipt["planned_transitions"])
+
+    receipt["check_events"][1] = copy.deepcopy(receipt["check_events"][0])
+    receipt["verification"]["e2e"] = {
+        "status": "applied",
+        "evidence": ["not-a-real-check"],
+        "waiver": None,
+    }
+    errors = _validate_execution_receipt(receipt, result["checks"], transitions)
+
+    assert "execution receipt check event names are missing, duplicated, or out of order" in errors
+    assert "execution receipt verification evidence is unknown: e2e" in errors
+
+
+def test_fde_dependency_registry_reuses_existing_learning_authorities() -> None:
+    text = (public_ready_check.ROOT / "dependency-registry.md").read_text(encoding="utf-8")
+    for term in (
+        "| official-capability |",
+        "measurement-gate",
+        "operational-command-smoke",
+        "runtime-guarantee-matrix",
+        "low-pdca-orchestrator",
+        "external-authority",
+    ):
+        assert term in text
 
 
 def test_roadmap_gate_has_first_iteration_contract_without_external_write() -> None:
@@ -200,7 +492,7 @@ def test_residual_zero_contract_check_passes_without_external_write() -> None:
     result = evaluate_residual_zero_contract()
     assert result["overall"] == "ok", result["errors"]
     assert result["external_actions_performed"] is False
-    assert result["residual_zero_scope"] == "private local implementation and operation only"
+    assert result["residual_zero_scope"] == "repository-local implementation and operation only"
 
 
 def test_visual_html_smoke_passes_without_external_write() -> None:
@@ -225,6 +517,10 @@ def test_system_overview_visualizes_fde_control_plane() -> None:
         "隣接product adapter",
         "機能マップ",
         "roadmap funnel",
+        "## 継続学習面",
+        "operational guarantee",
+        "feedback / failure classification",
+        "route / skill / gate / test",
     ):
         assert term in text
 
