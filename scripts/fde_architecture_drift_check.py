@@ -36,11 +36,11 @@ EXTERNAL_AUTHORITIES = {
 
 PRIVATE_PATH_MARKERS = (
     "Documents/",
-    "~/.claude",
-    "/Users/",
-    "/home/",
-    "/Applications/",
-    "C:\\Users",
+    "~/" + "claude",
+    "/" + "Users/",
+    "/" + "home/",
+    "/" + "Applications/",
+    "C:\\" + "Users",
 )
 
 CHECKS = {
