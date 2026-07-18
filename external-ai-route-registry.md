@@ -9,14 +9,14 @@ tags: [external-ai, browser-ai, routing, registry, smoke]
 related:
   - external-ai-file-loop.md
   - external-ai-file-review-packet.md
-  - Documents/reports/2026-05-21-provider-facts-table-official-url.md
+  - dependency-registry.md
 ---
 
 # 外部AI route registry
 
 外部 AI / browser AI / API route の用途別 registry。料金・無料枠・提供 model は変動するため、実行直前に確認する。
 
-- [事実: `Documents/reports/2026-05-21-provider-facts-table-official-url.md`] Provider facts table は 2026-05-21 に公式 URL のみで取得済み。`free_or_included_candidate` / `paid_explicit_required` の分類は同 report を参照する。FDE 本文採用、account / key / billing / smoke / 外部送信は未実施。
+- [事実: absorbed provider facts note / 2026-05-21] Provider facts は公式 URL のみで取得済み。`free_or_included_candidate` / `paid_explicit_required` の分類は同 note を根拠とする。詳細 private report path は公開しない。FDE 本文採用、account / key / billing / smoke / 外部送信は未実施。
 
 ## route
 
@@ -160,7 +160,7 @@ file-attached review は `cmux_ops.py review-attach` の dry-run -> 実機添付
 - web / trend / OSS / competitor fan-out は Gemini search を候補に入れる。
 - 長文比較、Google 文脈、外部定義の複数候補整理、Claude / Codex への反証役にも Gemini を使う。
 - Gemini を Research に閉じ込めない。Research は収集・比較の入口で、採用判断は FDE / Codex / CEO へ戻す。
-- 内部判断、正本化、採用判定、Obsidian / repo の最終 source of truth 判定には Gemini を使わない。
+- 内部判断、正本化、採用判定、local notes / repo の最終 source of truth 判定には Gemini を使わない。
 - Gemini 結果は `[事実: source] / [推測] / [不明]` に再分類し、source 付きの local result file として戻す。
 
 ## Research lane shelf operation
@@ -326,8 +326,8 @@ Research は料金・無料枠が変動するものを固定せず、公式 sour
 
 | smoke | route | input | expected output | owner | status |
 |---|---|---|---|---|---|
-| master-map-html-grok | Grok browser | `imported-source` | HTML draft + 10 line note | cc-coordinator | ready |
-| master-map-critique-chatgpt | ChatGPT browser | `imported-source` | 20 line critique | cc-coordinator | ready |
+| master-map-html-grok | Grok browser | absorbed master-map packet（repo-local summary） | HTML draft + 10 line note | cc-coordinator | ready |
+| master-map-critique-chatgpt | ChatGPT browser | absorbed master-map packet（repo-local summary） | 20 line critique | cc-coordinator | ready |
 | master-map-critique-claude | Claude.ai browser | same packet | 20 line critique | cc-coordinator | ready |
 | master-map-critique-gemini | Gemini browser | same packet | 20 line critique | cc-coordinator | ready |
 | realtime-source-grok | Grok browser | 1 URL + 1 行の確認観点 + `done_when` | freshness score | research lane | ready |

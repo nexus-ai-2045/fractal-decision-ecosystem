@@ -157,7 +157,7 @@ closure_rule:
 - `send_status: failed | held | unknown` または `external_review_state != received` の成果物は、採用判断の input ではなく blocker / held evidence として扱う。`mode_result: adopt | revise | reject` へ直接進めない。
 - `send_status: failed | held | unknown` または `external_review_state: failed | held | invalid_surface | timeout` の時は `failure_kind` と `postmortem_action` を置く。種類と次アクションのない失敗は close しない。
 - `failure_kind: unknown` は暫定だけに使う。次に調べる観測点を `postmortem_action` で `add_check` または `human_gate` へ接続する。
-- `main_line_age` が古い、または `[不明]` の場合は、作業前または採用前に `Documents/tasks/todo.md` / lane status と再照合する。
+- `main_line_age` が古い、または `[不明]` の場合は、作業前または採用前に active todo / lane status（operator-local adapter または本 repo の active docs）と再照合する。
 - `return_to` は自由記述だけで閉じない。採用前に active todo / lane status と一致することを `precheck` または `delivery_receipt` に残す。archive 済み case を本線にしない。
 - 不明は推測で埋めず `[不明]` として戻す。
 
@@ -187,9 +187,9 @@ Done when:
 |---|---|
 | type catalog / route catalog | `data-index.md` |
 | lifecycle の汎用 slot | `lifecycle-operating-pattern.md` |
-| lane別の入口 | `dependency-registry:lane-operating-card` |
-| Type1 / security / write boundary | `dependency-registry:security-baseline` / `dependency-registry:scope-gate` |
-| 現在状態 / queue | `dependency-registry:lane-status` / `dependency-registry:lane-queue` |
-| 過去知見 / report | `dependency-registry:reports` / `dependency-registry:lessons` |
+| lane別の入口 | `operating-card.md` / operator-local lane cards |
+| Type1 / security / write boundary | `public-kernel/GATES.md` / `SECURITY.md` / `ai-contact-safety-contract.md` |
+| 現在状態 / queue | operator-local adapter、または本 repo の active docs |
+| 過去知見 / report | `ops-best-practice-inventory.md` / operator-local reports |
 
 closure_rule: active

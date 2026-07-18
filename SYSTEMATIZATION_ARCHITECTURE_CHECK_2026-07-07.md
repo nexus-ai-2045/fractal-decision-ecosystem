@@ -121,8 +121,8 @@
 ## 2026-07-15 Closed-Loop Implementation Context
 
 - repo-local machine SSOT: `fde_workflow.yaml` v2
-- workspace operating authority: `Documents/brain/fde/operating-card.md`
-- external detail authorities: `dependency-registry.md` の measurement / command smoke / runtime guarantee / low-PDCA pointers
+- workspace operating authority: `operating-card.md`
+- external detail authorities: `dependency-registry.md` の measurement / command smoke / runtime guarantee / low-PDCA capability keys（operator-local-adapter。path は公開しない）
 - strict validator: comment、duplicate key、unknown key、invalid syntax、state/transition/evidence/gate driftをfail-closedで拒否
 - closeout: worktree、upstream、ahead/behind、gate healthを分離し、`--require-delivery-ready`時は未commit・未pushをエラーにする
 - current visibility: public。古いprivate表記はhistorical evidenceでありcurrent SSOTではない

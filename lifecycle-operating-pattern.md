@@ -62,15 +62,15 @@ Lifecycle:
 Lane の Final List / 採用候補を rejected / discard にした時は、次 session で再浮上しないように lifecycle を閉じる。
 
 slot:
-- decision: `Documents/lanes/<lane>/decisions.md` に Source / Rationale / Impact / reopen condition を記録
+- decision: lane decision log（`decisions/` または operator-local adapter）に Source / Rationale / Impact / reopen condition を記録
 - memory: runtime hot-memory / boot pointer がある場合だけ rejected pointer を追加
 - propagate: current-status / master-plan / canonical inventory / snapshot など、再浮上源を rejected に同期
 - detector: Final List 提案前に canonical inventory の status 列を stable id (LI/decision id) で確認 (= authoritative / 1 行 1 status)。decisions.md / item name grep は人間可読の補助のみで、否定文に誤ヒットするため判定根拠にしない
 - repair: 再浮上したら decision / memory / propagate / detector key を同 session で埋め直す
 
-再採用は CEO 明示再開示 + Type1 review packet が必須。pilot は 1 lane で始め、10 Shadow OK 後に全 lane 展開を検討する。例外 1 件で Shadow OK は reset。
+再採用は人間の明示再開示 + Type1 review packet が必須。pilot は 1 lane で始め、10 Shadow OK 後に全 lane 展開を検討する。例外 1 件で Shadow OK は reset。
 
-> source: lab decisions.md D-11 (antigravity / 2026-05-14) / D-12 (cccost / 2026-05-15) / Codex 5.5 review (`Documents/inbox/.archive/2026-05-15/2026-05-15-codex55-to-lab-fde-final-list-rejection-protocol-review-reply.md`)。pilot owner = lab。rollback = §5 ブロック削除 1 commit。
+> source: absorbed review notes（lab D-11 / D-12 + Codex review）。詳細 private path は公開しない。pilot owner = lab。rollback = §5 ブロック削除 1 commit。
 
 closure_rule: active
 

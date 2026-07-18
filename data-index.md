@@ -35,8 +35,8 @@ FDE data index は、FDE core が参照する **データ / catalog / pointer** 
 | MVP軸別13運用カード | `mvp-axis-operating-card.md` |
 | 検索の分担 / Codex 本体への戻し方 | `search-orchestration.md` |
 | 外部依存 key / FDECC review workspace | `dependency-registry.md` |
-| SSOT 管理 (registry / loader / lint / placement / 構造分離) | `dependency-registry:ssot-registry` / `ssot-loader` / `ssot-lint` / `placement-rules` / `structural-separation` / `ssot-split` |
-| lifecycle mini / operating-card slot | `lifecycle-operating-pattern.md` |
+| SSOT 管理 (registry / loader / lint / placement / 構造分離) | `dependency-registry.md`（operator-local adapter。無い場合は本 repo の README / decisions / public-kernel で閉じる） |
+| lifecycle mini / operating-card slot | `lifecycle-operating-pattern.md` / `operating-card.md` |
 | 既存の太い root router | `root-router.md` |
 
 ## 2. FDE type の扱い
@@ -60,9 +60,9 @@ type が増えそうな時:
 |---|---|---|
 | core | 判断の動作 | `core.md` |
 | data | type / catalog / source pointer | 本 file |
-| policy | してよい/ダメ | `dependency-registry:security-baseline` / `dependency-registry:scope-gate` / `dependency-registry:fact-gate` |
-| state | 現在地 / queue / blocker | `dependency-registry:lane-status` / `dependency-registry:lane-queue` |
-| procedure | 手順 | `dependency-registry:playbooks` / `dependency-registry:lane-operating-card` |
-| knowledge | 知見 | `dependency-registry:lessons` / `dependency-registry:reports` |
+| policy | してよい/ダメ | `public-kernel/GATES.md` / `SECURITY.md` / `dependency-registry:fact-gate` |
+| state | 現在地 / queue / blocker | operator-local adapter、または本 repo の active docs |
+| procedure | 手順 | `operating-card.md` / operator-local playbooks |
+| knowledge | 知見 | `ops-best-practice-inventory.md` / operator-local reports |
 
 closure_rule: active

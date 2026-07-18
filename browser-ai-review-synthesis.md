@@ -6,11 +6,10 @@ created: 2026-05-12
 owner: codex-main
 tags: [fde, browser-ai-review, synthesis, ssot]
 source:
-  - imported-source
-  - Documents/reports/fde/2026-05-13-fde-v1-draft.md
   - external-ai-route-registry.md
-  - Documents/reports/2026-05-13-fde-grok-file-attachment-review-result.md
-  - Documents/inbox/2026-05-13-fde-gemini-post-grok-implementation-review.md
+  - root-router.md
+  - core.md
+note: private report / inbox path は公開しない。要点は本 file に absorb 済み。
 ---
 
 # FDE v1 browser AI review 統合
@@ -57,14 +56,12 @@ source:
 
 ## 2026-05-13 Attached Grok Verdict
 
-- [事実: `Documents/reports/2026-05-13-fde-grok-file-attachment-review-result.md`] Grok は `this repository` の添付ファイル群を読んだ後、`verdict: ready` / `adopt_now: yes` / `still_open_unknowns: なし` / `needed_files: なし` と回答。
-- [事実: `shared/scripts/fde_lint.py`] `orchestration_required: yes` の runtime packet は `precheck` / `delegate_plan` / `codex_main_role` / `return_to` / `route_mode` / `budget` 欠落時に lint error になる。
-- [事実: `shared/scripts/cmux_browser_attach_file.py`] Grok follow-up の「添付失敗そのものを実装レベルで閉じる」指摘を受け、`--folder` / `select_all_in_folder` を追加。file dialog で対象 folder へ移動し、全 file を選択する経路を実装。
-- [事実: command] `pytest shared/scripts/tests/test_cmux_ops.py -q` は `58 passed`。`python3 shared/scripts/cmux_ops.py review-attach --surface surface:111 --provider gemini --folder <local-project-root>/FDE --dry-run` は、Gemini selector 候補、folder path、`command+a` 全選択 AppleScript を出力。
-- [事実: `cmux browser --surface surface:117 get text --selector body`] Gemini follow-up は `verdict: ready` / `must_patch_before_adopt: なし` / `missing_implementation: なし` / `needed_files: なし` / `enough_context: yes` と回答。これは wrapper 実装差分に対する本文レビューとして扱い、FDE folder の file-attached review 完了証跡にはしない。
-- [ユーザー指摘: 2026-05-13] Gemini file-attached review は未完了。`review-attach` の wrapper出力や本文回答だけを file-attached completion として扱わない。
-- [事実: command] `pytest shared/scripts/tests/test_cmux_ops.py shared/scripts/tests/test_fde_lint.py -q` は `63 passed`。
-- [事実: command] `pytest shared/scripts/tests/test_fde_lint.py` は `3 passed`。
+- [事実: absorbed Grok attached review / 2026-05-13] Grok は添付ファイル群を読んだ後、`verdict: ready` / `adopt_now: yes` / `still_open_unknowns: なし` / `needed_files: なし` と回答。
+- [事実: absorbed lint contract] `orchestration_required: yes` の runtime packet は `precheck` / `delegate_plan` / `codex_main_role` / `return_to` / `route_mode` / `budget` 欠落時に lint error になる。
+- [事実: absorbed attach follow-up] Grok follow-up の「添付失敗そのものを実装レベルで閉じる」指摘を受け、folder 選択 / select-all 経路を追加した。
+- [事実: absorbed local smoke] operator-local wrapper tests は当時 pass。公開 package はその wrapper 実体を同梱しない。
+- [事実: absorbed Gemini follow-up text] Gemini follow-up は `verdict: ready` と回答。これは wrapper 実装差分に対する本文レビューとして扱い、file-attached review 完了証跡にはしない。
+- [ユーザー指摘: 2026-05-13] Gemini file-attached review は未完了。wrapper出力や本文回答だけを file-attached completion として扱わない。
 
 ## 2026-05-13 Gemini Post-Grok Verdict
 

@@ -11,10 +11,10 @@ active_scope: 判断・通信・実装・検索・検証・改善の root routin
 next_action: 迷ったら packet 化して stay/up/down/reroute/park/exception に落とす
 tags: [fde, ssot, root-router, decision, routing]
 source:
-  - Documents/reports/fde/2026-05-13-fde-v1-draft.md
   - browser-ai-review-synthesis.md
   - ops-best-practice-inventory.md
   - external-ai-route-registry.md
+  - source-pointers.md
 related:
   - core.md
   - data-index.md
@@ -199,7 +199,7 @@ user-stop
 
 ## 8. Entry / evidence / label routing
 
-検索・Obsidian・SSOT drift・hook・起動復旧は、同じ型で閉じる。
+検索・local notes・SSOT drift・hook・起動復旧は、同じ型で閉じる。
 
 ```text
 entry detect -> 3 probe -> claim split -> evidence check -> label update -> close/escalate
@@ -207,7 +207,7 @@ entry detect -> 3 probe -> claim split -> evidence check -> label update -> clos
 
 | item | ルール |
 |---|---|
-| entry | SSOT drift / Obsidian search / file placement / hook / boot-recovery / external wall-bounce から選ぶ |
+| entry | SSOT drift / local-notes search / file placement / hook / boot-recovery / external wall-bounce から選ぶ |
 | 3 probe | entry ごとに最大 3 本。4 本目が必要なら `3x3-exhausted` へ戻す |
 | label | `事実` / `採用定義` / `事実寄り` / `推測` / `不明` / `判断` |
 | search target | `不明`、`推測`、弱い `事実寄り`、source が claim を直接支えないもの |

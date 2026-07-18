@@ -14,12 +14,34 @@ if str(ROOT) not in sys.path:
 
 from scripts.fde_workflow_check import evaluate as evaluate_workflow
 
+# Public package では物理 path を持たない。capability key だけを検証する。
 EXTERNAL_AUTHORITIES = {
-    "measurement-gate": "Documents/brain/measurement-gate.md",
-    "operational-command-smoke": "Documents/brain/operational-command-smoke-contract.md",
-    "runtime-guarantee-matrix": "Documents/references/runtime-guarantee-matrix.md",
-    "low-pdca-orchestrator": "shared/skills/low-pdca-orchestrator/SKILL.md",
+    "measurement-gate": {
+        "capability": "測定可能な claim の実測、shadow 観測、昇格判断",
+        "resolution": "operator-local-adapter",
+    },
+    "operational-command-smoke": {
+        "capability": "command の dry-run / smoke / verify / report / regression 接続契約",
+        "resolution": "operator-local-adapter",
+    },
+    "runtime-guarantee-matrix": {
+        "capability": "runtime ごとの hard / warn / fail-closed / fail-open 保証差",
+        "resolution": "operator-local-adapter",
+    },
+    "low-pdca-orchestrator": {
+        "capability": "goal / decomposition / dispatch / check / act を回す shared skill",
+        "resolution": "operator-local-adapter",
+    },
 }
+
+PRIVATE_PATH_MARKERS = (
+    "Documents/",
+    "~/" + "claude",
+    "/" + "Users/",
+    "/" + "home/",
+    "/" + "Applications/",
+    "C:\\" + "Users",
+)
 
 CHECKS = {
     "README.md": (
@@ -59,6 +81,7 @@ CHECKS = {
         "operational-command-smoke",
         "runtime-guarantee-matrix",
         "low-pdca-orchestrator",
+        "operator-local-adapter",
     ),
     "scripts/fde_operational_closeout.py": ("implementation_residue", "operation_residue", "external_public_residue"),
     "tests/test_public_ready.py": (
@@ -67,6 +90,10 @@ CHECKS = {
         "test_fde_operational_closeout_reports_residue_without_public_action",
     ),
 }
+
+
+def _row_embeds_private_path(line: str) -> bool:
+    return any(marker in line for marker in PRIVATE_PATH_MARKERS)
 
 
 def evaluate() -> dict[str, object]:
@@ -87,27 +114,28 @@ def evaluate() -> dict[str, object]:
     if workflow["overall"] != "ok":
         errors.append("machine-readable workflow contract failed")
 
-    projects_root = next(
-        (
-            parent
-            for parent in ROOT.parents
-            if (parent / "Documents").is_dir() and (parent / "shared").is_dir()
-        ),
-        None,
-    )
+    registry_text = (ROOT / "dependency-registry.md").read_text(encoding="utf-8")
     authority_receipts: dict[str, dict[str, object]] = {}
-    for key, relative_path in EXTERNAL_AUTHORITIES.items():
-        path = projects_root / relative_path if projects_root else None
-        available = bool(path and path.is_file())
+    for key, meta in EXTERNAL_AUTHORITIES.items():
+        listed = key in registry_text
+        key_row_has_private_path = any(
+            key in line and _row_embeds_private_path(line)
+            for line in registry_text.splitlines()
+        )
+        ok = listed and not key_row_has_private_path
         authority_receipts[key] = {
-            "path": relative_path,
-            "available": available,
-            "scope": "workspace" if projects_root else "standalone_public_package",
-            "status": "verified" if available else "waived_optional_workspace_enrichment",
-            "waiver_reason": None if available else "public package core is self-contained; this authority only enriches a matching workspace",
+            "capability": meta["capability"],
+            "resolution": meta["resolution"],
+            "listed_in_registry": listed,
+            "private_path_embedded": key_row_has_private_path,
+            "scope": "standalone_public_package",
+            "status": "verified" if ok else "error",
+            "waiver_reason": None,
         }
-        if projects_root and not available:
-            errors.append(f"external authority is missing in workspace: {key} -> {relative_path}")
+        if not listed:
+            errors.append(f"external authority capability missing from registry: {key}")
+        if key_row_has_private_path:
+            errors.append(f"external authority embeds private path in public registry: {key}")
 
     return {
         "overall": "ok" if not errors else "error",

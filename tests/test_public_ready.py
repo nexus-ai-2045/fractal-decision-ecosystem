@@ -440,8 +440,35 @@ def test_fde_dependency_registry_reuses_existing_learning_authorities() -> None:
         "runtime-guarantee-matrix",
         "low-pdca-orchestrator",
         "external-authority",
+        "operator-local-adapter",
     ):
         assert term in text
+
+
+def test_fde_dependency_registry_has_no_private_filesystem_authority_paths() -> None:
+    text = (public_ready_check.ROOT / "dependency-registry.md").read_text(encoding="utf-8")
+    private_markers = (
+        "Documents/brain/",
+        "Documents/lanes/",
+        "Documents/reports/",
+        "Documents/references/",
+        "~/.claude/",
+        "/Applications/",
+        "/Users/",
+        "/home/",
+    )
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        for marker in private_markers:
+            assert marker not in line, f"authority row embeds private path: {line}"
+
+
+def test_source_pointers_resolve_without_opaque_imported_source_only_rows() -> None:
+    text = (public_ready_check.ROOT / "source-pointers.md").read_text(encoding="utf-8")
+    assert "公開解決先" in text
+    assert "| imported-source |" not in text
+    assert "Documents/" not in text
 
 
 def test_roadmap_gate_has_first_iteration_contract_without_external_write() -> None:
