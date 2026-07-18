@@ -45,7 +45,7 @@ tags: [fde, claude-ops, best-practice]
 | dependency-registry:project-claude / rules / docs / hooks の自己編集は Type1相当 | local blind-spots / invariants | 人間最終判断 + 出自追跡 | safety |
 | `CONTROL-PLANE.md` と `settings.json` の hook graph を harness で確認 | local hooks | 直列化 + 構造的不可能 | hook inventory |
 | config / hook / skill 変更は diff / staged path / rollback path を残す | 今回の事故 + Codex/CLOUD logs | 出自追跡 | commit gate |
-| browser-to-api: 認証なし read-only site の API を CDP capture (`browse network on` 併用) → OpenAPI 3.1 + client.mjs 自動生成。受託の API 連携 / スクレイピング案件の初動調査を時短 | `Documents/playbooks/browser-to-api-cdp-readonly.md` / Lab PoC #1 (jsonplaceholder) + PoC #3 (PokeAPI 2026-05-22) | 出自追跡 (RESULT に command / event count / 生成物) + ライフサイクル (Lab PoC → playbook → adopted) + 人間最終判断 (CEO 2026-05-22 GO) | `Documents/playbooks/browser-to-api-cdp-readonly.md` |
+| browser-to-api: 認証なし read-only site の API を CDP capture (`browse network on` 併用) → OpenAPI 3.1 + client.mjs 自動生成。受託の API 連携 / スクレイピング案件の初動調査を時短 | Lab PoC #1 (jsonplaceholder) + PoC #3 (PokeAPI 2026-05-22) / operator-local playbook | 出自追跡 (RESULT に command / event count / 生成物) + ライフサイクル (Lab PoC → playbook → adopted) + 人間最終判断 (CEO 2026-05-22 GO) | `dependency-registry:playbooks`（operator-local-adapter） |
 
 > [採用境界 / browser-to-api] 認証なし・読み取り専用・利用規約クリアの site 限定。authenticated / production / 外部書込 = Type1 (案件ごと個別 gate)。single-sample は confidence low のため、実運用は複数 sample で精度を上げる。response body schema は `browse network on` 併用時のみ取得可 (PoC #3 で実証 / 未使用時は本文なし)。
 
@@ -94,7 +94,7 @@ tags: [fde, claude-ops, best-practice]
 1. best practice を見つけたら、採用前に FDE 6軸へ通す。
 2. FDE で `採用必須 / 採用候補 / 保留 / 捨てる` を分ける。
 3. 採用必須だけ dependency-registry:project-claude / rules / hooks / skills に反映する。
-4. 採用候補は `dependency-registry:reports` か `imported-source` に留め、Cloud live へ直接入れない。
+4. 採用候補は `ops-best-practice-inventory.md` / operator-local reports に留め、Cloud live へ直接入れない。
 5. hook / harness 系は、local invariant test が先。外部 trend は後。
 
 ## 参照

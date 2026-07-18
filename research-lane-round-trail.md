@@ -8,16 +8,16 @@ tags: [fde, research-lane, round-trail, browser-ai-review, entry-smoke, learning
 source:
   - root-router.md (= 採用後の正本 / updated_by codex-main 15:10)
   - browser-ai-review-synthesis.md (= browser AI 集約 / 既 reflected)
-  - imported-source (= Research 提案 chain 5 件)
-  - imported-source (= Codex-main 公式 reply)
-  - dependency-registry:lane-status §07:55 / §13:46 / §13:55 / §15:13 / §15:25
-  - dependency-registry:dev-log §2026-05-12 [15:00-15:35]
+  - absorbed Research 提案 chain 5 件（private path 非掲載）
+  - absorbed Codex-main 公式 reply（private path 非掲載）
+  - dependency-registry:lane-status（operator-local-adapter）
+  - dependency-registry:dev-log（operator-local-adapter）
 related:
   - axis-registry.md
   - dialogue-protocol.md
   - dependency-registry:lane-communication
   - dependency-registry:voice-guard
-obsidian_check: 上記 source 全件 local Read 完了
+source_check: 上記 repo-local source を確認済み。operator-local adapter は任意
 scope_route: 経過 report 化 (= 資料 / CEO 明示依頼) / no SSOT edit / no Type1
 fact_tags_used: yes
 ---

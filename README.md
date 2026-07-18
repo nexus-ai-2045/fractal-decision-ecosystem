@@ -57,11 +57,11 @@ goal_and_boundary
 
 `capability_inventory` では公式機能、OSS、ローカルSSOT、既存wrapperの順に確認し、不足分だけを実装します。`verify` は `lint / unit / integration / smoke / e2e / regression` を対象リスクに応じて選びます。`feedback` は `failure_kind / evidence / system_update_target / regression_test / promotion_decision / rollback_path` を接続します。`system_update` は反省文ではなく、再発防止を `route / skill / gate / test / ssot / roadmap` のいずれかへ実装する段階です。
 
-実測、command smoke、runtime別保証、PDCAの詳細はFDE内へ複製せず、`dependency-registry:measurement-gate`、`dependency-registry:operational-command-smoke`、`dependency-registry:runtime-guarantee-matrix`、`dependency-registry:low-pdca-orchestrator` の外部正本を使います。
+実測、command smoke、runtime別保証、PDCAの詳細はFDE内へ複製せず、`dependency-registry:measurement-gate`、`dependency-registry:operational-command-smoke`、`dependency-registry:runtime-guarantee-matrix`、`dependency-registry:low-pdca-orchestrator` を capability として参照します。公開 package ではこれらの物理 path を持たず、無い場合は skip / hold します。
 
 自己更新は自動採用を意味しません。学習の採用には `evidence / rollback_path / adoption_gate` が必要で、公開、外部送信、credential、設定変更、破壊操作は引き続き人間承認まで停止します。machine-readableな正本は [fde_workflow.yaml](fde_workflow.yaml) です。
 
-SSOT境界は、閉ループのrepo-local machine contractを`fde_workflow.yaml`、毎turnのworkspace運用原則を`Documents/brain/fde/operating-card.md`、測定やPDCAの詳細を`dependency-registry.md`のexternal authorityが所有します。repo-local contractはworkspace全体の原則を置き換えません。`external_actions_performed: false`はこのcheck invocation自身が外部操作をしていないという意味で、repositoryの過去状態を表しません。
+SSOT境界は、閉ループのrepo-local machine contractを`fde_workflow.yaml`、毎turnの運用原則を[`operating-card.md`](operating-card.md)、測定やPDCAの詳細を[`dependency-registry.md`](dependency-registry.md)の capability registry が所有します。operator-local adapter がある環境ではそこへ任意接続できますが、公開 package 単体は adapter なしで読めます。`external_actions_performed: false`はこのcheck invocation自身が外部操作をしていないという意味で、repositoryの過去状態を表しません。
 
 このmanifestの`workflow_profile`は`repository_closeout`です。FDE一般の全task runtimeを実装するものではなく、このrepositoryの実装・検証・delivery・feedbackを閉じるadapter profileです。
 

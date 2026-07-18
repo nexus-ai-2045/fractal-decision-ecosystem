@@ -60,7 +60,7 @@ fact_label:
 
 本線が空なら作業しない。横道に入る時も `return_to` を置く。`immutable_context_key` は、外部AI / lane / worker が要約しても消してはいけない復帰キーで、`correlation_id + return_to + payload_fingerprint` を既定にする。`mode` は作業種別、`execution_mode` はこの turn の動きとして分ける。`main_line_age` が古い / 不明な時は、採用・外部送信・長い作業の前に live todo / lane status と再照合する。
 
-Token rule: FDE / Obsidian は全文再読しない。まずこの card + source pointer だけで動き、必要な時だけ該当 1 file / 1 節へ降りる。`obsidian_check` は検索クエリではなく `done` / `na` / source pointer で閉じる。
+Token rule: FDE / local notes は全文再読しない。まずこの card + source pointer だけで動き、必要な時だけ該当 1 file / 1 節へ降りる。`source_check` は検索クエリではなく `done` / `na` / 公開解決先で閉じる。
 
 ### 0.1 Fact Output Gate
 
@@ -152,21 +152,20 @@ absorbed_duplicate_proposal_gate:
 
 #### sales / content Type1 audit
 
-sales / content の外部送信・納品・公開候補を扱う時は、実行前に `ADR-0139-sales-content-type1-gate-required.md` と `sales_content_type1_gate_lint.py` を Type1 audit として見る。
+sales / content の外部送信・納品・公開候補を扱う時は、実行前に Type1 audit を見る。公開 package では物理 lane path を前提にしない。
 
 必須:
 
-- `Documents/lanes/sales/` または `Documents/lanes/content/` の send / proposal / delivery / publish / reply 系 file は、`type1_status` / `approval_ref` / `external_action` / `gate_evaluated_at` を確認する。
-- `python3 shared/scripts/sales_content_type1_gate_lint.py --json` が issue を返す場合、外部送信・納品・公開へ進まない。
-- `.archive` は通常 audit から除外し、歴史資料を確認する時だけ `--include-archive` を使う。
-- この audit は P1 の監査採用であり、hook / fail-closed 化は P3 の別 task とする。
+- send / proposal / delivery / publish / reply 系の成果物は、`type1_status` / `approval_ref` / `external_action` / `gate_evaluated_at` を確認する。
+- operator-local の Type1 lint がある場合はそれを使い、issue があるなら外部送信・納品・公開へ進まない。
+- lint が無い環境では `public-kernel/GATES.md` と `ai-contact-safety-contract.md` で人間承認まで止める。
+- この audit は運用採用であり、hook / fail-closed 化は別 task とする。
 
 ```text
 sales_content_type1_audit:
-- adr: Documents/decisions/ADR-0139-sales-content-type1-gate-required.md
-- command: python3 shared/scripts/sales_content_type1_gate_lint.py --json
+- authority: public-kernel/GATES.md | ai-contact-safety-contract.md | operator-local Type1 lint
 - result: pass | issues | not_applicable
-- action: proceed | hold_for_type1_gate | reroute_to_p3
+- action: proceed | hold_for_type1_gate | ask_human
 ```
 
 ### 0.3 Repeated User Correction Triage
@@ -281,24 +280,24 @@ resource_budget_gate:
 | source route | 使う時 | 使わない時 | evidence |
 |---|---|---|---|
 | local stat / grep | file の有無、mtime、差分、session jsonl の bytes/mtime | 意味解釈や外部知識が必要 | command output |
-| Obsidian / Documents pointer | SSOT、過去に決めた rule、FDE正本、lane契約を確認する | 新しい外部情報・別AI視点が必要 | source pointer |
-| Gemini pane | 低コストの広い下調べ、候補出し、外部観点、長文要約 | local fact の代替、正本採否、機密/Type1、未確認の実行 | prompt/response receipt |
+| repo-local SSOT / source pointer | SSOT、過去に決めた rule、FDE正本、lane契約を確認する | 新しい外部情報・別AI視点が必要 | source pointer |
+| lightweight research pane | 低コストの広い下調べ、候補出し、外部観点、長文要約 | local fact の代替、正本採否、機密/Type1、未確認の実行 | prompt/response receipt |
 | Spark / lightweight Codex | diff要約、表作成、短い調査、test log整形 | Top採否、価値判断、Type1 | changed files / test / smoke |
 | browser AI / external AI | 発散レビュー、反証、複数AI差分、外部視点 | local source が不足したままの採用判断 | raw + fact/推測/不明分類 |
 
 必須:
 
-- `thin_source_route` を置く。`local_stat | obsidian_pointer | gemini_pane | spark | external_ai | top_decision` のどれか。
-- Obsidian は「正本 / 過去決定 / source pointer」を見るために使う。検索クエリを作文して evidence にしない。
-- Gemini pane は「薄い下調べ / 発散 / 要約」に使う。Gemini の回答を `[事実: source]` として採用せず、`[推測]` または external reply として local fact check へ戻す。
-- Gemini CLI / API / browser AI は、使う前に resource / quota / cost / payload_fingerprint を確認する。確認できない時は `send_status: held`。
-- ユーザーが「薄く」と言った時は、全文読みに行かず、`local stat -> source pointer -> Gemini/Spark delegate` の順にする。
+- `thin_source_route` を置く。`local_stat | source_pointer | research_pane | spark | external_ai | top_decision` のどれか。
+- source pointer は「正本 / 過去決定 / 公開解決先」を見るために使う。検索クエリを作文して evidence にしない。
+- research pane は「薄い下調べ / 発散 / 要約」に使う。その回答を `[事実: source]` として採用せず、`[推測]` または external reply として local fact check へ戻す。
+- external research CLI / API / browser AI は、使う前に resource / quota / cost / payload_fingerprint を確認する。確認できない時は `send_status: held`。
+- ユーザーが「薄く」と言った時は、全文読みに行かず、`local stat -> source pointer -> research/Spark delegate` の順にする。
 - `thin_source_route` を間違えたら `route_failure: thin_source_route_missed` として、次回は route table に戻す。
 
 ```text
 thin_source_routing:
 - question:
-- thin_source_route: local_stat | obsidian_pointer | gemini_pane | spark | external_ai | top_decision
+- thin_source_route: local_stat | source_pointer | research_pane | spark | external_ai | top_decision
 - why_this_source:
 - source_budget:
 - expected_output:
@@ -459,7 +458,7 @@ delegation_efficiency:
 
 ### 2.1.0 CMUX Lane Send Gate
 
-他workspace / 他lane / sidecar の terminal agent に送る時は、CMUXを直接の記憶で叩かない。`route_authority` として `Documents/references/cmux/pane-communication.md` / `Documents/references/cmux/send-targeting.md` の該当節を確認する。
+他workspace / 他lane / sidecar の terminal agent に送る時は、multiplexer を直接の記憶で叩かない。`route_authority` として `dependency-registry:cmux-reference`（operator-local adapter）または本 repo の `external-ai-file-loop.md` を確認する。
 
 必須:
 
@@ -474,7 +473,7 @@ delegation_efficiency:
 
 ```text
 cmux_lane_send_gate:
-- route_authority: Documents/references/cmux/pane-communication.md | Documents/references/cmux/send-targeting.md
+- route_authority: dependency-registry:cmux-reference | external-ai-file-loop.md
 - target_workspace:
 - target_surface:
 - role_resolution: resolved | pending | mismatch
@@ -677,7 +676,7 @@ communication_evidence_loop:
 
 | route | 意味 | 実行前に必要な確認 |
 |---|---|---|
-| local search | Gemini 関連の local file / 設定 /履歴を探す | `rg` / Obsidian source pointer |
+| local search | research 関連の local file / 設定 /履歴を探す | `rg` / source pointer |
 | web search | Gemini の現行仕様・外部情報を調べる | web 検索が必要な理由 |
 | external AI | Gemini に prompt を投げて回答を得る | 外部AI利用の明示 / route_authority / payload_fingerprint |
 | feature search | Gemini アプリ内の機能・画面を探す | 対象 surface / browser route |

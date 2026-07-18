@@ -13,7 +13,7 @@ tags: [fractal-decision-ecosystem, pattern, vocabulary, alias, search]
 
 # Fractal Decision Ecosystem パターン語彙
 
-会話・Obsidian 検索・playbook / lesson / idea から出てくる語を、Fractal Decision Ecosystem の判断軸へ吸わせるための語彙表。
+会話・local notes 検索・playbook / lesson / idea から出てくる語を、Fractal Decision Ecosystem の判断軸へ吸わせるための語彙表。
 
 これは用語辞典ではない。**ある語が出た時に、次に見る軸・方法・検証・保存先を連鎖させるための pattern chain**。
 
@@ -102,7 +102,7 @@ closure_rule:
 | scope / boundary | scope, boundary, range, 範囲, force_level, contract | WHERE / HOWMUCH | 触ってよい範囲を決める | file scope, lane scope, workspace, Type1, external | access control, blast radius | `scope -> safe/unsafe -> gate` |
 | architecture / design | architecture, architect, design pattern, harness, layer, SSOT | HOW | 構造・境界・依存を見分ける | component, dependency, state, failure mode, source of truth | DDD, system design, platform engineering | `architecture -> boundary -> SSOT -> test` |
 | best practice diffusion | best practice, discover, compare, localize, pilot, adopt | WHEN / WITHWHAT | 外部事例をローカル運用へ翻訳する | source, comparison, localization, adoption path | benchmark, case study, maturity model | `discover -> compare -> localize -> pilot -> adopt` |
-| research / library search | library search, Obsidian search, local first, official first | WITHWHAT | 探す順序を固定する | repo, Documents, Obsidian, official docs, OSS, web | semantic search, graph search, RAG | `local first -> official first -> cross-check` |
+| research / library search | library search, local-notes search, local first, official first | WITHWHAT | 探す順序を固定する | repo, local notes, official docs, OSS, web | semantic search, graph search, RAG | `local first -> official first -> cross-check` |
 | route mode / budget | route_mode, fast_reply, balanced, parallel_deep, background_watch, quick answer, token, cost, time budget | HOWMUCH / WHEN | 速度・確度・コストで route を選ぶ | fast_reply, balanced, parallel_deep, background_watch, budget | service level, QoS, triage class | `route_mode -> budget -> delegate or answer` |
 | unknown location / source routing | where is it, どこにある, missing source, pointer missing, SSOT missing | WHERE / WITHWHAT | 探索先と戻し先を決める | local index, registry, pointer, Gemini, explorer, web, absorb | information retrieval, routing table | `unknown_location -> local index -> Gemini/explorer -> registry update` |
 | trend / frontier intake | trend, GitHub trending, X, news, YouTube, OSS | WITHWHAT | 旬を取り込むが即事実化しない | watch, digest, candidate, smoke | market sensing, weak signal, horizon scanning | `trend -> candidate -> local smoke` |
@@ -132,7 +132,7 @@ unknown_location -> registry/data-index/playbook -> local rg max3 -> Gemini/expl
 ```text
 library search -> local first -> official first -> OSS / web -> cross-check
 trend -> candidate -> localize -> smoke -> adopt / park
-Obsidian search -> related note -> alias term -> axis -> packet
+local-notes search -> related note -> alias term -> axis -> packet
 ```
 
 ### 設計系
@@ -160,7 +160,7 @@ AI作文っぽい -> original voice missing -> content lane rule
 
 ## search seed
 
-Obsidian / vault 検索で関連語を広げる時の seed。
+local notes / vault 検索で関連語を広げる時の seed。
 
 ```text
 protocol HTTP packet route status cache trace id
@@ -183,7 +183,7 @@ Provenance: Claude proposal 由来。採用履歴は source history に残し、
 
 | 入口 | 入口語 | chain | 主軸 | 空振り時 | version |
 |---|---|---|---|---|---|
-| 新アイディア発見 | idea, 思いついた, 提案 | 再帰検索 v1 (= Obsidian search → 関連 → axis → packet) | WITHWHAT | decision-needed | v1 stable |
+| 新アイディア発見 | idea, 思いついた, 提案 | 再帰検索 v1 (= local-notes search → 関連 → axis → packet) | WITHWHAT | decision-needed | v1 stable |
 | AI 回答前の事実確認 | 事実?, source?, 不明 | 検索 chain 流用 | WITHWHAT | 不明として明示 | v1 stable |
 | 実装 | 作って, 実装, 直して | core packet -> scope/risk -> TDD or smoke -> diff/test -> FDE absorb | HOW | reroute / escalate | v1 stable |
 | review | レビュー, 評価, 反論 | 4 AI review packet | WITHWHAT / WHY | unknown | v1 stable |
