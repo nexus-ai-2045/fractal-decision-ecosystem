@@ -95,6 +95,13 @@ CHECKS = {
         "worktree prune",
         "merged_local_branches",
         "delete_branch_on_merge",
+        "refs/remotes/origin/main",
+        "fail-closed",
+    ),
+    "docs/superpowers/skills/post-merge-cleanup.md": (
+        "scripts/post_merge_cleanup.py",
+        "resolvable ref",
+        "test_ci_checkout_without_local_main_uses_origin_main",
     ),
     "tests/test_public_ready.py": (
         "test_fde_workflow_manifest_is_machine_readable_without_external_action",

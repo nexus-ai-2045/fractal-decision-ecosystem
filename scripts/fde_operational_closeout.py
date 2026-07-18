@@ -553,7 +553,16 @@ def evaluate(
         )
 
     started_at = datetime.now(UTC).isoformat()
-    post_merge_cleanup = evaluate_post_merge_cleanup(apply=run_post_merge_cleanup)
+    try:
+        post_merge_cleanup = evaluate_post_merge_cleanup(
+            apply=run_post_merge_cleanup
+        )
+    except Exception as exc:  # fail-closed adapter boundary
+        post_merge_cleanup = {
+            "overall": "error",
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
     checks["post_merge_cleanup"] = post_merge_cleanup
     check_events.append(
         {

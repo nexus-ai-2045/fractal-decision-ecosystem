@@ -55,31 +55,79 @@ def _is_protected(branch: str) -> bool:
     return any(pattern.search(branch) for pattern in PROTECTED_BRANCH_PATTERNS)
 
 
-def _default_base_branch(cwd: Path) -> str:
-    for candidate in ("main", "master"):
-        result = _run(
-            ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{candidate}"],
-            cwd=cwd,
-            allow_failure=True,
-        )
-        if result.returncode == 0:
+def _ref_exists(cwd: Path, ref: str) -> bool:
+    result = _run(
+        ["git", "show-ref", "--verify", "--quiet", ref],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    return result.returncode == 0
+
+
+def _resolve_base_ref(cwd: Path) -> str:
+    """Return a resolvable merge-base ref for CI and local checkouts.
+
+    GitHub Actions PR checkouts often have only the feature branch locally and
+    `origin/main` as a remote-tracking ref. Using bare `main` then makes
+    `git branch --merged main` fail with `malformed object name main`.
+    """
+    for candidate in (
+        "refs/heads/main",
+        "refs/heads/master",
+        "refs/remotes/origin/main",
+        "refs/remotes/origin/master",
+    ):
+        if _ref_exists(cwd, candidate):
             return candidate
+
     symbolic = _git(
         ["symbolic-ref", "refs/remotes/origin/HEAD"],
         cwd=cwd,
         allow_failure=True,
     )
-    if symbolic.startswith("refs/remotes/origin/"):
-        return symbolic.rsplit("/", 1)[-1]
-    return "main"
+    if symbolic and _ref_exists(cwd, symbolic):
+        return symbolic
+
+    raise RuntimeError(
+        "no resolvable base ref "
+        "(tried local main/master and origin/main|master); "
+        "CI must checkout with fetch-depth that includes the base branch tip"
+    )
 
 
-def _merged_local_branches(cwd: Path, base: str, current: str) -> list[str]:
-    output = _git(["branch", "--format=%(refname:short)", "--merged", base], cwd=cwd)
+def _short_ref_name(ref: str) -> str:
+    for prefix in (
+        "refs/heads/",
+        "refs/remotes/origin/",
+        "refs/remotes/",
+    ):
+        if ref.startswith(prefix):
+            return ref[len(prefix) :]
+    return ref
+
+
+def _merged_local_branches(cwd: Path, base_ref: str, current: str) -> list[str]:
+    result = _run(
+        ["git", "branch", "--format=%(refname:short)", "--merged", base_ref],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "unknown git error"
+        raise RuntimeError(
+            f"git branch --merged {base_ref} failed: {detail}"
+        )
+    base_short = _short_ref_name(base_ref)
     branches: list[str] = []
-    for line in output.splitlines():
+    for line in result.stdout.splitlines():
         name = line.strip()
-        if not name or name == current or name == base or _is_protected(name):
+        if (
+            not name
+            or name == current
+            or name == base_short
+            or name == base_ref
+            or _is_protected(name)
+        ):
             continue
         branches.append(name)
     return branches
@@ -154,28 +202,42 @@ def evaluate(*, apply: bool = False, cwd: Path | None = None) -> dict[str, objec
     actions: list[dict[str, object]] = []
 
     try:
-        current = _git(["branch", "--show-current"], cwd=root) or "HEAD"
-        base = _default_base_branch(root)
-    except RuntimeError as exc:
+        return _evaluate_body(apply=apply, root=root, errors=errors, actions=actions)
+    except Exception as exc:  # fail-closed JSON, never crash closeout/CI
         return {
             "overall": "error",
             "external_actions_performed": False,
             "apply": apply,
-            "errors": [str(exc)],
+            "errors": [f"{type(exc).__name__}: {exc}"],
             "residue": {
                 "merged_local_branches": [],
                 "stale_remote_refs": [],
                 "pruneable_worktrees": [],
             },
-            "actions": [],
+            "actions": actions,
             "github_delete_branch_on_merge": {
                 "checked": False,
                 "enabled": None,
                 "status": "unavailable",
             },
+            "base_branch": None,
+            "current_branch": None,
+            "recommended_human_action": None,
         }
 
-    merged = _merged_local_branches(root, base, current)
+
+def _evaluate_body(
+    *,
+    apply: bool,
+    root: Path,
+    errors: list[str],
+    actions: list[dict[str, object]],
+) -> dict[str, object]:
+    current = _git(["branch", "--show-current"], cwd=root) or "HEAD"
+    base_ref = _resolve_base_ref(root)
+    base = _short_ref_name(base_ref)
+
+    merged = _merged_local_branches(root, base_ref, current)
     stale = _stale_remote_refs(root)
     pruneable = _pruneable_worktrees(root)
     github_setting = _delete_branch_on_merge_setting()
@@ -272,6 +334,7 @@ def evaluate(*, apply: bool = False, cwd: Path | None = None) -> dict[str, objec
         "external_actions_performed": bool(apply),
         "apply": apply,
         "base_branch": base,
+        "base_ref": base_ref,
         "current_branch": current,
         "errors": errors,
         "residue": residue,

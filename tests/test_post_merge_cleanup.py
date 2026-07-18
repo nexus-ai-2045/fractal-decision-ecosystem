@@ -67,6 +67,53 @@ def test_apply_deletes_merged_local_branch(tmp_path: Path) -> None:
     assert _git(repo, "branch", "--list", "cursor/feature-temp-54bb") == ""
 
 
+def test_ci_checkout_without_local_main_uses_origin_main(tmp_path: Path) -> None:
+    """GitHub Actions PR checkouts often lack refs/heads/main."""
+    bare = tmp_path / "origin.git"
+    bare.mkdir()
+    _git(bare, "init", "--bare")
+
+    seed = tmp_path / "seed"
+    seed.mkdir()
+    _git(seed, "init")
+    _git(seed, "config", "user.email", "test@example.com")
+    _git(seed, "config", "user.name", "Test")
+    (seed / "README.md").write_text("main\n", encoding="utf-8")
+    _git(seed, "add", "README.md")
+    _git(seed, "commit", "-m", "init")
+    if _git(seed, "branch", "--show-current") != "main":
+        _git(seed, "branch", "-m", "main")
+    _git(seed, "remote", "add", "origin", str(bare))
+    _git(seed, "push", "-u", "origin", "main")
+    _git(seed, "checkout", "-b", "cursor/ci-feature-54bb")
+    (seed / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(seed, "add", "feature.txt")
+    _git(seed, "commit", "-m", "feature")
+    _git(seed, "push", "-u", "origin", "cursor/ci-feature-54bb")
+
+    # Simulate Actions PR checkout: single-branch feature + fetched origin/main tip.
+    pr_checkout = tmp_path / "pr"
+    _git(
+        tmp_path,
+        "clone",
+        "--branch",
+        "cursor/ci-feature-54bb",
+        "--single-branch",
+        str(bare),
+        str(pr_checkout),
+    )
+    _git(pr_checkout, "fetch", "origin", "main:refs/remotes/origin/main")
+    local_branches = _git(pr_checkout, "branch", "--format=%(refname:short)").splitlines()
+    assert "main" not in local_branches
+    assert _git(pr_checkout, "show-ref", "--verify", "refs/remotes/origin/main")
+
+    result = evaluate(apply=False, cwd=pr_checkout)
+
+    assert result["overall"] == "ok", result
+    assert result["base_ref"] == "refs/remotes/origin/main"
+    assert result["residue"]["merged_local_branches"] == []
+
+
 def test_protected_branches_are_not_deleted(tmp_path: Path) -> None:
     repo = _init_repo(tmp_path)
     _git(repo, "branch", "release-please--branches--main--components--demo")
