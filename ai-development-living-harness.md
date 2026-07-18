@@ -78,6 +78,7 @@ Design
 -> PR push
 -> merge
 -> post-merge verification
+-> post-merge cleanup (`scripts/post_merge_cleanup.py --apply`)
 ```
 
 省略できるのは、低リスクで reversible な範囲だけ。Type1、公開、外部送信、auth、secret、production、settings、hook、SSOT 変更は省略しない。

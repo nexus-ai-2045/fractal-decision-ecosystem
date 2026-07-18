@@ -308,6 +308,8 @@ def test_fde_operational_closeout_reports_residue_without_public_action() -> Non
     assert result["external_public_residue"] == "approval_gated"
     assert result["checks"]["architecture_drift"]["overall"] == "ok"
     assert "fde_workflow.yaml is the machine-readable closed-loop SSOT" in result["context_to_preserve"]
+    assert "post_merge_cleanup" in result["checks"]
+    assert any("post_merge_cleanup.py" in item for item in result["resume_checks"])
 
 
 def test_fde_operational_closeout_delivery_state_is_machine_readable() -> None:
