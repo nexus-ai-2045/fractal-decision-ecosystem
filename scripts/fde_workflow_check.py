@@ -76,6 +76,7 @@ STATE_EVIDENCE_CONTRACT = (
     "system_update=updated_artifact+regression_test+rollback_path",
 )
 STATE_GATE_BINDINGS = (
+    "orchestrate=orchestration_gate_check",
     "preflight=pre_publication_gate_check+fde_architecture_drift_check",
     "verify=compileall+git_diff_check+pytest+pre_publication_gate_check+visual_html_smoke+public_ready_check",
     "operational_guarantee=fde_operational_closeout+remote_ci+human_review_receipt",
@@ -96,6 +97,7 @@ REQUIRED_LOCAL_GATES = (
     "public_ready_check",
     "pre_publication_gate_check",
     "roadmap_gate_check",
+    "orchestration_gate_check",
     "residual_zero_goal_check",
     "no_transport_contact_check",
     "verify_residual_zero_contract",

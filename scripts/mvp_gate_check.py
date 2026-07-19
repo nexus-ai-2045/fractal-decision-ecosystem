@@ -26,6 +26,7 @@ from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_
 from scripts.visual_html_smoke import evaluate as evaluate_visual_html_smoke
 from scripts.public_kernel_diff_manifest import evaluate as evaluate_public_kernel_diff
 from scripts.human_review_packet_check import evaluate as evaluate_human_review_packet
+from scripts.orchestration_gate_check import evaluate as evaluate_orchestration_gate
 
 
 REQUIRED_STATUS_TERMS = (
@@ -44,6 +45,7 @@ REQUIRED_TRACKED_FILES = (
     "scripts/mvp_gate_check.py",
     "scripts/public_ready_check.py",
     "scripts/roadmap_gate_check.py",
+    "scripts/orchestration_gate_check.py",
     "scripts/residual_zero_goal_check.py",
     "scripts/no_transport_contact_check.py",
     "scripts/verify_residual_zero_contract.py",
@@ -62,7 +64,9 @@ REQUIRED_TRACKED_FILES = (
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
+    "decisions/ADR-0006-orchestration-spark-ops-gate.md",
     "tests/test_public_ready.py",
+    "tests/test_orchestration_gate.py",
 )
 
 
@@ -92,6 +96,16 @@ def _run_roadmap() -> dict[str, object]:
     return {
         "name": "roadmap_gate_check",
         "ok": result["overall"] == "ok",
+        "result": result,
+    }
+
+
+def _run_orchestration_gate() -> dict[str, object]:
+    result = evaluate_orchestration_gate()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "orchestration_gate_check",
+        "ok": ok,
         "result": result,
     }
 
@@ -240,6 +254,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_public_ready(),
         _run_pre_publication(),
         _run_roadmap(),
+        _run_orchestration_gate(),
         _run_fde_workflow(),
         _run_fde_architecture_drift(),
         _run_residual_zero_goal(),
