@@ -31,6 +31,7 @@ REQUIRED_FILES = (
     "scripts/mvp_gate_check.py",
     "scripts/run_mvp_gate.ps1",
     "scripts/roadmap_gate_check.py",
+    "scripts/orchestration_gate_check.py",
     "scripts/fde_workflow_check.py",
     "scripts/fde_architecture_drift_check.py",
     "scripts/fde_operational_closeout.py",
@@ -46,6 +47,7 @@ REQUIRED_FILES = (
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
+    "decisions/ADR-0006-orchestration-spark-ops-gate.md",
 )
 
 PACKAGE_EXCLUDED_PARTS = (
@@ -108,6 +110,7 @@ JAPANESE_REQUIRED_DOCS = (
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
+    "decisions/ADR-0006-orchestration-spark-ops-gate.md",
     "PUBLIC_KERNEL_PLAN.md",
     "SECURITY.md",
     "public-kernel/README.md",

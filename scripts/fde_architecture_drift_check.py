@@ -75,6 +75,8 @@ CHECKS = {
         "learning_adoption_requires",
         "capability_inventory_order",
         "feedback_contract",
+        "orchestration_gate_check",
+        "orchestrate=orchestration_gate_check",
     ),
     "dependency-registry.md": (
         "measurement-gate",
@@ -88,6 +90,17 @@ CHECKS = {
         "test_fde_workflow_manifest_is_machine_readable_without_external_action",
         "test_fde_architecture_drift_check_connects_docs_scripts_and_tests",
         "test_fde_operational_closeout_reports_residue_without_public_action",
+    ),
+    "scripts/orchestration_gate_check.py": (
+        "spark_candidate",
+        "GPT-5.3-Codex-Spark",
+        "team_plan",
+        "orchestration_required",
+    ),
+    "tests/test_orchestration_gate.py": (
+        "test_orchestration_gate_docs_pass",
+        "test_valid_spark_delegate_packet_passes",
+        "test_spark_delegate_cannot_own_type1_or_final_decision",
     ),
 }
 

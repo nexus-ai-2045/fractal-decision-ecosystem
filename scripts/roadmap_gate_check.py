@@ -39,6 +39,8 @@ REQUIRED_TERMS = (
     "ローカル実装残務: なし",
     "Roadmap gate は `scripts/mvp_gate_check.py` に接続済み",
     "Team formation / orchestration は `decisions/ADR-0004-team-formation-orchestration-gate.md` に記録済み。",
+    "orchestration_gate_check",
+    "GPT-5.3-Codex-Spark",
     "Implementation Orchestration",
     "Implementation Roadmap",
     "Sprint 0: Post-Merge Verification Receipt",

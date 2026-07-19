@@ -57,6 +57,7 @@ FDE の完成図は、次の3つが揃った状態です。
 - Product / Creative review path は `decisions/ADR-0002-product-creative-review-path.md` に記録済み。
 - AI contact safety contract は `ai-contact-safety-contract.md` と `decisions/ADR-0003-ai-contact-safety-contract.md` に記録済み。
 - Team formation / orchestration は `decisions/ADR-0004-team-formation-orchestration-gate.md` に記録済み。
+- Orchestration / Spark operational gate は `decisions/ADR-0006-orchestration-spark-ops-gate.md` と `scripts/orchestration_gate_check.py` に記録済み。短い調査・diff要約・比較表・test log整形は `GPT-5.3-Codex-Spark` を候補にし、採否は main runtime が保持する。
 - MVP smoke / preflight scope review は `MVP_SCOPE_REVIEW_2026-07-02.md` に記録済み。
 - Product Design / Security / Creative / OpenAI Dev の追加TDDサイクルは、次に明示された実装要求が出た場合だけ切る。
 - PR / merge / public release は、このロードマップでは承認しない。必要な場合は `smoke -> preflight -> diff review -> PR -> human review -> merge` の順序を別承認で記録する。
@@ -75,7 +76,7 @@ FDE の完成図は、次の3つが揃った状態です。
 | lane | 目的 | 主な入力 | 主な出力 | 通常ゲート |
 |---|---|---|---|---|
 | Core FDE | entry -> packet -> evidence -> decision -> closure を壊さず拡張する | `README.md` / `operating-card.md` / `root-router.md` | routing contract、operating card更新 | roadmap gate、MVP gate |
-| Team Formation / Orchestration | 判断に必要な分岐、役割、実行順、回収条件を設計し、必要なら Team Creator として delegate を作る | `search-orchestration.md` / `operating-card.md` / `dependency-registry.md` | team_plan、delegate_plan、return_contract、adoption_gate、no_team_reason | team formation gate、roadmap gate |
+| Team Formation / Orchestration | 判断に必要な分岐、役割、実行順、回収条件を設計し、必要なら Team Creator として delegate を作る | `search-orchestration.md` / `operating-card.md` / `dependency-registry.md` | team_plan、delegate_plan、return_contract、adoption_gate、no_team_reason | team formation gate、orchestration_gate_check、roadmap gate |
 | Review UX | 初見レビューで入口、境界、次アクションを迷わせない | `visual.html` / ADR-0002 / `README.md` | review path、目視レビュー観点 | Product Design review、HTML smoke |
 | Safety / Security | 公開、secret、visibility、AI contact の停止線を維持する | `PUBLIC_READY.md` / `SECURITY.md` / ADR-0003 | gate、threat model、finding log | public-ready、pre-publication gate、codex-security scoped scan |
 | AI Contact Contract | 隣接productの接触構想をFDEの判断契約へ戻す | `ai-contact-safety-contract.md` / ADR-0003 | identity、consent、data boundary、closure checks | pytest、MVP gate、no-transport check |
