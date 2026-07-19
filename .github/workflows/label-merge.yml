@@ -1,0 +1,123 @@
+name: Label Merge
+
+# 目視レビュー後に人間の明示指示でマージするための human-in-the-loop 補助。
+# 起点は 3 つ:
+#   1. PR に `merge` ラベルが付いた時 (pull_request_target: labeled)
+#   2. PR コメントに `/merge` だけの行が投稿された時 (issue_comment)
+#   3. 何らかの check suite が完了した時 (`merge` ラベル付き PR を再評価)
+# いずれも「全チェックが緑」の時だけ squash マージする。自動マージではなく、
+# 必ず人間の GO (ラベル付与 or /merge コメント) が起点になる。
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [labeled]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+
+concurrency:
+  group: label-merge-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  label-merge:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      SELF_WORKFLOW: Label Merge
+      MERGE_LABEL: merge
+      MERGE_METHOD: squash
+    steps:
+      # コメント本文は untrusted input のため env 経由で受け取り、run: へ直接
+      # 展開しない (script injection 対策。pr-hygiene.yml と同じ方針)。
+      - name: Resolve trigger and collect candidate PRs
+        id: collect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_IS_PR: ${{ github.event.issue.pull_request.url != '' }}
+          COMMENT_PR: ${{ github.event.issue.number }}
+          LABEL_NAME: ${{ github.event.label.name }}
+          LABEL_PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          candidates=""
+          case "$EVENT_NAME" in
+            issue_comment)
+              if [ "$COMMENT_IS_PR" != "true" ]; then
+                echo "Comment is not on a pull request; nothing to do."
+              elif printf '%s' "$COMMENT_BODY" | grep -qiE '^[[:space:]]*/merge[[:space:]]*$'; then
+                gh label create "$MERGE_LABEL" --repo "$REPO" \
+                  --color 0e8a16 --description "Merge PR when all checks pass" 2>/dev/null || true
+                gh pr edit "$COMMENT_PR" --repo "$REPO" --add-label "$MERGE_LABEL"
+                candidates="$COMMENT_PR"
+              else
+                echo "Comment does not match /merge; ignoring."
+              fi
+              ;;
+            pull_request_target)
+              if [ "$LABEL_NAME" = "$MERGE_LABEL" ]; then
+                candidates="$LABEL_PR"
+              fi
+              ;;
+            check_suite)
+              candidates=$(gh pr list --repo "$REPO" --state open --label "$MERGE_LABEL" \
+                --json number --jq '.[].number' | tr '\n' ' ')
+              ;;
+          esac
+          echo "prs=$candidates" >> "$GITHUB_OUTPUT"
+
+      - name: Merge PRs whose checks are all green
+        if: steps.collect.outputs.prs != ''
+        env:
+          CANDIDATE_PRS: ${{ steps.collect.outputs.prs }}
+        run: |
+          set -euo pipefail
+          for PR in $CANDIDATE_PRS; do
+            echo "::group::Evaluating PR #$PR"
+
+            has_label=$(gh pr view "$PR" --repo "$REPO" --json labels \
+              --jq "[.labels[].name] | index(\"$MERGE_LABEL\") // empty")
+            if [ -z "$has_label" ]; then
+              echo "PR #$PR has no '$MERGE_LABEL' label; skipping."
+              echo "::endgroup::"; continue
+            fi
+
+            state=$(gh pr view "$PR" --repo "$REPO" --json state --jq '.state')
+            if [ "$state" != "OPEN" ]; then
+              echo "PR #$PR is not open ($state); skipping."
+              echo "::endgroup::"; continue
+            fi
+
+            # gh pr checks は fail/pending があると非 0 終了するが JSON は stdout に
+            # 出るので、終了コードでフォールバックしないよう分けて取得する。
+            checks=$(gh pr checks "$PR" --repo "$REPO" --json name,bucket,workflow 2>/dev/null) || true
+            [ -z "$checks" ] && checks='[]'
+
+            fail=$(echo "$checks" | jq --arg self "$SELF_WORKFLOW" \
+              '[.[] | select(.workflow != $self) | select(.bucket == "fail" or .bucket == "cancel")] | length')
+            pending=$(echo "$checks" | jq --arg self "$SELF_WORKFLOW" \
+              '[.[] | select(.workflow != $self) | select(.bucket == "pending")] | length')
+
+            if [ "$fail" -gt 0 ]; then
+              echo "PR #$PR has failing/cancelled checks; not merging."
+              echo "::endgroup::"; continue
+            fi
+            if [ "$pending" -gt 0 ]; then
+              echo "PR #$PR still has pending checks; will retry when checks complete."
+              echo "::endgroup::"; continue
+            fi
+
+            echo "All checks green for PR #$PR; merging ($MERGE_METHOD)."
+            gh pr ready "$PR" --repo "$REPO" 2>/dev/null || true
+            gh pr merge "$PR" --repo "$REPO" --"$MERGE_METHOD" --delete-branch
+            echo "::endgroup::"
+          done
