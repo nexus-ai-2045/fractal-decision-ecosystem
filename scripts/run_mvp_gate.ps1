@@ -38,38 +38,63 @@ function Test-PyenvShimFailure {
     )
 }
 
-function Test-MvpGateReallyRan {
-    param([string[]]$OutputLines)
+function ConvertFrom-MvpGateOutputJson {
+    param([object[]]$OutputLines)
 
-    $text = ($OutputLines -join "`n").Trim()
+    $text = (($OutputLines | ForEach-Object { [string]$_ }) -join "`n").Trim()
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return $null
+    }
+
+    try {
+        return $text | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        $start = $text.IndexOf("{")
+        $end = $text.LastIndexOf("}")
+        if ($start -lt 0 -or $end -le $start) {
+            return $null
+        }
+
+        try {
+            return $text.Substring($start, $end - $start + 1) | ConvertFrom-Json -ErrorAction Stop
+        }
+        catch {
+            return $null
+        }
+    }
+}
+
+function Test-MvpGateReallyRan {
+    param([object[]]$OutputLines)
+
+    $text = (($OutputLines | ForEach-Object { [string]$_ }) -join "`n").Trim()
     if ($text -match "FDE MVP GATE CHECK\s+(OK|ERROR)") {
         return $true
     }
 
-    try {
-        $json = $text | ConvertFrom-Json -ErrorAction Stop
-        return $null -ne $json.overall -and $null -ne $json.checks
+    $json = ConvertFrom-MvpGateOutputJson -OutputLines $OutputLines
+    if ($null -ne $json -and $null -ne $json.overall -and $null -ne $json.checks) {
+        return $true
     }
-    catch {
-        return $false
-    }
+
+    return $text -match '"overall"\s*:\s*"(ok|error)"' -and $text -match '"checks"\s*:'
 }
 
 function Test-MvpGateSucceeded {
-    param([string[]]$OutputLines)
+    param([object[]]$OutputLines)
 
-    $text = ($OutputLines -join "`n").Trim()
+    $text = (($OutputLines | ForEach-Object { [string]$_ }) -join "`n").Trim()
     if ($text -match "FDE MVP GATE CHECK\s+OK") {
         return $true
     }
 
-    try {
-        $json = $text | ConvertFrom-Json -ErrorAction Stop
-        return $json.overall -eq "ok" -and $null -ne $json.checks
+    $json = ConvertFrom-MvpGateOutputJson -OutputLines $OutputLines
+    if ($null -ne $json -and $json.overall -eq "ok" -and $null -ne $json.checks) {
+        return $true
     }
-    catch {
-        return $false
-    }
+
+    return $text -match '"overall"\s*:\s*"ok"' -and $text -match '"checks"\s*:'
 }
 
 foreach ($candidate in $candidates) {

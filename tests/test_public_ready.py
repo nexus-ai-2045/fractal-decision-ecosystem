@@ -915,3 +915,53 @@ def test_run_mvp_gate_requires_mvp_gate_output_even_when_python_exits_zero(tmp_p
 
     assert result.returncode != 0, result.stdout
     assert "MVP gate did not produce the expected gate output" in result.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows shim regression")
+def test_run_mvp_gate_accepts_json_output_with_diagnostic_prefix(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    (fake_bin / "py.cmd").write_text(
+        "@echo off\r\necho py launcher unavailable 1>&2\r\nexit /b 1\r\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python.cmd").write_text(
+        "\r\n".join(
+            [
+                "@echo off",
+                "if \"%~1\"==\"-c\" (",
+                "  echo {\"marker\":\"fde-mvp-gate-python-probe\",\"ok\":true,\"version\":[3,13,1],\"executable\":\"C:\\\\fake\\\\python.exe\"}",
+                "  exit /b 0",
+                ")",
+                "echo diagnostic line before json",
+                "echo {\"overall\":\"ok\",\"checks\":[]}",
+                "exit /b 0",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(public_ready_check.ROOT / "scripts" / "run_mvp_gate.ps1"),
+            "--json",
+        ],
+        cwd=public_ready_check.ROOT,
+        env=env,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert "diagnostic line before json" in result.stdout
