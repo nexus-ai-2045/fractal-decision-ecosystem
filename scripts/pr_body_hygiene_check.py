@@ -57,6 +57,11 @@ EMAIL_PATTERN = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 CO_AUTHOR_TRAILER_PATTERN = re.compile(
     r"(?i)^co-authored-by:\s*(?P<name>.+?)\s*<(?P<email>[^>]+)>\s*$"
 )
+README_REVIEW_PATTERN = re.compile(r"(?im)^\s*readme_review\s*:\s*complete\s*$")
+README_CHANGE_PATTERN = re.compile(r"(?im)^\s*readme_change\s*:\s*(changed|not-needed)\s*$")
+README_REASON_PATTERN = re.compile(r"(?im)^\s*readme_reason\s*:\s*(?P<reason>\S.*)$")
+RELEASE_TITLE_PATTERN = re.compile(r"(?i)^chore\(main\):\s*release\s+.+\s+\d+\.\d+\.\d+")
+RELEASE_PLEASE_BRANCH_PATTERN = re.compile(r"^release-please--branches--")
 
 ALLOWED_EMAILS = frozenset(
     {
@@ -156,7 +161,58 @@ def find_denylist_handle_findings(text: str, denylist: Sequence[str]) -> list[Fi
     return findings
 
 
-def evaluate(title: str | None, body: str | None, denylist: Sequence[str] | None = None) -> dict[str, object]:
+def _split_changed_files(raw_changed_files: str | Sequence[str] | None) -> list[str]:
+    if raw_changed_files is None:
+        return []
+    if isinstance(raw_changed_files, str):
+        candidates = re.split(r"[\n,]+", raw_changed_files)
+    else:
+        candidates = list(raw_changed_files)
+    return [candidate.strip().replace("\\", "/") for candidate in candidates if candidate.strip()]
+
+
+def _is_release_pr(title: str, head_ref: str | None) -> bool:
+    return bool(RELEASE_TITLE_PATTERN.search(title) or RELEASE_PLEASE_BRANCH_PATTERN.search(head_ref or ""))
+
+
+def find_release_readme_review_findings(
+    title: str,
+    body: str,
+    head_ref: str | None,
+    changed_files: Sequence[str] | None,
+) -> list[Finding]:
+    if not _is_release_pr(title, head_ref):
+        return []
+
+    findings: list[Finding] = []
+    review_match = README_REVIEW_PATTERN.search(body)
+    change_match = README_CHANGE_PATTERN.search(body)
+    reason_match = README_REASON_PATTERN.search(body)
+
+    if not review_match:
+        findings.append(Finding(1, "missing release README review marker", "readme_review: complete"))
+    if not change_match:
+        findings.append(
+            Finding(1, "missing release README change marker", "readme_change: changed | not-needed")
+        )
+    if not reason_match:
+        findings.append(Finding(1, "missing release README review reason", "readme_reason: ***"))
+
+    if change_match and change_match.group(1) == "changed":
+        normalized_changed_files = set(_split_changed_files(changed_files))
+        if "README.md" not in normalized_changed_files:
+            findings.append(Finding(1, "release README change missing from diff", "README.md"))
+
+    return findings
+
+
+def evaluate(
+    title: str | None,
+    body: str | None,
+    denylist: Sequence[str] | None = None,
+    head_ref: str | None = None,
+    changed_files: str | Sequence[str] | None = None,
+) -> dict[str, object]:
     """PR タイトル/本文を検査する。1 行目は title、2 行目以降が body になる。"""
     title_text = title or ""
     body_text = body or ""
@@ -167,6 +223,7 @@ def evaluate(title: str | None, body: str | None, denylist: Sequence[str] | None
     findings.extend(find_disallowed_email_findings(combined))
     findings.extend(find_co_author_trailer_findings(combined))
     findings.extend(find_denylist_handle_findings(combined, denylist or ()))
+    findings.extend(find_release_readme_review_findings(title_text, body_text, head_ref, _split_changed_files(changed_files)))
     findings.sort(key=lambda finding: (finding.line_number, finding.label, finding.masked))
 
     return {
@@ -199,6 +256,14 @@ def _resolve_body(args: argparse.Namespace) -> str:
     return os.environ.get("PR_HYGIENE_BODY", "")
 
 
+def _resolve_changed_files(args: argparse.Namespace) -> str:
+    if args.changed_files is not None:
+        return args.changed_files
+    if args.changed_files_file:
+        return Path(args.changed_files_file).read_text(encoding="utf-8", errors="replace")
+    return os.environ.get("PR_HYGIENE_CHANGED_FILES", "")
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="PR タイトル/本文の PII・ローカルパス検査")
     parser.add_argument("--title", default=None, help="PR タイトル (省略時は環境変数 PR_HYGIENE_TITLE)")
@@ -209,6 +274,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--body-file", default=None, help="PR 本文を読み込む file path")
     parser.add_argument("--stdin", action="store_true", help="標準入力から PR 本文を読み込む")
+    parser.add_argument("--head-ref", default=None, help="PR head branch (省略時は環境変数 PR_HYGIENE_HEAD_REF)")
+    parser.add_argument("--changed-files", default=None, help="PR差分 file 一覧。改行またはcomma区切り")
+    parser.add_argument("--changed-files-file", default=None, help="PR差分 file 一覧を読み込む file path")
     parser.add_argument("--json", action="store_true", help="結果を JSON で出力する")
     return parser
 
@@ -218,8 +286,10 @@ def main(argv: list[str] | None = None) -> int:
     title = _resolve_title(args)
     body = _resolve_body(args)
     denylist = _load_denylist_from_env()
+    head_ref = args.head_ref if args.head_ref is not None else os.environ.get("PR_HYGIENE_HEAD_REF", "")
+    changed_files = _resolve_changed_files(args)
 
-    result = evaluate(title, body, denylist=denylist)
+    result = evaluate(title, body, denylist=denylist, head_ref=head_ref, changed_files=changed_files)
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
