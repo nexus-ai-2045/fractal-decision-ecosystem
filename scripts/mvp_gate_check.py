@@ -50,7 +50,9 @@ REQUIRED_TRACKED_FILES = (
     "scripts/visual_html_smoke.py",
     "scripts/public_kernel_diff_manifest.py",
     "scripts/human_review_packet_check.py",
+    "scripts/pr_review_signal_check.py",
     "scripts/adr_next.py",
+    "docs/review-signal-absorption.md",
     "ROADMAP.md",
     "SYSTEM_OVERVIEW.md",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
@@ -63,6 +65,7 @@ REQUIRED_TRACKED_FILES = (
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
     "tests/test_public_ready.py",
+    "tests/test_pr_review_signal_check.py",
 )
 
 

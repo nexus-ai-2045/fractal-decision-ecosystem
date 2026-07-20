@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -28,4 +30,7 @@ jobs:
           PR_HYGIENE_TITLE: ${{ github.event.pull_request.title }}
           PR_HYGIENE_BODY: ${{ github.event.pull_request.body }}
           PR_HYGIENE_DENYLIST: ${{ secrets.PR_HYGIENE_DENYLIST }}
-        run: python scripts/pr_body_hygiene_check.py
+          PR_HYGIENE_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git diff --name-only HEAD^1 HEAD > changed-files.txt
+          python scripts/pr_body_hygiene_check.py --changed-files-file changed-files.txt

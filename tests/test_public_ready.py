@@ -1,5 +1,6 @@
 import hashlib
 import copy
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -186,6 +187,17 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
         "receipt": "metadata_only",
         "external_actions_performed": False,
     }
+
+
+def test_release_please_uses_existing_unprefixed_v_tag_contract() -> None:
+    root = public_ready_check.ROOT
+    config = json.loads((root / "release-please-config.json").read_text(encoding="utf-8"))
+    manifest = json.loads((root / ".release-please-manifest.json").read_text(encoding="utf-8"))
+    package = config["packages"]["."]
+
+    assert package["include-v-in-tag"] is True
+    assert package["include-component-in-tag"] is False
+    assert (root / "version.txt").read_text(encoding="utf-8").strip() == manifest["."]
 
 
 def test_fde_workflow_rejects_an_incomplete_learning_contract(tmp_path) -> None:
@@ -603,6 +615,22 @@ def test_operational_guarantee_records_post_merge_receipts_without_public_approv
         "public release、repository visibility 変更、external sending、patent filing の承認ではありません",
         "scripts/public_kernel_diff_manifest.py",
         "scripts/human_review_packet_check.py",
+        "scripts/pr_review_signal_check.py",
+        "human_review_required",
+        "レビュー済みとは言いません",
+    ):
+        assert term in text
+
+
+def test_review_signal_absorption_rule_keeps_checks_and_review_separate() -> None:
+    text = (public_ready_check.ROOT / "docs" / "review-signal-absorption.md").read_text(encoding="utf-8")
+    for term in (
+        "CI成功、bot check成功、bot review comment、人間レビューを混ぜない",
+        "scripts/pr_review_signal_check.py",
+        "statusCheckRollup",
+        "human_review_required",
+        "Cursor Bugbotがdisabled",
+        "CI成功だけで2または3を満たしたとは扱わない",
     ):
         assert term in text
 
@@ -903,3 +931,53 @@ def test_run_mvp_gate_requires_mvp_gate_output_even_when_python_exits_zero(tmp_p
 
     assert result.returncode != 0, result.stdout
     assert "MVP gate did not produce the expected gate output" in result.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows shim regression")
+def test_run_mvp_gate_accepts_json_output_with_diagnostic_prefix(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    (fake_bin / "py.cmd").write_text(
+        "@echo off\r\necho py launcher unavailable 1>&2\r\nexit /b 1\r\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python.cmd").write_text(
+        "\r\n".join(
+            [
+                "@echo off",
+                "if \"%~1\"==\"-c\" (",
+                "  echo {\"marker\":\"fde-mvp-gate-python-probe\",\"ok\":true,\"version\":[3,13,1],\"executable\":\"C:\\\\fake\\\\python.exe\"}",
+                "  exit /b 0",
+                ")",
+                "echo diagnostic line before json",
+                "echo {\"overall\":\"ok\",\"checks\":[]}",
+                "exit /b 0",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(public_ready_check.ROOT / "scripts" / "run_mvp_gate.ps1"),
+            "--json",
+        ],
+        cwd=public_ready_check.ROOT,
+        env=env,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert "diagnostic line before json" in result.stdout

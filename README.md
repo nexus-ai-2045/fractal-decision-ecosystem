@@ -12,11 +12,43 @@ tags: [fde, index, brain]
 
 ![FDEの道具箱を開く個人と人懐っこいAI相棒](assets/fde-cover.png)
 
-グラフィカルに読む入口: [visual.html](visual.html) / [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)
+**無限に発散してしまいがちなAIの仕事を「根拠のある判断」と「閉じた改善ループ」に変える。**
+
+FDEは、AI作業の目標、根拠、実装、検証、停止線、学習先をひとつの流れに戻すための判断制御面です。個別のAIアプリではなく、AIが本来できる判断・開発・改善を毎回きちんと発火させ、完了・未保証・人間承認待ちを混ぜずに閉じるための運用パッケージです。
+
+## まず何を見ればいい？
+
+| 目的 | 入口 |
+|---|---|
+| 全体像を図でつかむ | [visual.html](visual.html) / [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) |
+| 5分で現在のgateを試す | `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json` |
+| レビュー順を確認する | [ROADMAP.md](ROADMAP.md) → [OPERATIONAL_GUARANTEE.md](OPERATIONAL_GUARANTEE.md) / [MVP_STATUS.md](MVP_STATUS.md) → [PUBLIC_KERNEL_PLAN.md](PUBLIC_KERNEL_PLAN.md) |
+| 公開・release境界を見る | [PUBLIC_KERNEL_PLAN.md](PUBLIC_KERNEL_PLAN.md) / [TODO_FDE_PUBLIC_KERNEL_RIGHTS.md](TODO_FDE_PUBLIC_KERNEL_RIGHTS.md) |
+
+## 中核ループ
+
+```text
+Goal -> Evidence -> Decision -> Verify -> Closure
+  ^                                          |
+  +-- route / skill / gate / test / SSOT / roadmap
+```
+
+このループの目的は、AIの作業を「思いついた順」ではなく「根拠を確認し、判断し、検証し、次の仕組みに戻す順」にそろえることです。失敗や迷子化は反省文で終えず、再発防止を `route / skill / gate / test / SSOT / roadmap` のどこかへ戻します。
+
+## 現在できること
+
+| 役割 | FDEがそろえるもの | 主な証拠 |
+|---|---|---|
+| 判断 | 問い、owner、mode、完了条件 | packet / evidence / decision |
+| 開発 | 既存資産確認、実装、検証層 | diff / pytest / smoke / gate |
+| 運用 | 残務、remote CI、closeout | receipt / operational guarantee |
+| 改善 | 失敗を仕組みへ戻す | regression test / updated SSOT |
+
+FDEは公開、外部送信、GitHub visibility変更、release、mergeを自動承認しません。公開面に出る操作は、何が外から見えるかを明示し、人間レビューと現在会話での明示承認があるまで停止します。
+
+CIやbot checkが成功しても、それだけではレビュー済みではありません。`scripts/pr_review_signal_check.py` は、check成功、bot review実施、人間レビュー待ちを分け、Cursor Bugbotなどが未実行の時は `human_review_required` として扱います。
 
 レビュー導線: [visual.html](visual.html) → [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) → [ROADMAP.md](ROADMAP.md) → [TODO_IMPACT_EXECUTION_2026-07-01.md](TODO_IMPACT_EXECUTION_2026-07-01.md) → [OPERATIONAL_GUARANTEE.md](OPERATIONAL_GUARANTEE.md) / [MVP_STATUS.md](MVP_STATUS.md) → [PUBLIC_KERNEL_PLAN.md](PUBLIC_KERNEL_PLAN.md) → [TODO_FDE_PUBLIC_KERNEL_RIGHTS.md](TODO_FDE_PUBLIC_KERNEL_RIGHTS.md)
-
-Fractal Decision Ecosystem（FDE）は、AI が本来デフォルトで持っているはずの判断・整理・開発・検証・運用・改善の能力を、目標設定から継続学習まで毎回ちゃんと発揮させるための自己最適化型 control plane です。
 
 AI は、問いを分解する、根拠を分ける、既存資産を探す、実装する、テストする、危険な操作を止める、失敗から次の仕組みを直す、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、目標、境界、入口、判断軸、根拠、gate、運用保証、学習先をまとめた routing / development OS です。
 
