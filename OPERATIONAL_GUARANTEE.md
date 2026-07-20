@@ -63,6 +63,7 @@ Post-merge local sync evidence:
 - `python3 scripts/visual_html_smoke.py`
 - `python3 scripts/public_kernel_diff_manifest.py --check`
 - `python3 scripts/human_review_packet_check.py --json`
+- `python3 -m scripts.pr_review_signal_check --pr-json <pr-review.json> --json`
 - `python3 scripts/fde_workflow_check.py`
 - `python3 -m compileall -q scripts tests`
 - GitHub Actions workflow `Public Ready`
@@ -90,6 +91,7 @@ lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 
 `scripts/verify_residual_zero_contract.py` は、残務ゼロの local operation claim と external approval blocker が混ざっていないことを検証します。
 `scripts/visual_html_smoke.py` は、review UX の local link と public/private stop line を検証します。
 `scripts/public_kernel_diff_manifest.py` と `scripts/human_review_packet_check.py` は、公開前review packageを検証しますが、public release や visibility 変更を承認しません。
+`scripts/pr_review_signal_check.py` は、CI/check成功とbot review実施、人間レビュー待ちを分離します。Cursor Bugbotがdisabled/未実行の時は、check runが成功していても `human_review_required` として扱い、レビュー済みとは言いません。
 内側の `scripts/public_ready_check.py` は、必須 file、local link、private handle pattern、
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。

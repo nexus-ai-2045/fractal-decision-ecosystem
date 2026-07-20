@@ -46,6 +46,8 @@ Goal -> Evidence -> Decision -> Verify -> Closure
 
 FDEは公開、外部送信、GitHub visibility変更、release、mergeを自動承認しません。公開面に出る操作は、何が外から見えるかを明示し、人間レビューと現在会話での明示承認があるまで停止します。
 
+CIやbot checkが成功しても、それだけではレビュー済みではありません。`scripts/pr_review_signal_check.py` は、check成功、bot review実施、人間レビュー待ちを分け、Cursor Bugbotなどが未実行の時は `human_review_required` として扱います。
+
 レビュー導線: [visual.html](visual.html) → [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) → [ROADMAP.md](ROADMAP.md) → [TODO_IMPACT_EXECUTION_2026-07-01.md](TODO_IMPACT_EXECUTION_2026-07-01.md) → [OPERATIONAL_GUARANTEE.md](OPERATIONAL_GUARANTEE.md) / [MVP_STATUS.md](MVP_STATUS.md) → [PUBLIC_KERNEL_PLAN.md](PUBLIC_KERNEL_PLAN.md) → [TODO_FDE_PUBLIC_KERNEL_RIGHTS.md](TODO_FDE_PUBLIC_KERNEL_RIGHTS.md)
 
 AI は、問いを分解する、根拠を分ける、既存資産を探す、実装する、テストする、危険な操作を止める、失敗から次の仕組みを直す、といった能力をすでに持っています。けれど実運用では、その能力が毎回自動で発火するとは限りません。FDE は、その「発揮されない問題」を解くために、目標、境界、入口、判断軸、根拠、gate、運用保証、学習先をまとめた routing / development OS です。

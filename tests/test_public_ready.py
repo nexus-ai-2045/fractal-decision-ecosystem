@@ -615,6 +615,22 @@ def test_operational_guarantee_records_post_merge_receipts_without_public_approv
         "public release、repository visibility 変更、external sending、patent filing の承認ではありません",
         "scripts/public_kernel_diff_manifest.py",
         "scripts/human_review_packet_check.py",
+        "scripts/pr_review_signal_check.py",
+        "human_review_required",
+        "レビュー済みとは言いません",
+    ):
+        assert term in text
+
+
+def test_review_signal_absorption_rule_keeps_checks_and_review_separate() -> None:
+    text = (public_ready_check.ROOT / "docs" / "review-signal-absorption.md").read_text(encoding="utf-8")
+    for term in (
+        "CI成功、bot check成功、bot review comment、人間レビューを混ぜない",
+        "scripts/pr_review_signal_check.py",
+        "statusCheckRollup",
+        "human_review_required",
+        "Cursor Bugbotがdisabled",
+        "CI成功だけで2または3を満たしたとは扱わない",
     ):
         assert term in text
 
