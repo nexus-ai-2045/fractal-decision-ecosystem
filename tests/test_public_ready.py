@@ -320,6 +320,50 @@ def test_fde_operational_closeout_reports_residue_without_public_action() -> Non
     assert result["external_public_residue"] == "approval_gated"
     assert result["checks"]["architecture_drift"]["overall"] == "ok"
     assert "fde_workflow.yaml is the machine-readable closed-loop SSOT" in result["context_to_preserve"]
+    assert "post_merge_cleanup" in result["checks"]
+    assert any("post_merge_cleanup.py" in item for item in result["resume_checks"])
+
+
+def test_fde_operational_closeout_propagates_post_merge_cleanup_mutations(
+    monkeypatch,
+) -> None:
+    def fake_post_merge_cleanup(*, apply: bool) -> dict[str, object]:
+        assert apply is True
+        return {
+            "overall": "ok",
+            "ok": True,
+            "external_actions_performed": True,
+            "apply": True,
+            "errors": [],
+            "residue": {
+                "merged_local_branches": [],
+                "stale_remote_refs": [],
+                "pruneable_worktrees": [],
+            },
+            "actions": [
+                {
+                    "action": "git fetch --prune origin",
+                    "ok": True,
+                    "detail": None,
+                }
+            ],
+        }
+
+    monkeypatch.setattr(
+        fde_operational_closeout,
+        "evaluate_post_merge_cleanup",
+        fake_post_merge_cleanup,
+    )
+
+    result = evaluate_fde_operational_closeout(
+        run_pytest=False,
+        run_post_merge_cleanup=True,
+    )
+
+    assert result["overall"] == "ok", result["errors"]
+    assert result["checks"]["post_merge_cleanup"]["external_actions_performed"] is True
+    assert result["external_actions_performed"] is True
+    assert result["external_action_scope"] == "post_merge_cleanup"
 
 
 def test_fde_operational_closeout_delivery_state_is_machine_readable() -> None:

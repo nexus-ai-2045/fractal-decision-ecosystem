@@ -26,6 +26,7 @@ from scripts.no_transport_contact_check import evaluate as evaluate_no_transport
 from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publication
 from scripts.public_kernel_diff_manifest import evaluate as evaluate_public_kernel_diff
 from scripts.public_ready_check import main as public_ready_main
+from scripts.post_merge_cleanup import evaluate as evaluate_post_merge_cleanup
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.verify_residual_zero_contract import evaluate as evaluate_residual_zero_contract
@@ -475,6 +476,8 @@ def evaluate(
     run_pytest: bool = True,
     require_delivery_ready: bool = False,
     require_remote_ci: bool = False,
+    require_post_merge_cleanup: bool = False,
+    run_post_merge_cleanup: bool = False,
     target_receipt: Path | None = None,
     target_manifest: Path | None = None,
     target_repo: Path | None = None,
@@ -549,8 +552,40 @@ def evaluate(
             }
         )
 
+    started_at = datetime.now(UTC).isoformat()
+    try:
+        post_merge_cleanup = evaluate_post_merge_cleanup(
+            apply=run_post_merge_cleanup
+        )
+    except Exception as exc:  # fail-closed adapter boundary
+        post_merge_cleanup = {
+            "overall": "error",
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    checks["post_merge_cleanup"] = post_merge_cleanup
+    check_events.append(
+        {
+            "name": "post_merge_cleanup",
+            "started_at": started_at,
+            "completed_at": datetime.now(UTC).isoformat(),
+            "result_sha256": hashlib.sha256(
+                json.dumps(
+                    post_merge_cleanup,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                ).encode("utf-8")
+            ).hexdigest(),
+        }
+    )
+
     errors: list[str] = []
     for name, result in checks.items():
+        if name == "post_merge_cleanup" and not (
+            require_post_merge_cleanup or run_post_merge_cleanup
+        ):
+            # Always record; only fail closeout when explicitly required or applied.
+            continue
         ok = result.get("ok") if "ok" in result else result.get("overall") == "ok"
         if not ok:
             errors.append(f"{name} failed")
@@ -702,10 +737,19 @@ def evaluate(
             error for error in receipt_contract_errors if error not in errors
         )
 
+    external_actions_performed = bool(
+        post_merge_cleanup.get("external_actions_performed")
+    )
+    external_action_scope = (
+        "post_merge_cleanup"
+        if external_actions_performed
+        else "this_check_invocation_only"
+    )
+
     return {
         "overall": "ok" if not errors else "error",
-        "external_actions_performed": False,
-        "external_action_scope": "this_check_invocation_only",
+        "external_actions_performed": external_actions_performed,
+        "external_action_scope": external_action_scope,
         "errors": errors,
         "branch": branch,
         "head": head,
@@ -746,12 +790,14 @@ def evaluate(
             "dependency-registry.md points to external measurement, smoke, runtime guarantee, and PDCA authorities",
             "local gate success is not publication or merge approval",
             "post-push residual zero requires a clean worktree and synchronized upstream",
+            "post-merge cleanup authority is scripts/post_merge_cleanup.py (not skill-only)",
         ],
         "resume_checks": [
             "git status --short --branch",
             "python3 -m pytest -q",
             "python3 scripts/mvp_gate_check.py",
-            "python3 scripts/fde_operational_closeout.py --json --require-delivery-ready --require-remote-ci",
+            "python3 scripts/post_merge_cleanup.py --apply --json",
+            "python3 scripts/fde_operational_closeout.py --json --require-delivery-ready --require-remote-ci --require-post-merge-cleanup",
         ],
         "workflow_execution_receipt": execution_receipt,
         "checks": checks,
@@ -776,6 +822,16 @@ def main() -> int:
         help="Fail unless GitHub Actions Public Ready succeeded for the current HEAD.",
     )
     parser.add_argument(
+        "--require-post-merge-cleanup",
+        action="store_true",
+        help="Fail unless merged local branches, stale remote-tracking refs, and pruneable worktrees are clean.",
+    )
+    parser.add_argument(
+        "--run-post-merge-cleanup",
+        action="store_true",
+        help="Apply post-merge cleanup (fetch --prune, delete merged local branches, worktree prune) then require a clean residue.",
+    )
+    parser.add_argument(
         "--write-context-receipt",
         action="store_true",
         help="Persist the JSON receipt under ignored .fde-runtime/ for chat resume.",
@@ -798,6 +854,9 @@ def main() -> int:
         run_pytest=not args.skip_pytest,
         require_delivery_ready=args.require_delivery_ready,
         require_remote_ci=args.require_remote_ci,
+        require_post_merge_cleanup=args.require_post_merge_cleanup
+        or args.run_post_merge_cleanup,
+        run_post_merge_cleanup=args.run_post_merge_cleanup,
         target_receipt=args.target_receipt,
         target_manifest=args.target_manifest,
         target_repo=args.target_repo,
