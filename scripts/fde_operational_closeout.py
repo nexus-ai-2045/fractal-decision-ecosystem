@@ -737,10 +737,19 @@ def evaluate(
             error for error in receipt_contract_errors if error not in errors
         )
 
+    external_actions_performed = bool(
+        post_merge_cleanup.get("external_actions_performed")
+    )
+    external_action_scope = (
+        "post_merge_cleanup"
+        if external_actions_performed
+        else "this_check_invocation_only"
+    )
+
     return {
         "overall": "ok" if not errors else "error",
-        "external_actions_performed": False,
-        "external_action_scope": "this_check_invocation_only",
+        "external_actions_performed": external_actions_performed,
+        "external_action_scope": external_action_scope,
         "errors": errors,
         "branch": branch,
         "head": head,

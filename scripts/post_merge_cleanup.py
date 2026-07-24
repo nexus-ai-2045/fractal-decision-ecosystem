@@ -24,6 +24,38 @@ PROTECTED_BRANCH_PATTERNS = (
     re.compile(r"^release-please"),
     re.compile(r"^cursor/setup-dev-environment"),
 )
+SECRET_PATTERNS = (
+    re.compile(r"\b(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}\b"),
+    re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b"),
+    re.compile(r"(?i)\b(Authorization:\s*(?:Bearer|token)\s+)[^\s]+"),
+)
+USER_PATH_PATTERNS = (
+    re.compile(r"([A-Za-z]:[\\/]+Users[\\/]+)[^\\/\s]+"),
+    re.compile(r"(/Users/)[^/\s]+"),
+    re.compile(r"(/home/)[^/\s]+"),
+)
+
+
+def _sanitize_receipt_detail(value: object) -> str | None:
+    if value is None:
+        return None
+
+    text = str(value)
+    if not text:
+        return None
+
+    for pattern in SECRET_PATTERNS:
+        text = pattern.sub(
+            lambda match: (
+                f"{match.group(1)}<redacted-token>"
+                if match.lastindex
+                else "<redacted-token>"
+            ),
+            text,
+        )
+    for pattern in USER_PATH_PATTERNS:
+        text = pattern.sub(r"\1<user>", text)
+    return text
 
 
 def _run(
@@ -184,7 +216,9 @@ def _delete_branch_on_merge_setting() -> dict[str, object]:
             "checked": False,
             "enabled": None,
             "status": "unavailable",
-            "detail": (result.stderr or result.stdout).strip() or "gh api unavailable",
+            "detail": _sanitize_receipt_detail(
+                (result.stderr or result.stdout).strip() or "gh api unavailable"
+            ),
         }
     value = result.stdout.strip().lower()
     enabled = value == "true"
@@ -258,7 +292,9 @@ def _evaluate_body(
                 {
                     "action": "git fetch --prune origin",
                     "ok": fetch.returncode == 0,
-                    "detail": (fetch.stderr or fetch.stdout).strip() or None,
+                    "detail": _sanitize_receipt_detail(
+                        (fetch.stderr or fetch.stdout).strip() or None
+                    ),
                 }
             )
             if fetch.returncode != 0:
@@ -294,7 +330,9 @@ def _evaluate_body(
                 {
                     "action": f"git branch -d {branch}",
                     "ok": ok,
-                    "detail": (delete.stderr or delete.stdout).strip() or None,
+                    "detail": _sanitize_receipt_detail(
+                        (delete.stderr or delete.stdout).strip() or None
+                    ),
                 }
             )
             if ok:
@@ -307,7 +345,9 @@ def _evaluate_body(
             {
                 "action": "git worktree prune",
                 "ok": wt.returncode == 0,
-                "detail": (wt.stderr or wt.stdout).strip() or None,
+                "detail": _sanitize_receipt_detail(
+                    (wt.stderr or wt.stdout).strip() or None
+                ),
             }
         )
         if wt.returncode != 0:

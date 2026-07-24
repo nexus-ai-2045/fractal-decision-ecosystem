@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 from scripts.post_merge_cleanup import evaluate
+from scripts.post_merge_cleanup import _sanitize_receipt_detail
 
 
 def _git(cwd: Path, *args: str) -> str:
@@ -139,3 +140,31 @@ def test_protected_branches_are_not_deleted(tmp_path: Path) -> None:
     assert _git(
         repo, "branch", "--list", "release-please--branches--main--components--demo"
     )
+
+
+def test_receipt_detail_sanitizes_tokens_and_user_paths() -> None:
+    github_token = "gh" + "p_" + ("a" * 24)
+    openai_token = "sk-" + ("b" * 24)
+    windows_user_path = "C:" + "\\Users\\" + "example" + "\\Projects\\FDE"
+    mac_user_path = "/" + "Users" + "/example/Projects/FDE"
+    linux_user_path = "/" + "home" + "/example/Projects/FDE"
+    detail = (
+        f"remote: {github_token}\n"
+        f"Authorization: Bearer {openai_token}\n"
+        f"failed at {windows_user_path}\n"
+        f"failed at {mac_user_path}\n"
+        f"failed at {linux_user_path}"
+    )
+
+    sanitized = _sanitize_receipt_detail(detail)
+
+    assert sanitized is not None
+    assert github_token not in sanitized
+    assert openai_token not in sanitized
+    assert windows_user_path not in sanitized
+    assert mac_user_path not in sanitized
+    assert linux_user_path not in sanitized
+    assert "<redacted-token>" in sanitized
+    assert ("C:" + "\\Users\\" + "<user>") in sanitized
+    assert ("/" + "Users" + "/<user>") in sanitized
+    assert ("/" + "home" + "/<user>") in sanitized
