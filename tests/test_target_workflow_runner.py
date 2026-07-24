@@ -10,6 +10,17 @@ from scripts.fde_operational_closeout import evaluate as closeout_evaluate
 
 from scripts.fde_target_workflow import load_manifest, run_workflow
 
+
+def test_dcb_post_merge_manifest_matches_trust_registry() -> None:
+    root = Path(__file__).parents[1]
+    manifest_data = json.loads((root / "examples/dcb_target_workflow.json").read_text(encoding="utf-8"))
+    target = json.loads((root / "trusted-targets.json").read_text(encoding="utf-8"))["targets"]["discord-context-bridge"]
+
+    assert target["head"] == "fa19ac27d5f00e7ab1cbe5d77b3aee428c56fd12"
+    assert target["tree"] == "4f78d3c5eb8ce8802a456eb3ce1f17b3b17f6b04"
+    assert {check["name"] for check in manifest_data["checks"]} == set(target["commands"])
+    assert "pr_readiness" not in target["commands"]
+
 @pytest.fixture(autouse=True)
 def trusted_unit_target(monkeypatch, request):
     if not request.node.name.startswith("test_real_"):

@@ -5,7 +5,8 @@
     ".": {
       "release-type": "simple",
       "package-name": "fractal-decision-ecosystem",
-      "include-v-in-tag": true
+      "include-v-in-tag": true,
+      "include-component-in-tag": false
     }
   }
 }

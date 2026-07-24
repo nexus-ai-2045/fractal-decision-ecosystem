@@ -115,6 +115,79 @@ def test_clean_body_with_relative_paths_and_urls_passes() -> None:
     assert result["findings"] == []
 
 
+def _release_review_body(change: str = "changed", reason: str = "README冒頭と初回導線を0.2.0向けに更新した。") -> str:
+    return "\n".join(
+        [
+            "## 概要",
+            "0.2.0 release PR",
+            "",
+            "readme_review: complete",
+            f"readme_change: {change}",
+            f"readme_reason: {reason}",
+        ]
+    )
+
+
+def test_release_pr_requires_readme_review_contract() -> None:
+    result = evaluate(
+        "chore(main): release fractal-decision-ecosystem 0.2.0",
+        "## Changelog\n- update",
+        head_ref="release-please--branches--main--components--fractal-decision-ecosystem",
+        changed_files="CHANGELOG.md\nversion.txt\n",
+    )
+
+    assert result["overall"] == "error"
+    labels = {finding["label"] for finding in result["findings"]}
+    assert "missing release README review marker" in labels
+    assert "missing release README change marker" in labels
+    assert "missing release README review reason" in labels
+
+
+def test_release_pr_with_changed_readme_contract_requires_readme_diff() -> None:
+    result = evaluate(
+        "chore(main): release fractal-decision-ecosystem 0.2.0",
+        _release_review_body("changed"),
+        head_ref="release-please--branches--main--components--fractal-decision-ecosystem",
+        changed_files="CHANGELOG.md\nversion.txt\n",
+    )
+
+    assert result["overall"] == "error"
+    assert any(finding["label"] == "release README change missing from diff" for finding in result["findings"])
+
+
+def test_release_pr_with_changed_readme_contract_and_readme_diff_passes() -> None:
+    result = evaluate(
+        "chore(main): release fractal-decision-ecosystem 0.2.0",
+        _release_review_body("changed"),
+        head_ref="release-please--branches--main--components--fractal-decision-ecosystem",
+        changed_files="README.md\nCHANGELOG.md\nversion.txt\n",
+    )
+
+    assert result["overall"] == "ok", result["findings"]
+
+
+def test_release_pr_with_not_needed_reason_does_not_require_readme_diff() -> None:
+    result = evaluate(
+        "chore(main): release fractal-decision-ecosystem 0.2.0",
+        _release_review_body("not-needed", "現行READMEの現在できること欄が今回の変更を既に説明している。"),
+        head_ref="release-please--branches--main--components--fractal-decision-ecosystem",
+        changed_files="CHANGELOG.md\nversion.txt\n",
+    )
+
+    assert result["overall"] == "ok", result["findings"]
+
+
+def test_non_release_pr_does_not_require_readme_review_contract() -> None:
+    result = evaluate(
+        "docs: improve README copy",
+        "## 概要\nREADMEを改善した。",
+        head_ref="codex/readme-copy",
+        changed_files="README.md\n",
+    )
+
+    assert result["overall"] == "ok", result["findings"]
+
+
 def test_allowlisted_github_noreply_email_passes() -> None:
     body = "Co-authored-by: Example Bot <12345+example-bot@users.noreply.github.com>"
 
@@ -246,14 +319,17 @@ def test_pr_hygiene_workflow_triggers_on_edited_and_reads_env_not_inline() -> No
 
     assert "PR_HYGIENE_TITLE" in text
     assert "PR_HYGIENE_BODY" in text
+    assert "PR_HYGIENE_HEAD_REF" in text
+    assert "changed-files.txt" in text
+    assert "fetch-depth: 2" in text
 
-    run_lines = [
+    script_lines = [
         line.strip()
         for line in text.splitlines()
-        if "pr_body_hygiene_check.py" in line and line.strip().startswith("run:")
+        if "pr_body_hygiene_check.py" in line
     ]
-    assert run_lines, "python scripts/pr_body_hygiene_check.py を呼ぶ run: 行が必要"
+    assert script_lines, "python scripts/pr_body_hygiene_check.py を呼ぶ行が必要"
     # PR タイトル/本文は env: 経由で渡し、run: の shell 文字列へ直接埋め込まない
     # (github.event.pull_request.title/body の script injection 回避)。
-    for line in run_lines:
+    for line in script_lines:
         assert "${{" not in line
