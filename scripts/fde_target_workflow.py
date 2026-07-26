@@ -99,7 +99,7 @@ def _run(argv:list[str],cwd:str,timeout:float)->tuple[int,bytes,str,int]:
 
 def run_workflow(manifest:dict[str,Any],*,state_root:Path,resume:bool=False)->dict[str,Any]:
     trust=_verify_trust(manifest)
-    if not trust: return {"schema":"fde.target_workflow_trust_stop.v1","workflow_id":manifest["workflow_id"],"state":"trust_review_required","checks":[],"executed":False}
+    if not trust: return {"schema":"fde.target_workflow_trust_stop.v1","workflow_id":manifest["workflow_id"],"state":"trust_review_required","checks":[],"executed":False,"external_actions_performed":False}
     if trust is True: trust={"registry_id":"unit-test","base_commit":"0"*40,"head":"0"*40,"tree":"0"*40,"script_hashes":{x["name"]:"0"*64 for x in manifest["checks"]}}
     state_root=state_root.resolve(); state_root.mkdir(parents=True,exist_ok=True); wid=manifest["workflow_id"]; lock=state_root/f"{wid}.lock"; state=state_root/f"{wid}.json"
     if not lock.resolve().is_relative_to(state_root) or not state.resolve().is_relative_to(state_root): raise ValueError("state path escape")
