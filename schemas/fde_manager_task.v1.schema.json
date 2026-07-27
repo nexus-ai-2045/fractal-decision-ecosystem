@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FDE manager task",
+  "type": "object",
+  "required": [
+    "schema",
+    "task_id",
+    "title",
+    "created_at",
+    "people_impact",
+    "commitment",
+    "deadline",
+    "harm_risk",
+    "external_boundary",
+    "runnable",
+    "blocked_reason",
+    "workflow_manifest",
+    "target_repo",
+    "closure_rule"
+  ],
+  "properties": {
+    "schema": {"const": "fde.manager_task.v1"},
+    "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 500},
+    "created_at": {"type": "string", "format": "date-time"},
+    "people_impact": {"enum": ["none", "waiting_person", "team_blocked", "other", "unknown"]},
+    "commitment": {"enum": ["none", "explicit", "implied", "unknown"]},
+    "deadline": {"type": ["string", "null"], "format": "date-time"},
+    "harm_risk": {"enum": ["none", "safety", "financial", "data", "reputation", "unknown"]},
+    "external_boundary": {
+      "enum": [
+        "none",
+        "external_send",
+        "publication",
+        "git_push",
+        "pull_request",
+        "merge",
+        "billing",
+        "credential",
+        "auth",
+        "settings",
+        "destructive",
+        "unknown"
+      ]
+    },
+    "runnable": {"type": "boolean"},
+    "blocked_reason": {"type": ["string", "null"]},
+    "workflow_manifest": {"type": ["string", "null"]},
+    "target_repo": {"type": ["string", "null"]},
+    "closure_rule": {"const": "evidence_required"},
+    "source_kind": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_observed_at": {"type": "string", "format": "date-time"},
+    "snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dedupe_key": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

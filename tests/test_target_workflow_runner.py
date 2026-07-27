@@ -16,8 +16,8 @@ def test_dcb_post_merge_manifest_matches_trust_registry() -> None:
     manifest_data = json.loads((root / "examples/dcb_target_workflow.json").read_text(encoding="utf-8"))
     target = json.loads((root / "trusted-targets.json").read_text(encoding="utf-8"))["targets"]["discord-context-bridge"]
 
-    assert target["head"] == "fa19ac27d5f00e7ab1cbe5d77b3aee428c56fd12"
-    assert target["tree"] == "4f78d3c5eb8ce8802a456eb3ce1f17b3b17f6b04"
+    assert target["head"] == "3d913e0c8bdbc4afe4d6413ce12836b9eaa2613e"
+    assert target["tree"] == "737c941ae951b2e395bd1c65ce32595b9952a355"
     assert {check["name"] for check in manifest_data["checks"]} == set(target["commands"])
     assert "pr_readiness" not in target["commands"]
 
@@ -29,12 +29,32 @@ def trusted_unit_target(monkeypatch, request):
 
 def manifest(tmp_path, checks=None):
     root=Path(__file__).parents[1]
-    return {"schema":"fde.target_workflow.v1","workflow_id":"test","target_id":"unit","repo_root":str(root),"approval_gate":"review_packet","checks":checks or [{"name":"ok","argv":[sys.executable,"scripts/public_ready_check.py"],"timeout_seconds":30}]}
+    return {"schema":"fde.target_workflow.v1","workflow_id":"test","target_id":"unit","repo_root":str(root),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"checks":checks or [{"name":"ok","argv":[sys.executable,"scripts/public_ready_check.py"],"timeout_seconds":30}]}
 
 
 def test_manifest_requires_argv_timeout_and_review_gate(tmp_path):
     path=tmp_path/"m.json"; data=manifest(tmp_path); data["approval_gate"]="merge"; path.write_text(json.dumps(data))
     with pytest.raises(ValueError): load_manifest(path)
+
+
+@pytest.mark.parametrize("capability", ["network", "external_write", "git_write"])
+def test_manifest_rejects_external_capability_before_execution(
+    tmp_path, monkeypatch, capability
+):
+    data = manifest(tmp_path)
+    data["capabilities"][capability] = True
+    path = tmp_path / "unsafe.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    called = False
+
+    def forbidden_run(*_args, **_kwargs):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(runner, "_run", forbidden_run)
+    with pytest.raises(ValueError, match="invalid manifest schema"):
+        load_manifest(path)
+    assert called is False
 
 
 @pytest.mark.parametrize("argv", [["gh","pr","create"],["git","merge","main"],["discord","send"],["gh","repo","edit","--visibility","public"]])
@@ -109,7 +129,7 @@ def real_target(tmp_path, monkeypatch):
     tree=_git(repo,"rev-parse","HEAD^{tree}")
     registry=tmp_path/"registry.json"; registry.write_text(json.dumps({"schema":"fde.trusted_targets.v1","targets":{"target":{"registry_id":"test-registry","base_commit":base,"head":base,"tree":tree,"remote":"https://example.invalid/trusted.git","commands":{"gate":{"argv":["python","scripts/gate.py"],"script_sha256":digest}}}}}),encoding="utf-8")
     monkeypatch.setattr(runner,"REGISTRY",registry)
-    data={"schema":"fde.target_workflow.v1","workflow_id":"real","target_id":"target","repo_root":str(repo),"approval_gate":"review_packet","checks":[{"name":"gate","argv":["python","scripts/gate.py"],"timeout_seconds":10}]}
+    data={"schema":"fde.target_workflow.v1","workflow_id":"real","target_id":"target","repo_root":str(repo),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"checks":[{"name":"gate","argv":["python","scripts/gate.py"],"timeout_seconds":10}]}
     manifest_path=tmp_path/"manifest.json"; manifest_path.write_text(json.dumps(data),encoding="utf-8")
     return repo,gate,registry,manifest_path
 
@@ -123,6 +143,14 @@ def test_real_positive_clean_pinned_tree_allowed(real_target):
 def test_real_dirty_or_unpinned_tree_stops(real_target):
     repo,gate,registry,path=real_target; (repo/"dirty.txt").write_text("dirty",encoding="utf-8")
     assert runner._verify_trust(load_manifest(path)) is False
+
+
+def test_real_trust_stop_explicitly_reports_no_external_action(tmp_path):
+    path = tmp_path / "m.json"
+    path.write_text(json.dumps(manifest(tmp_path)), encoding="utf-8")
+    result = run_workflow(load_manifest(path), state_root=tmp_path / ".local")
+    assert result["state"] == "trust_review_required"
+    assert result["external_actions_performed"] is False
 
 
 def test_real_remote_mismatch_rejected(real_target):

@@ -4,6 +4,12 @@
   "target_id": "discord-context-bridge",
   "repo_root": "${TARGET_REPO}",
   "approval_gate": "review_packet",
+  "capabilities": {
+    "process": true,
+    "network": false,
+    "external_write": false,
+    "git_write": false
+  },
   "checks": [
     {"name": "ops", "argv": ["python", "scripts/ops_check.py", "--profile", "full"], "timeout_seconds": 180}
   ]

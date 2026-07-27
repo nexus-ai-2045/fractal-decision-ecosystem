@@ -58,6 +58,10 @@ FDE の完成図は、巨大なAIアプリではなく、AI作業を軽く賢く
 
 全体構造を図で見る場合は [SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md) を使います。README は概念の入口、SYSTEM_OVERVIEW は層・機能・workflow・roadmap funnel の視覚入口です。
 
+散在する案件を信用・約束・期限の順で最大3件ずつ計画する制御契約は
+[TASK_MANAGER.md](TASK_MANAGER.md) です。FDEは共通Schemaとrouteを提供し、
+source adapter、executor、状態保存は利用側runtimeへ分離します。
+
 完成時に起きてほしい変化:
 
 | 以前 | FDE後 |

@@ -3,12 +3,12 @@
   "targets": {
     "discord-context-bridge": {
       "remote": "https://github.com/nexus-ai-2045/discord-context-bridge.git",
-      "registry_id": "dcb-gates-2026-07-15-pr23-merged-v2",
-      "base_commit": "fa19ac27d5f00e7ab1cbe5d77b3aee428c56fd12",
-      "head": "fa19ac27d5f00e7ab1cbe5d77b3aee428c56fd12",
-      "tree": "4f78d3c5eb8ce8802a456eb3ce1f17b3b17f6b04",
+      "registry_id": "dcb-gates-2026-07-27-main-3d913e0",
+      "base_commit": "3d913e0c8bdbc4afe4d6413ce12836b9eaa2613e",
+      "head": "3d913e0c8bdbc4afe4d6413ce12836b9eaa2613e",
+      "tree": "737c941ae951b2e395bd1c65ce32595b9952a355",
       "commands": {
-        "ops": {"argv": ["python", "scripts/ops_check.py", "--profile", "full"], "script_sha256": "e0f5c370aa3ab0d79cd41e43496c11ae07dd53e6fef7079278de0331d97ae3a9"}
+        "ops": {"argv": ["python", "scripts/ops_check.py", "--profile", "full"], "script_sha256": "4e9eca4e1a6f3873ab24d34ec2535b2882720228432a3ad7ffcb8aeb12208f78"}
       }
     }
   }
