@@ -83,7 +83,26 @@ CHECKS = {
         "low-pdca-orchestrator",
         "operator-local-adapter",
     ),
-    "scripts/fde_operational_closeout.py": ("implementation_residue", "operation_residue", "external_public_residue"),
+    "scripts/fde_operational_closeout.py": (
+        "implementation_residue",
+        "operation_residue",
+        "external_public_residue",
+        "post_merge_cleanup",
+        "--run-post-merge-cleanup",
+    ),
+    "scripts/post_merge_cleanup.py": (
+        "git fetch --prune",
+        "worktree prune",
+        "merged_local_branches",
+        "delete_branch_on_merge",
+        "refs/remotes/origin/main",
+        "fail-closed",
+    ),
+    "docs/superpowers/skills/post-merge-cleanup.md": (
+        "scripts/post_merge_cleanup.py",
+        "resolvable ref",
+        "test_ci_checkout_without_local_main_uses_origin_main",
+    ),
     "tests/test_public_ready.py": (
         "test_fde_workflow_manifest_is_machine_readable_without_external_action",
         "test_fde_architecture_drift_check_connects_docs_scripts_and_tests",

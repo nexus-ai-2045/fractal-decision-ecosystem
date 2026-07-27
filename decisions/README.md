@@ -18,3 +18,4 @@ FDE の repo-local ADR 置き場。
 | [ADR-0003-ai-contact-safety-contract.md](ADR-0003-ai-contact-safety-contract.md) | AI contact safety contract | AI同士のcontactをFDE packet / consent / evidence / closureへ戻す抽象契約 |
 | [ADR-0004-team-formation-orchestration-gate.md](ADR-0004-team-formation-orchestration-gate.md) | Team Formation / Orchestration Gate | 意思決定に必要なteam creator、delegate配役、return contract、adoption gate |
 | [ADR-0005-public-env-independent-pointers.md](ADR-0005-public-env-independent-pointers.md) | Public package の pointer 環境非依存化 | capability key / absorbed / operator-local-adapter。物理 path 非掲載 |
+| [ADR-0006-post-merge-cleanup-closeout.md](ADR-0006-post-merge-cleanup-closeout.md) | Post-merge cleanup を closeout 実行へ蒸留 | skill ではなく `scripts/post_merge_cleanup.py` が実行正本 |
