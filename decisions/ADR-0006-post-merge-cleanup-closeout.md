@@ -1,6 +1,6 @@
 # ADR-0006: Post-merge cleanup を closeout 実行へ蒸留する
 
-Status: accepted  
+Status: accepted
 Date: 2026-07-18
 
 ## Context
