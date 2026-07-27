@@ -3,7 +3,8 @@ name: Label Merge
 # 目視レビュー後に人間の明示指示でマージするための human-in-the-loop 補助。
 # 起点は 3 つ:
 #   1. PR に `merge` ラベルが付いた時 (pull_request_target: labeled)
-#   2. PR コメントに `/merge` だけの行が投稿された時 (issue_comment)
+#   2. 書込権限を持つ人 (OWNER / MEMBER / COLLABORATOR) が PR コメントに
+#      `/merge` だけの行を投稿した時 (issue_comment)
 #   3. 何らかの check suite が完了した時 (`merge` ラベル付き PR を再評価)
 # いずれも「全チェックが緑」の時だけ squash マージする。自動マージではなく、
 # 必ず人間の GO (ラベル付与 or /merge コメント) が起点になる。
@@ -45,6 +46,7 @@ jobs:
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENT_IS_PR: ${{ github.event.issue.pull_request.url != '' }}
           COMMENT_PR: ${{ github.event.issue.number }}
+          COMMENT_ASSOCIATION: ${{ github.event.comment.author_association }}
           LABEL_NAME: ${{ github.event.label.name }}
           LABEL_PR: ${{ github.event.pull_request.number }}
         run: |
@@ -54,6 +56,10 @@ jobs:
             issue_comment)
               if [ "$COMMENT_IS_PR" != "true" ]; then
                 echo "Comment is not on a pull request; nothing to do."
+              elif ! printf '%s' "$COMMENT_ASSOCIATION" | grep -qxE 'OWNER|MEMBER|COLLABORATOR'; then
+                # public repo では誰でもコメントできる。書込権限を持つ人の /merge だけ
+                # 起点として認める (ラベル経路は付与自体に write 権限が要るため元から安全)。
+                echo "Comment author association is '$COMMENT_ASSOCIATION'; ignoring /merge from non-writer."
               elif printf '%s' "$COMMENT_BODY" | grep -qiE '^[[:space:]]*/merge[[:space:]]*$'; then
                 gh label create "$MERGE_LABEL" --repo "$REPO" \
                   --color 0e8a16 --description "Merge PR when all checks pass" 2>/dev/null || true
