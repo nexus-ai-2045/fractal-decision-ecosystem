@@ -16,15 +16,32 @@ from jsonschema import Draft202012Validator, FormatChecker
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "fde_feedback_packet.v1.schema.json"
 PERSONAL_PATH_PATTERN = re.compile(
-    r"(?:[A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9._-]+|/(?:Users|home)/[A-Za-z0-9._-]+)"
+    r"(?:[A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9._-]+|/(?:Users|home)/[A-Za-z0-9._-]+|/root(?:[\\/]|$))",
+    re.IGNORECASE,
 )
 SECRET_LIKE_PATTERN = re.compile(
     r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,})"
 )
-SURROGATE_ESCAPE_PATTERN = re.compile(r"\\u[dD][89aAbB][0-9a-fA-F]{2}")
 
 
-def validate_feedback_packet(packet: dict[str, Any]) -> list[str]:
+def contains_unpaired_surrogate(value: Any) -> bool:
+    if isinstance(value, str):
+        return any(0xD800 <= ord(character) <= 0xDFFF for character in value)
+    if isinstance(value, dict):
+        return any(
+            contains_unpaired_surrogate(key) or contains_unpaired_surrogate(item)
+            for key, item in value.items()
+        )
+    if isinstance(value, list):
+        return any(contains_unpaired_surrogate(item) for item in value)
+    return False
+
+
+def validate_feedback_packet(
+    packet: dict[str, Any],
+    *,
+    approved_feedback_ids: set[str] | None = None,
+) -> list[str]:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     errors = [
@@ -37,16 +54,25 @@ def validate_feedback_packet(packet: dict[str, Any]) -> list[str]:
         errors.append("<root>: personal path is not allowed")
     if SECRET_LIKE_PATTERN.search(serialized):
         errors.append("<root>: secret-like content is not allowed")
-    if SURROGATE_ESCAPE_PATTERN.search(serialized):
+    if contains_unpaired_surrogate(packet):
         errors.append("<root>: invalid Unicode surrogate")
     observed_at = packet.get("observed_at")
     if isinstance(observed_at, str):
         try:
-            datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+            timestamp = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError("timezone offset is required")
         except ValueError:
             errors.append("observed_at: invalid date-time")
     check = packet.get("check")
     boundaries = packet.get("boundaries")
+    approved_feedback_ids = approved_feedback_ids or set()
+    if (
+        isinstance(act, dict)
+        and act.get("decision") == "adopt"
+        and packet.get("feedback_id") not in approved_feedback_ids
+    ):
+        errors.append("act/decision: adopt requires FDE approval context")
     if (
         isinstance(act, dict)
         and act.get("decision") == "adopt"
@@ -54,7 +80,7 @@ def validate_feedback_packet(packet: dict[str, Any]) -> list[str]:
         and check.get("human_review") == "rejected"
     ):
         errors.append("act/decision: adopt conflicts with rejected human review")
-    elif (
+    if (
         isinstance(act, dict)
         and act.get("decision") == "adopt"
         and isinstance(boundaries, dict)
@@ -78,7 +104,7 @@ def main() -> int:
         packet = json.loads(args.input.read_text(encoding="utf-8"))
         if not isinstance(packet, dict):
             raise ValueError("feedback packet must be a JSON object")
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, RecursionError) as error:
         result = {
             "overall": "error",
             "schema_version": None,
@@ -92,14 +118,32 @@ def main() -> int:
             else "\n".join(result["errors"])
         )
         return 1
-    errors = validate_feedback_packet(packet)
+    try:
+        errors = validate_feedback_packet(
+            packet,
+            approved_feedback_ids=None,
+        )
+    except RecursionError as error:
+        result = {
+            "overall": "error",
+            "schema_version": None,
+            "feedback_id": None,
+            "external_actions_performed": False,
+            "errors": [f"{type(error).__name__}: invalid feedback input"],
+        }
+        print(
+            json.dumps(result, ensure_ascii=True, indent=2)
+            if args.json
+            else "\n".join(result["errors"])
+        )
+        return 1
     safe_identifiers = not any(
         "secret-like content" in error or "Unicode surrogate" in error
         for error in errors
     )
     result = {
         "overall": "ok" if not errors else "error",
-        "schema_version": packet.get("schema_version"),
+        "schema_version": packet.get("schema_version") if safe_identifiers else None,
         "feedback_id": packet.get("feedback_id") if safe_identifiers else None,
         "external_actions_performed": False,
         "errors": errors,

@@ -28,4 +28,6 @@ python scripts/fde_feedback_packet.py --input <feedback.json> --json
 
 検証はread-onlyです。packetの保存、外部送信、repository変更は行いません。
 
+`act.decision=adopt`はpacket内の自己申告だけでは許可されません。公開CLIは承認contextを受け取らず、常にfail-closedです。FDE内部で採用判断する場合だけ、FDEが所有する承認状態と照合した承認済みID集合をprogrammatic validatorへ渡します。
+
 正本schemaは`schemas/fde_feedback_packet.v1.schema.json`です。consumer側に互換schemaを置く場合も、`schema_version`を変更せず独自fieldを加えてはなりません。契約変更は新しいversionで行います。
