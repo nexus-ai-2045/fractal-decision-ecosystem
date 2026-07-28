@@ -1,9 +1,10 @@
-schema_version: fde.workflow.v2
+schema_version: fde.workflow.v3
 control_plane: FDE
 workflow_profile: repository_closeout
 external_actions_performed: false
 external_action_scope: this_check_invocation_only
 external_authority_policy: optional_workspace_enrichment
+autonomy_enforcement: design_only
 states:
   - intake
   - goal_and_boundary
@@ -113,3 +114,12 @@ target_workflow_runner:
   stop_at: review_packet
   receipt: metadata_only
   external_actions_performed: false
+delivery_lanes:
+  - decision_experience
+  - autonomous_execution
+autonomy_contract:
+  - intake=owner+scope+goal+external_boundary+return_path
+  - execution_stop=review_packet
+  - promotion=local_verification+operational_receipt+human_review
+  - future_handoff=owner+trigger_or_due+evidence_path+success_condition+failure_condition+next_action
+  - cleanup=merged+post_merge_verification+explicit_cleanup_approval

@@ -110,6 +110,14 @@ TARGET_WORKFLOW_RUNNER = {
     "receipt": "metadata_only",
     "external_actions_performed": False,
 }
+DELIVERY_LANES = ("decision_experience", "autonomous_execution")
+AUTONOMY_CONTRACT = (
+    "intake=owner+scope+goal+external_boundary+return_path",
+    "execution_stop=review_packet",
+    "promotion=local_verification+operational_receipt+human_review",
+    "future_handoff=owner+trigger_or_due+evidence_path+success_condition+failure_condition+next_action",
+    "cleanup=merged+post_merge_verification+explicit_cleanup_approval",
+)
 
 SCALAR_KEYS = {
     "schema_version",
@@ -118,6 +126,7 @@ SCALAR_KEYS = {
     "external_actions_performed",
     "external_action_scope",
     "external_authority_policy",
+    "autonomy_enforcement",
     "learning_return_to",
 }
 LIST_CONTRACTS = {
@@ -133,6 +142,8 @@ LIST_CONTRACTS = {
     "state_gate_bindings": STATE_GATE_BINDINGS,
     "blocked_transitions": BLOCKED_TRANSITIONS,
     "required_local_gates": REQUIRED_LOCAL_GATES,
+    "delivery_lanes": DELIVERY_LANES,
+    "autonomy_contract": AUTONOMY_CONTRACT,
 }
 MAPPING_CONTRACTS = {"target_workflow_runner": TARGET_WORKFLOW_RUNNER}
 ALLOWED_KEYS = SCALAR_KEYS | set(LIST_CONTRACTS) | set(MAPPING_CONTRACTS)
@@ -236,12 +247,13 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
         data, errors = _parse_manifest(workflow.read_text(encoding="utf-8"))
 
     scalar_contracts = {
-        "schema_version": "fde.workflow.v2",
+        "schema_version": "fde.workflow.v3",
         "control_plane": "FDE",
         "workflow_profile": "repository_closeout",
         "external_actions_performed": False,
         "external_action_scope": "this_check_invocation_only",
         "external_authority_policy": "optional_workspace_enrichment",
+        "autonomy_enforcement": "design_only",
         "learning_return_to": "goal_and_boundary",
     }
     for key, expected in scalar_contracts.items():
@@ -265,6 +277,7 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
             "control_plane": data.get("control_plane"),
             "workflow_profile": data.get("workflow_profile"),
             "external_authority_policy": data.get("external_authority_policy"),
+            "autonomy_enforcement": data.get("autonomy_enforcement"),
             "states": data.get("states", []),
             "closed_loop_sequence": data.get("closed_loop_sequence", []),
             "capability_inventory_order": data.get("capability_inventory_order", []),
@@ -276,6 +289,8 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
             "state_gate_bindings": data.get("state_gate_bindings", []),
             "learning_return_to": data.get("learning_return_to"),
             "target_workflow_runner": data.get("target_workflow_runner", {}),
+            "delivery_lanes": data.get("delivery_lanes", []),
+            "autonomy_contract": data.get("autonomy_contract", []),
         },
     }
 

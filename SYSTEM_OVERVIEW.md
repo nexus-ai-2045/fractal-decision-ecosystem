@@ -37,6 +37,26 @@ FDE は、曖昧な依頼を毎回 `entry -> packet -> evidence -> decision -> c
 
 `entry -> packet -> evidence -> decision -> closure` は内側の判断loopです。外側では `goal_and_boundary -> capability_inventory -> roadmap -> preflight -> implement -> verify -> operational_guarantee -> feedback -> system_update` を回し、学習結果を次のgoalへ戻します。
 
+## 2本のdelivery lane
+
+```mermaid
+flowchart LR
+    Intake["owner / scope / goal / boundary / return path"]
+    Feedback["Decision Experience<br/>question / axis / evidence / closure"]
+    Delivery["Autonomous Execution<br/>TDD / verify / receipt / review packet"]
+    Human["Human review<br/>push / PR / merge / release / cleanup"]
+    Next["next Plan"]
+
+    Intake --> Delivery
+    Delivery --> Feedback
+    Feedback --> Next
+    Delivery --> Human
+    Human -->|approved result| Feedback
+    Human -->|not approved| Delivery
+```
+
+Decision Experienceは問い・根拠・採否を所有し、Autonomous Executionは実装・検証・closeoutを所有します。portableな契約はこのrepo、workspace固有の採用は運用正本側が所有し、`fde.feedback.v1`で接続します。人間承認が必要な外部境界は自走範囲に含めず、review packetで止めます。
+
 ## 継続学習面
 
 feedback は失敗を記録して終わりません。`failure_kind` と `postmortem_action` を evidence に接続し、`route / skill / gate / test / ssot / roadmap` のどこを直すか決めます。system update の採用には `evidence / rollback_path / adoption_gate` が必要です。

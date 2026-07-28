@@ -13,6 +13,30 @@
 - merge は人間目視レビュー後にだけ行う。
 - human review 前のPRは draft または review待ちとして扱い、公開・visibility 変更へ進めない。
 
+## 2本の本線
+
+repo内の作業は、機能名や担当AIの数ではなく、次の2本へ必ず収束させます。
+
+| 本線 | ゴール | 入力 | 完了証拠 | 人間停止線 |
+|---|---|---|---|---|
+| Decision Experience | 問い、主軸、根拠、不明点、次の判断を対話へ反映する | entry、fact/non-fact/unknown、source pointer、decision gate | route、fact provenance、会話fixture、closure | `adopt`、契約version変更、外部送信 |
+| Autonomous Execution | 散在taskを絞り、実装からlocal verificationとreview packetまで自走させる | owner、scope、goal、external boundary、return path | targeted tests、MVP gate、operational receipt、review packet | push、PR作成、merge、release、cleanup |
+
+各taskは片方をowner laneとし、もう片方との接続が必要ならversioned manifest / typed receipt / SSOT pointerで渡します。raw chat、raw tool output、別taskのWIPは吸収しません。portableな契約はこのrepo、運用正本はworkspace側が所有し、同じPRへ混在させません。
+
+## 自走の定義
+
+自走は「外部操作まで無人で進む」ことではありません。次の境界までを機械的に進め、判断が必要な地点で止まれることです。
+
+1. intakeで`owner / scope / goal / external_boundary / return_path`を固定する。
+2. prior artと既存SSOTを確認し、不足分だけTDDで変更する。
+3. lint、unit、integration、smoke、E2E、regressionから適用対象を実行する。
+4. operational receiptと人間レビューpacketを作る。
+5. push、PR、merge、release、cleanupはそれぞれ現在会話の承認まで停止する。
+6. future-only確認はowner、期限またはtrigger、証跡先、成功/失敗条件、next actionが揃った時だけ移管する。
+
+machine-readable正本は`fde_workflow.yaml`の`delivery_lanes`と`autonomy_contract`です。現在の`autonomy_enforcement`は`design_only`であり、target workflowのintake schemaへ必須fieldをbindするまでは運用保証済みと呼びません。
+
 ## 完成図
 
 FDE の完成図は、次の3つが揃った状態です。
