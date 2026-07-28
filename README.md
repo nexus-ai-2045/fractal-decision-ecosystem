@@ -95,6 +95,8 @@ goal_and_boundary
 
 実測、command smoke、runtime別保証、PDCAの詳細はFDE内へ複製せず、`dependency-registry:measurement-gate`、`dependency-registry:operational-command-smoke`、`dependency-registry:runtime-guarantee-matrix`、`dependency-registry:low-pdca-orchestrator` を capability として参照します。公開 package ではこれらの物理 path を持たず、無い場合は skip / hold します。
 
+実装保証runtimeからFDEへ学びを戻す時は、[`fde.feedback.v1`](docs/feedback-loop-packet.md)を使います。FDEはroutingとhuman gate、実装保証runtimeはPlan / Do / Check / Actの証拠を担当し、会話全文ではなく次Planに必要な最小packetだけを受け渡します。
+
 自己更新は自動採用を意味しません。学習の採用には `evidence / rollback_path / adoption_gate` が必要で、公開、外部送信、credential、設定変更、破壊操作は引き続き人間承認まで停止します。machine-readableな正本は [fde_workflow.yaml](fde_workflow.yaml) です。
 
 SSOT境界は、閉ループのrepo-local machine contractを`fde_workflow.yaml`、毎turnの運用原則を[`operating-card.md`](operating-card.md)、測定やPDCAの詳細を[`dependency-registry.md`](dependency-registry.md)の capability registry が所有します。operator-local adapter がある環境ではそこへ任意接続できますが、公開 package 単体は adapter なしで読めます。`external_actions_performed: false`はこのcheck invocation自身が外部操作をしていないという意味で、repositoryの過去状態を表しません。
