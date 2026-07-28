@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from datetime import datetime
@@ -16,11 +17,11 @@ from jsonschema import Draft202012Validator, FormatChecker
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "fde_feedback_packet.v1.schema.json"
 PERSONAL_PATH_PATTERN = re.compile(
-    r"(?:[A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9._-]+|/(?:Users|home)/[A-Za-z0-9._-]+|/root(?:[\\/]|$))",
+    r"(?:[A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9._-]+|\\\\[^\\/]+[\\/]users[\\/][A-Za-z0-9._-]+|/(?:Users|home)/[A-Za-z0-9._-]+|/root(?:[\\/]|$))",
     re.IGNORECASE,
 )
 SECRET_LIKE_PATTERN = re.compile(
-    r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,})"
+    r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|npm_[A-Za-z0-9]{20,}|-----BEGIN (?:OPENSSH |RSA |EC |ENCRYPTED |DSA |PGP )?PRIVATE KEY-----)"
 )
 
 
@@ -37,10 +38,42 @@ def contains_unpaired_surrogate(value: Any) -> bool:
     return False
 
 
+def iter_strings(value: Any):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            yield from iter_strings(key)
+            yield from iter_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from iter_strings(item)
+
+
+def feedback_packet_sha256(packet: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        packet,
+        ensure_ascii=True,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
 def validate_feedback_packet(
     packet: dict[str, Any],
     *,
-    approved_feedback_ids: set[str] | None = None,
+    approved_packet_sha256: set[str] | None = None,
 ) -> list[str]:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -49,8 +82,13 @@ def validate_feedback_packet(
         for error in sorted(validator.iter_errors(packet), key=lambda item: list(item.absolute_path))
     ]
     act = packet.get("act")
-    serialized = json.dumps(packet, ensure_ascii=True)
-    if PERSONAL_PATH_PATTERN.search(serialized):
+    strings = list(iter_strings(packet))
+    try:
+        serialized = json.dumps(packet, ensure_ascii=True, allow_nan=False)
+    except (TypeError, ValueError):
+        errors.append("<root>: invalid JSON value")
+        return errors
+    if any(PERSONAL_PATH_PATTERN.search(value) for value in strings):
         errors.append("<root>: personal path is not allowed")
     if SECRET_LIKE_PATTERN.search(serialized):
         errors.append("<root>: secret-like content is not allowed")
@@ -66,11 +104,11 @@ def validate_feedback_packet(
             errors.append("observed_at: invalid date-time")
     check = packet.get("check")
     boundaries = packet.get("boundaries")
-    approved_feedback_ids = approved_feedback_ids or set()
+    approved_packet_sha256 = approved_packet_sha256 or set()
     if (
         isinstance(act, dict)
         and act.get("decision") == "adopt"
-        and packet.get("feedback_id") not in approved_feedback_ids
+        and feedback_packet_sha256(packet) not in approved_packet_sha256
     ):
         errors.append("act/decision: adopt requires FDE approval context")
     if (
@@ -101,7 +139,13 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        packet = json.loads(args.input.read_text(encoding="utf-8"))
+        packet = json.loads(
+            args.input.read_text(encoding="utf-8"),
+            parse_constant=lambda value: (_ for _ in ()).throw(
+                ValueError(f"invalid JSON constant: {value}")
+            ),
+            object_pairs_hook=reject_duplicate_keys,
+        )
         if not isinstance(packet, dict):
             raise ValueError("feedback packet must be a JSON object")
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError, RecursionError) as error:
@@ -121,7 +165,7 @@ def main() -> int:
     try:
         errors = validate_feedback_packet(
             packet,
-            approved_feedback_ids=None,
+            approved_packet_sha256=None,
         )
     except RecursionError as error:
         result = {
@@ -138,7 +182,9 @@ def main() -> int:
         )
         return 1
     safe_identifiers = not any(
-        "secret-like content" in error or "Unicode surrogate" in error
+        "secret-like content" in error
+        or "personal path" in error
+        or "Unicode surrogate" in error
         for error in errors
     )
     result = {

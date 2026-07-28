@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.fde_feedback_packet import validate_feedback_packet
+from scripts.fde_feedback_packet import feedback_packet_sha256, validate_feedback_packet
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,7 +35,9 @@ def valid_packet() -> dict:
         },
         "act": {
             "decision": "revise",
+            "failure_kind": "insufficient_evidence",
             "update_targets": ["skill", "test"],
+            "regression_test": "tests/test_feedback_packet.py",
             "rollback_path": "remove the candidate detector",
             "next_plan_input": "capture renderer phase timing",
         },
@@ -264,8 +266,174 @@ def test_adopt_requires_fde_owned_approval_context() -> None:
 
     assert any("FDE approval context" in error for error in validate_feedback_packet(packet))
     assert validate_feedback_packet(
-        packet, approved_feedback_ids={packet["feedback_id"]}
+        packet, approved_packet_sha256={feedback_packet_sha256(packet)}
     ) == []
+
+
+def test_adopt_approval_is_bound_to_exact_packet_content() -> None:
+    packet = valid_packet()
+    packet["check"]["human_review"] = "approved"
+    packet["boundaries"]["human_gate_required"] = False
+    packet["act"]["decision"] = "adopt"
+    approved_digest = feedback_packet_sha256(packet)
+
+    packet["act"]["next_plan_input"] = "different action after approval"
+
+    assert any(
+        "FDE approval context" in error
+        for error in validate_feedback_packet(
+            packet, approved_packet_sha256={approved_digest}
+        )
+    )
+
+
+def test_cli_redacts_personal_path_bearing_feedback_id(tmp_path: Path) -> None:
+    packet = valid_packet()
+    packet["feedback_id"] = chr(47) + "home/alice/private"
+    packet_path = tmp_path / "feedback.json"
+    packet_path.write_text(json.dumps(packet), encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--input",
+            str(packet_path),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert json.loads(result.stdout)["feedback_id"] is None
+
+
+def test_cli_rejects_non_finite_json_constants(tmp_path: Path) -> None:
+    packet_path = tmp_path / "nan.json"
+    packet_path.write_text('{"feedback_id": NaN}', encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--input",
+            str(packet_path),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert json.loads(result.stdout)["errors"] == [
+        "ValueError: invalid feedback input"
+    ]
+    assert "NaN" not in result.stdout
+
+
+def test_programmatic_validator_rejects_non_finite_value_without_raising() -> None:
+    packet = valid_packet()
+    packet["plan"]["hypothesis"] = float("nan")
+
+    errors = validate_feedback_packet(packet)
+
+    assert "<root>: invalid JSON value" in errors
+
+
+def test_private_key_marker_is_rejected() -> None:
+    packet = valid_packet()
+    packet["act"]["next_plan_input"] = (
+        "-----BEGIN " + "OPENSSH PRIVATE KEY-----"
+    )
+
+    assert any(
+        "secret-like" in error for error in validate_feedback_packet(packet)
+    )
+
+
+def test_additional_secret_formats_are_rejected() -> None:
+    for secret in (
+        "xoxb-" + ("A" * 48),
+        "AKIA" + ("A" * 16),
+        "npm_" + ("A" * 32),
+    ):
+        packet = valid_packet()
+        packet["act"]["next_plan_input"] = secret
+        assert any(
+            "secret-like" in error
+            for error in validate_feedback_packet(packet)
+        )
+
+
+def test_unc_user_path_is_rejected() -> None:
+    packet = valid_packet()
+    packet["act"]["next_plan_input"] = (
+        chr(92) * 2 + "fileserver" + chr(92) + "users"
+        + chr(92) + "alice" + chr(92) + "private.json"
+    )
+
+    assert any(
+        "personal path" in error for error in validate_feedback_packet(packet)
+    )
+
+
+def test_cli_rejects_duplicate_json_keys(tmp_path: Path) -> None:
+    packet_path = tmp_path / "duplicate.json"
+    packet_path.write_text(
+        '{"act":{"decision":"adopt","decision":"revise"}}',
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--input",
+            str(packet_path),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert json.loads(result.stdout)["errors"] == [
+        "ValueError: invalid feedback input"
+    ]
+
+
+def test_bare_root_home_path_is_rejected() -> None:
+    packet = valid_packet()
+    packet["act"]["next_plan_input"] = chr(47) + "root"
+
+    assert any(
+        "personal path" in error for error in validate_feedback_packet(packet)
+    )
+
+
+def test_schema_uses_canonical_feedback_contract_fields_and_targets() -> None:
+    schema = json.loads(
+        (ROOT / "schemas" / "fde_feedback_packet.v1.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    act = schema["properties"]["act"]
+
+    assert {"failure_kind", "regression_test"} <= set(act["required"])
+    assert act["properties"]["update_targets"]["items"]["enum"] == [
+        "route",
+        "skill",
+        "gate",
+        "test",
+        "ssot",
+        "roadmap",
+    ]
 
 
 def test_timestamp_requires_timezone_offset() -> None:
