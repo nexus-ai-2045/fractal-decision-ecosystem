@@ -480,6 +480,20 @@ def test_timestamp_requires_timezone_offset() -> None:
     assert any("date-time" in error for error in validate_feedback_packet(packet))
 
 
+def test_timestamp_rejects_iso_week_date_outside_rfc3339() -> None:
+    packet = valid_packet()
+    packet["observed_at"] = "2026-W31-2T18:00:00+09:00"
+
+    assert any("date-time" in error for error in validate_feedback_packet(packet))
+
+
+def test_secret_scan_matches_bearer_case_insensitively() -> None:
+    packet = valid_packet()
+    packet["plan"]["hypothesis"] = "bearer " + ("x" * 32)
+
+    assert any("secret-like" in error for error in validate_feedback_packet(packet))
+
+
 def test_cli_converts_excessive_json_depth_to_structured_error(tmp_path: Path) -> None:
     packet_path = tmp_path / "deep.json"
     packet_path.write_text('{"x":' + ("[" * 10000) + "0" + ("]" * 10000) + "}", encoding="utf-8")

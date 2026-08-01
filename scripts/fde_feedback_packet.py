@@ -21,7 +21,11 @@ PERSONAL_PATH_PATTERN = re.compile(
     re.IGNORECASE,
 )
 SECRET_LIKE_PATTERN = re.compile(
-    r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|npm_[A-Za-z0-9]{20,}|-----BEGIN (?:OPENSSH |RSA |EC |ENCRYPTED |DSA |PGP )?PRIVATE KEY-----)"
+    r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|(?i:Bearer)\s+[A-Za-z0-9._-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|npm_[A-Za-z0-9]{20,}|-----BEGIN (?:OPENSSH |RSA |EC |ENCRYPTED |DSA |PGP )?PRIVATE KEY-----)"
+)
+RFC3339_PATTERN = re.compile(
+    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(?:\.[0-9]+)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})$"
 )
 
 
@@ -97,7 +101,12 @@ def validate_feedback_packet(
     observed_at = packet.get("observed_at")
     if isinstance(observed_at, str):
         try:
-            timestamp = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+            if not RFC3339_PATTERN.fullmatch(observed_at):
+                raise ValueError("RFC 3339 date-time is required")
+            normalized_timestamp = observed_at.replace("t", "T")
+            if normalized_timestamp.endswith(("Z", "z")):
+                normalized_timestamp = normalized_timestamp[:-1] + "+00:00"
+            timestamp = datetime.fromisoformat(normalized_timestamp)
             if timestamp.tzinfo is None or timestamp.utcoffset() is None:
                 raise ValueError("timezone offset is required")
         except ValueError:
