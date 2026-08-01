@@ -310,6 +310,43 @@ def test_cli_redacts_personal_path_bearing_feedback_id(tmp_path: Path) -> None:
     assert json.loads(result.stdout)["feedback_id"] is None
 
 
+def test_cli_only_echoes_schema_valid_identifiers(tmp_path: Path) -> None:
+    for field, invalid_value in (
+        ("schema_version", ["fde.feedback.v1"]),
+        ("feedback_id", "x" * 129),
+    ):
+        packet = valid_packet()
+        packet[field] = invalid_value
+        packet_path = tmp_path / f"invalid-{field}.json"
+        packet_path.write_text(json.dumps(packet), encoding="utf-8")
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "fde_feedback_packet.py"),
+                "--input",
+                str(packet_path),
+                "--json",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 1
+        assert json.loads(result.stdout)[field] is None
+
+
+def test_feedback_packet_rejects_non_fde_consumer() -> None:
+    packet = valid_packet()
+    packet["consumer"] = "another-controller"
+
+    errors = validate_feedback_packet(packet)
+
+    assert any("consumer" in error for error in errors)
+
+
 def test_cli_rejects_non_finite_json_constants(tmp_path: Path) -> None:
     packet_path = tmp_path / "nan.json"
     packet_path.write_text('{"feedback_id": NaN}', encoding="utf-8")

@@ -181,16 +181,29 @@ def main() -> int:
             else "\n".join(result["errors"])
         )
         return 1
-    safe_identifiers = not any(
+    identifiers_are_non_sensitive = not any(
         "secret-like content" in error
         or "personal path" in error
         or "Unicode surrogate" in error
         for error in errors
     )
+    schema_version = packet.get("schema_version")
+    feedback_id = packet.get("feedback_id")
     result = {
         "overall": "ok" if not errors else "error",
-        "schema_version": packet.get("schema_version") if safe_identifiers else None,
-        "feedback_id": packet.get("feedback_id") if safe_identifiers else None,
+        "schema_version": (
+            schema_version
+            if identifiers_are_non_sensitive
+            and schema_version == "fde.feedback.v1"
+            else None
+        ),
+        "feedback_id": (
+            feedback_id
+            if identifiers_are_non_sensitive
+            and isinstance(feedback_id, str)
+            and 1 <= len(feedback_id) <= 128
+            else None
+        ),
         "external_actions_performed": False,
         "errors": errors,
     }

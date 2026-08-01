@@ -23,7 +23,7 @@
     "feedback_id": { "type": "string", "minLength": 1, "maxLength": 128 },
     "source_run_id": { "type": "string", "minLength": 1, "maxLength": 128 },
     "producer": { "type": "string", "minLength": 1, "maxLength": 128 },
-    "consumer": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "consumer": { "const": "fde" },
     "observed_at": { "type": "string", "format": "date-time" },
     "plan": {
       "type": "object",
