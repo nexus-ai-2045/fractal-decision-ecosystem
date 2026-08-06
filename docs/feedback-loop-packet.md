@@ -32,4 +32,8 @@ python scripts/fde_feedback_packet.py --input <feedback.json> --json
 
 `act.failure_kind`、`act.regression_test`、`act.update_targets`は`fde_workflow.yaml`のfeedback / system-update契約に揃えます。新しいtargetを増やす場合はpacketだけでなくworkflow contractもversion更新します。
 
+成功してシステム更新が不要な場合だけ、`act.failure_kind`は`none`、`act.update_targets`は`["none"]`にします。失敗または改善がある場合は`none`を混ぜず、`route / skill / gate / test / ssot / roadmap`から選びます。
+
+検証CLIは入力を読み込む前にサイズ上限（128 KiB）を検査し、whitespace-onlyの必須文字列とsecret/personal-path混入をfail-closedで拒否します。aggregate gateでは`docs/feedback-loop-packet.md`、`schemas/fde_feedback_packet.v1.schema.json`、`scripts/fde_feedback_packet.py`、`tests/test_feedback_packet.py`を必須tracked fileとして扱います。
+
 正本schemaは`schemas/fde_feedback_packet.v1.schema.json`です。consumer側に互換schemaを置く場合も、`schema_version`を変更せず独自fieldを加えてはなりません。契約変更は新しいversionで行います。

@@ -470,6 +470,7 @@ def test_schema_uses_canonical_feedback_contract_fields_and_targets() -> None:
         "test",
         "ssot",
         "roadmap",
+        "none",
     ]
 
 
@@ -492,6 +493,87 @@ def test_secret_scan_matches_bearer_case_insensitively() -> None:
     packet["plan"]["hypothesis"] = "bearer " + ("x" * 32)
 
     assert any("secret-like" in error for error in validate_feedback_packet(packet))
+
+
+def test_secret_scan_accepts_rfc6750_bearer_and_pgp_block() -> None:
+    for secret in (
+        "Bearer abcd+efghijklmnopqrstuvwxyz",
+        "-----BEGIN PGP PRIVATE KEY BLOCK-----",
+    ):
+        packet = valid_packet()
+        packet["act"]["next_plan_input"] = secret
+        assert any(
+            "secret-like" in error for error in validate_feedback_packet(packet)
+        )
+
+
+def test_successful_run_allows_none_update_target() -> None:
+    packet = valid_packet()
+    packet["check"]["outcome"] = "met"
+    packet["act"]["failure_kind"] = "none"
+    packet["act"]["update_targets"] = ["none"]
+    packet["act"]["decision"] = "hold"
+
+    assert validate_feedback_packet(packet) == []
+
+
+def test_none_update_target_requires_failure_kind_none() -> None:
+    packet = valid_packet()
+    packet["act"]["failure_kind"] = "insufficient_evidence"
+    packet["act"]["update_targets"] = ["none"]
+
+    assert any(
+        "none is only valid" in error for error in validate_feedback_packet(packet)
+    )
+
+
+def test_failure_kind_none_requires_only_none_target() -> None:
+    packet = valid_packet()
+    packet["act"]["failure_kind"] = "none"
+    packet["act"]["update_targets"] = ["skill"]
+
+    assert any(
+        'failure_kind none requires ["none"]' in error
+        for error in validate_feedback_packet(packet)
+    )
+
+
+def test_whitespace_only_required_strings_are_rejected() -> None:
+    packet = valid_packet()
+    packet["feedback_id"] = " "
+    packet["plan"]["hypothesis"] = "   "
+    packet["act"]["next_plan_input"] = "\t"
+
+    errors = validate_feedback_packet(packet)
+
+    assert any("feedback_id" in error for error in errors)
+    assert any("hypothesis" in error for error in errors)
+    assert any("next_plan_input" in error for error in errors)
+
+
+def test_cli_rejects_oversized_input_before_parse(tmp_path: Path) -> None:
+    packet_path = tmp_path / "huge.json"
+    packet_path.write_bytes(b" " * ((128 * 1024) + 1))
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--input",
+            str(packet_path),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["overall"] == "error"
+    assert payload["errors"] == ["ValueError: invalid feedback input"]
+    assert "Traceback" not in result.stderr
 
 
 def test_cli_converts_excessive_json_depth_to_structured_error(tmp_path: Path) -> None:

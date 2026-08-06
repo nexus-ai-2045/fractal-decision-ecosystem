@@ -16,17 +16,35 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "fde_feedback_packet.v1.schema.json"
+# Valid packets are small; reject oversized producer input before loading.
+MAX_FEEDBACK_PACKET_BYTES = 128 * 1024
+CANONICAL_UPDATE_TARGETS = frozenset(
+    {"route", "skill", "gate", "test", "ssot", "roadmap"}
+)
 PERSONAL_PATH_PATTERN = re.compile(
     r"(?:[A-Za-z]:[\\/]+Users[\\/]+[A-Za-z0-9._-]+|\\\\[^\\/]+[\\/]users[\\/][A-Za-z0-9._-]+|/(?:Users|home)/[A-Za-z0-9._-]+|/root(?:[\\/]|$))",
     re.IGNORECASE,
 )
+# Bearer token alphabet follows RFC 6750 (unreserved / sub-delims / + / / / =).
 SECRET_LIKE_PATTERN = re.compile(
-    r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|(?i:Bearer)\s+[A-Za-z0-9._-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|npm_[A-Za-z0-9]{20,}|-----BEGIN (?:OPENSSH |RSA |EC |ENCRYPTED |DSA |PGP )?PRIVATE KEY-----)"
+    r"(?:"
+    r"gh[pousr]_[A-Za-z0-9]{20,}|"
+    r"github_pat_[A-Za-z0-9_]{20,}|"
+    r"sk-[A-Za-z0-9_-]{20,}|"
+    r"AIza[A-Za-z0-9_-]{20,}|"
+    r"(?i:Bearer)\s+[A-Za-z0-9\-._~+/]{20,}={0,2}|"
+    r"xox[baprs]-[A-Za-z0-9-]{20,}|"
+    r"AKIA[0-9A-Z]{16}|"
+    r"npm_[A-Za-z0-9]{20,}|"
+    r"-----BEGIN (?:OPENSSH |RSA |EC |ENCRYPTED |DSA )?PRIVATE KEY-----|"
+    r"-----BEGIN PGP PRIVATE KEY BLOCK-----"
+    r")"
 )
 RFC3339_PATTERN = re.compile(
     r"^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}"
     r"(?:\.[0-9]+)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})$"
 )
+WHITESPACE_ONLY_PATTERN = re.compile(r"^\s*$")
 
 
 def contains_unpaired_surrogate(value: Any) -> bool:
@@ -138,6 +156,34 @@ def validate_feedback_packet(
         )
     ):
         errors.append("act/decision: adopt requires approved human review")
+    if isinstance(act, dict):
+        failure_kind = act.get("failure_kind")
+        update_targets = act.get("update_targets")
+        if isinstance(failure_kind, str) and WHITESPACE_ONLY_PATTERN.fullmatch(
+            failure_kind
+        ):
+            errors.append("act/failure_kind: non-empty content is required")
+        if isinstance(update_targets, list):
+            if failure_kind == "none":
+                if update_targets != ["none"]:
+                    errors.append(
+                        "act/update_targets: failure_kind none requires [\"none\"]"
+                    )
+            elif "none" in update_targets:
+                errors.append(
+                    "act/update_targets: none is only valid when failure_kind is none"
+                )
+            elif not any(
+                target in CANONICAL_UPDATE_TARGETS for target in update_targets
+            ):
+                errors.append("act/update_targets: canonical target is required")
+    for field_path, value in (
+        ("feedback_id", packet.get("feedback_id")),
+        ("source_run_id", packet.get("source_run_id")),
+        ("producer", packet.get("producer")),
+    ):
+        if isinstance(value, str) and WHITESPACE_ONLY_PATTERN.fullmatch(value):
+            errors.append(f"{field_path}: non-empty content is required")
     return errors
 
 
@@ -148,6 +194,11 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        packet_size = args.input.stat().st_size
+        if packet_size > MAX_FEEDBACK_PACKET_BYTES:
+            raise ValueError(
+                f"feedback packet exceeds {MAX_FEEDBACK_PACKET_BYTES} bytes"
+            )
         packet = json.loads(
             args.input.read_text(encoding="utf-8"),
             parse_constant=lambda value: (_ for _ in ()).throw(
