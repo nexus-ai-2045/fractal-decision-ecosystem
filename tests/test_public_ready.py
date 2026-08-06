@@ -187,6 +187,43 @@ def test_fde_workflow_manifest_is_machine_readable_without_external_action() -> 
         "receipt": "metadata_only",
         "external_actions_performed": False,
     }
+    assert result["workflow"]["delivery_lanes"] == [
+        "decision_experience",
+        "autonomous_execution",
+    ]
+    assert result["workflow"]["autonomy_enforcement"] == "design_only"
+    assert result["workflow"]["autonomy_contract"] == [
+        "intake=owner+scope+goal+external_boundary+return_path",
+        "execution_stop=review_packet",
+        "promotion=local_verification+operational_receipt+human_review",
+        "future_handoff=owner+trigger_or_due+evidence_path+success_condition+failure_condition+next_action",
+        "cleanup=merged+post_merge_verification+explicit_cleanup_approval",
+    ]
+
+
+def test_fde_workflow_rejects_missing_two_lane_contract(tmp_path) -> None:
+    workflow = tmp_path / "fde_workflow.yaml"
+    text = (public_ready_check.ROOT / "fde_workflow.yaml").read_text(
+        encoding="utf-8"
+    )
+    workflow.write_text(
+        text.replace("  - autonomous_execution\n", "", 1),
+        encoding="utf-8",
+    )
+
+    result = evaluate_fde_workflow(workflow)
+
+    assert result["overall"] == "error"
+    assert any("delivery_lanes" in error for error in result["errors"])
+
+
+def test_fde_workflow_two_lane_contract_is_versioned_v3() -> None:
+    result = evaluate_fde_workflow()
+
+    assert result["overall"] == "ok"
+    assert (
+        public_ready_check.ROOT / "fde_workflow.yaml"
+    ).read_text(encoding="utf-8").startswith("schema_version: fde.workflow.v3\n")
 
 
 def test_release_please_uses_existing_unprefixed_v_tag_contract() -> None:
