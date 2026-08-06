@@ -55,7 +55,7 @@ flowchart LR
     Human -->|not approved| Delivery
 ```
 
-Decision Experienceは問い・根拠・採否を所有し、Autonomous Executionは実装・検証・closeoutを所有します。portableな契約はこのrepo、workspace固有の採用は運用正本側が所有し、`fde.feedback.v1`で接続します。人間承認が必要な外部境界は自走範囲に含めず、review packetで止めます。
+Decision Experienceは問い・根拠・採否を所有し、Autonomous Executionは実装・検証・closeoutを所有します。portableな契約はこのrepo、workspace固有の採用は運用正本側が所有し、`fde.feedback.v1`で接続します。target workflow の `intake.return_path` はこの packet schema を指し、`schema_bound` は接続契約の固定を意味します（runtime emit / auto-adopt ではない）。人間承認が必要な外部境界は自走範囲に含めず、review packetで止めます。
 
 ## 継続学習面
 

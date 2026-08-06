@@ -10,6 +10,16 @@
     "external_write": false,
     "git_write": false
   },
+  "intake": {
+    "owner": "fde-autonomous-execution",
+    "scope": "discord-context-bridge local verification only",
+    "goal": "run registered local checks and stop at review packet",
+    "external_boundary": "none",
+    "return_path": {
+      "kind": "feedback_packet",
+      "schema": "fde.feedback.v1"
+    }
+  },
   "checks": [
     {"name": "ops", "argv": ["python", "scripts/ops_check.py", "--profile", "full"], "timeout_seconds": 180}
   ]

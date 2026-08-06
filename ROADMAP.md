@@ -35,7 +35,7 @@ repo内の作業は、機能名や担当AIの数ではなく、次の2本へ必�
 5. push、PR、merge、release、cleanupはそれぞれ現在会話の承認まで停止する。
 6. future-only確認はowner、期限またはtrigger、証跡先、成功/失敗条件、next actionが揃った時だけ移管する。
 
-machine-readable正本は`fde_workflow.yaml`の`delivery_lanes`と`autonomy_contract`です。現在の`autonomy_enforcement`は`design_only`であり、target workflowのintake schemaへ必須fieldをbindするまでは運用保証済みと呼びません。
+machine-readable正本は`fde_workflow.yaml`の`delivery_lanes`と`autonomy_contract`です。現在の`autonomy_enforcement`は`schema_bound`です。これは target workflow の `intake`（`owner / scope / goal / external_boundary / return_path`）と `return_packet=fde.feedback.v1` が schema で必須化された状態を指し、runtime が feedback を emit する、`adopt` を自動適用する、push/PR/merge まで自走する、という意味ではありません。
 
 ## 完成図
 

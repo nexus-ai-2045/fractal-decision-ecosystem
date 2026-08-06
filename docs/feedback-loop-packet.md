@@ -20,6 +20,16 @@ FDE route
   -> next Plan
 ```
 
+## Autonomy bridge
+
+Autonomous Execution の target workflow は、`intake.return_path` で戻り先を固定します。
+
+- `kind` は `feedback_packet` のみ
+- `schema` は `fde.feedback.v1` のみ
+- workflow 側の `autonomy_contract.return_packet=fde.feedback.v1` と同じ値に揃える
+
+これは schema 上の接続契約です。runtime が feedback packet を自動生成したり、`act.decision=adopt` を自動採用したりはしません。実行停止線は従来どおり `review_packet` です。
+
 ## 検証
 
 ```powershell

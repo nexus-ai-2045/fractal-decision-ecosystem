@@ -1,1 +1,121 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"FDE target workflow","type":"object","required":["schema","workflow_id","target_id","repo_root","approval_gate","capabilities","checks"],"properties":{"schema":{"const":"fde.target_workflow.v1"},"workflow_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._-]{0,63}$"},"target_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._-]{0,63}$"},"repo_root":{"type":"string"},"approval_gate":{"const":"review_packet"},"capabilities":{"type":"object","required":["process","network","external_write","git_write"],"properties":{"process":{"const":true},"network":{"const":false},"external_write":{"const":false},"git_write":{"const":false}},"additionalProperties":false},"checks":{"type":"array","minItems":1,"items":{"type":"object","required":["name","argv","timeout_seconds"],"properties":{"name":{"type":"string","pattern":"^[a-z0-9][a-z0-9._-]{0,63}$"},"argv":{"type":"array","minItems":1,"items":{"type":"string"}},"timeout_seconds":{"type":"number","exclusiveMinimum":0,"maximum":600}},"additionalProperties":false}}},"additionalProperties":false}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FDE target workflow",
+  "type": "object",
+  "required": [
+    "schema",
+    "workflow_id",
+    "target_id",
+    "repo_root",
+    "approval_gate",
+    "capabilities",
+    "checks",
+    "intake"
+  ],
+  "properties": {
+    "schema": { "const": "fde.target_workflow.v1" },
+    "workflow_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "target_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "repo_root": { "type": "string" },
+    "approval_gate": { "const": "review_packet" },
+    "capabilities": {
+      "type": "object",
+      "required": ["process", "network", "external_write", "git_write"],
+      "properties": {
+        "process": { "const": true },
+        "network": { "const": false },
+        "external_write": { "const": false },
+        "git_write": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "argv", "timeout_seconds"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+          },
+          "argv": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "timeout_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 600
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "intake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "scope",
+        "goal",
+        "external_boundary",
+        "return_path"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": ".*\\S.*"
+        },
+        "external_boundary": {
+          "enum": [
+            "none",
+            "external_send",
+            "publication",
+            "git_push",
+            "pull_request",
+            "merge",
+            "billing",
+            "credential",
+            "auth",
+            "settings",
+            "destructive",
+            "unknown"
+          ]
+        },
+        "return_path": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "schema"],
+          "properties": {
+            "kind": { "const": "feedback_packet" },
+            "schema": { "const": "fde.feedback.v1" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
