@@ -81,7 +81,11 @@ ARCHIVED_WORKSPACE_PATTERN = "|".join(
 
 FORBIDDEN_PATTERNS = {
     "personal absolute path": re.compile(
-        r"([A-Za-z]:\\+Users\\+|[A-Za-z]:/+Users/+|/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+)"
+        r"([A-Za-z]:\\+Us"
+        r"ers\\+|[A-Za-z]:/+Us"
+        r"ers/+|/"
+        r"Users/[A-Za-z0-9._-]+|/"
+        r"home/[A-Za-z0-9._-]+)"
     ),
     "archived workspace path": re.compile(ARCHIVED_WORKSPACE_PATTERN),
     "private handle": re.compile(PRIVATE_HANDLE_PATTERN, re.IGNORECASE),

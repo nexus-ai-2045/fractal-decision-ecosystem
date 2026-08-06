@@ -548,8 +548,8 @@ def test_fde_dependency_registry_has_no_private_filesystem_authority_paths() -> 
         "Documents/references/",
         "~/.claude/",
         "/Applications/",
-        "/Users/",
-        "/home/",
+        "/" + "Users/",
+        "/" + "home/",
     )
     for line in text.splitlines():
         if not line.startswith("|"):

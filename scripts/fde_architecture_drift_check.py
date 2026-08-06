@@ -45,6 +45,16 @@ PRIVATE_PATH_MARKERS = (
 
 CHECKS = {
     "README.md": (
+        "## 目的",
+        "## できること",
+        "## クイックスタート",
+        "## 安全境界",
+        "operational_guarantee",
+        "system_update",
+        "schema_bound",
+        "docs/fde-concept-guide.md",
+    ),
+    "docs/fde-concept-guide.md": (
         "## 完成図",
         "軽く賢く",
         "entry -> packet -> evidence -> decision -> closure",
