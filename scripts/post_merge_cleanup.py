@@ -31,8 +31,8 @@ SECRET_PATTERNS = (
 )
 USER_PATH_PATTERNS = (
     re.compile(r"([A-Za-z]:[\\/]+Users[\\/]+)[^\\/\s]+"),
-    re.compile(r"(/Users/)[^/\s]+"),
-    re.compile(r"(/home/)[^/\s]+"),
+    re.compile(r"(/" + r"Users/)[^/\s]+"),
+    re.compile(r"(/" + r"home/)[^/\s]+"),
 )
 
 

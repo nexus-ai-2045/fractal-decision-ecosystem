@@ -42,8 +42,12 @@ WINDOWS_BACKSLASH_PATH = re.compile(
 WINDOWS_FORWARDSLASH_PATH = re.compile(
     r"(?P<prefix>[A-Za-z]:/+Users/+)(?P<user>[^/\s]+)(?P<rest>/[^\s`'\"]*)?"
 )
-MACOS_PATH = re.compile(r"(?P<prefix>/Users/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?")
-LINUX_HOME_PATH = re.compile(r"(?P<prefix>/home/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?")
+MACOS_PATH = re.compile(
+    r"(?P<prefix>/" + r"Users/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?"
+)
+LINUX_HOME_PATH = re.compile(
+    r"(?P<prefix>/" + r"home/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?"
+)
 
 LOCAL_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("windows local path", WINDOWS_BACKSLASH_PATH),
