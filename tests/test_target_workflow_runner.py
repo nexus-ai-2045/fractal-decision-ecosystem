@@ -27,14 +27,67 @@ def trusted_unit_target(monkeypatch, request):
         monkeypatch.setattr(runner, "_verify_trust", lambda manifest: True)
 
 
+def sample_intake():
+    return {
+        "owner": "unit-test",
+        "scope": "target workflow unit tests",
+        "goal": "validate local checks and stop at review packet",
+        "external_boundary": "none",
+        "return_path": {"kind": "feedback_packet", "schema": "fde.feedback.v1"},
+    }
+
+
 def manifest(tmp_path, checks=None):
     root=Path(__file__).parents[1]
-    return {"schema":"fde.target_workflow.v1","workflow_id":"test","target_id":"unit","repo_root":str(root),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"checks":checks or [{"name":"ok","argv":[sys.executable,"scripts/public_ready_check.py"],"timeout_seconds":30}]}
+    return {"schema":"fde.target_workflow.v1","workflow_id":"test","target_id":"unit","repo_root":str(root),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"intake":sample_intake(),"checks":checks or [{"name":"ok","argv":[sys.executable,"scripts/public_ready_check.py"],"timeout_seconds":30}]}
 
 
 def test_manifest_requires_argv_timeout_and_review_gate(tmp_path):
     path=tmp_path/"m.json"; data=manifest(tmp_path); data["approval_gate"]="merge"; path.write_text(json.dumps(data))
     with pytest.raises(ValueError): load_manifest(path)
+
+
+def test_manifest_rejects_missing_intake(tmp_path):
+    data = manifest(tmp_path)
+    del data["intake"]
+    path = tmp_path / "m.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="invalid manifest schema"):
+        load_manifest(path)
+
+
+def test_manifest_rejects_bad_return_path(tmp_path):
+    data = manifest(tmp_path)
+    data["intake"]["return_path"] = {"kind": "feedback_packet", "schema": "fde.feedback.v0"}
+    path = tmp_path / "m.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="invalid manifest schema"):
+        load_manifest(path)
+
+
+def test_return_packet_crosswalk_matches_feedback_schema() -> None:
+    root = Path(__file__).parents[1]
+    workflow_text = (root / "fde_workflow.yaml").read_text(encoding="utf-8")
+    feedback_schema = json.loads(
+        (root / "schemas/fde_feedback_packet.v1.schema.json").read_text(encoding="utf-8")
+    )
+    target_schema = json.loads(
+        (root / "schemas/fde_target_workflow.v1.schema.json").read_text(encoding="utf-8")
+    )
+    example = json.loads(
+        (root / "examples/dcb_target_workflow.json").read_text(encoding="utf-8")
+    )
+
+    assert "  - return_packet=fde.feedback.v1\n" in workflow_text
+    assert feedback_schema["properties"]["schema_version"]["const"] == "fde.feedback.v1"
+    assert (
+        target_schema["properties"]["intake"]["properties"]["return_path"]["properties"][
+            "schema"
+        ]["const"]
+        == "fde.feedback.v1"
+    )
+    assert example["intake"]["return_path"]["schema"] == "fde.feedback.v1"
+    assert example["intake"]["return_path"]["kind"] == "feedback_packet"
 
 
 @pytest.mark.parametrize("capability", ["network", "external_write", "git_write"])
@@ -129,7 +182,7 @@ def real_target(tmp_path, monkeypatch):
     tree=_git(repo,"rev-parse","HEAD^{tree}")
     registry=tmp_path/"registry.json"; registry.write_text(json.dumps({"schema":"fde.trusted_targets.v1","targets":{"target":{"registry_id":"test-registry","base_commit":base,"head":base,"tree":tree,"remote":"https://example.invalid/trusted.git","commands":{"gate":{"argv":["python","scripts/gate.py"],"script_sha256":digest}}}}}),encoding="utf-8")
     monkeypatch.setattr(runner,"REGISTRY",registry)
-    data={"schema":"fde.target_workflow.v1","workflow_id":"real","target_id":"target","repo_root":str(repo),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"checks":[{"name":"gate","argv":["python","scripts/gate.py"],"timeout_seconds":10}]}
+    data={"schema":"fde.target_workflow.v1","workflow_id":"real","target_id":"target","repo_root":str(repo),"approval_gate":"review_packet","capabilities":{"process":True,"network":False,"external_write":False,"git_write":False},"intake":sample_intake(),"checks":[{"name":"gate","argv":["python","scripts/gate.py"],"timeout_seconds":10}]}
     manifest_path=tmp_path/"manifest.json"; manifest_path.write_text(json.dumps(data),encoding="utf-8")
     return repo,gate,registry,manifest_path
 

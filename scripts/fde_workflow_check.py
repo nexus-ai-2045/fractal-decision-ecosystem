@@ -115,6 +115,7 @@ AUTONOMY_CONTRACT = (
     "intake=owner+scope+goal+external_boundary+return_path",
     "execution_stop=review_packet",
     "promotion=local_verification+operational_receipt+human_review",
+    "return_packet=fde.feedback.v1",
     "future_handoff=owner+trigger_or_due+evidence_path+success_condition+failure_condition+next_action",
     "cleanup=merged+post_merge_verification+explicit_cleanup_approval",
 )
@@ -247,13 +248,13 @@ def evaluate(workflow: Path = WORKFLOW) -> dict[str, object]:
         data, errors = _parse_manifest(workflow.read_text(encoding="utf-8"))
 
     scalar_contracts = {
-        "schema_version": "fde.workflow.v3",
+        "schema_version": "fde.workflow.v4",
         "control_plane": "FDE",
         "workflow_profile": "repository_closeout",
         "external_actions_performed": False,
         "external_action_scope": "this_check_invocation_only",
         "external_authority_policy": "optional_workspace_enrichment",
-        "autonomy_enforcement": "design_only",
+        "autonomy_enforcement": "schema_bound",
         "learning_return_to": "goal_and_boundary",
     }
     for key, expected in scalar_contracts.items():
