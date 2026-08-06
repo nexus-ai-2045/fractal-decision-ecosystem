@@ -51,8 +51,11 @@ REQUIRED_TRACKED_FILES = (
     "scripts/public_kernel_diff_manifest.py",
     "scripts/human_review_packet_check.py",
     "scripts/pr_review_signal_check.py",
+    "scripts/fde_feedback_packet.py",
     "scripts/adr_next.py",
     "docs/review-signal-absorption.md",
+    "docs/feedback-loop-packet.md",
+    "schemas/fde_feedback_packet.v1.schema.json",
     "ROADMAP.md",
     "SYSTEM_OVERVIEW.md",
     "RESIDUAL_ZERO_GOAL_2026-07-05.md",
@@ -66,6 +69,7 @@ REQUIRED_TRACKED_FILES = (
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
     "tests/test_public_ready.py",
     "tests/test_pr_review_signal_check.py",
+    "tests/test_feedback_packet.py",
 )
 
 
