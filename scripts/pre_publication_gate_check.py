@@ -53,7 +53,7 @@ def _compact(text: str) -> str:
 
 
 WINDOWS_USERS = "C:" + "\\Users" + "\\"
-WINDOWS_USERS_ALT = "C:" + "/Users/"
+WINDOWS_USERS_ALT = "C:" + "/" + "Users/"
 
 
 FORBIDDEN_PUBLIC_KERNEL_PATTERNS = {
@@ -61,7 +61,9 @@ FORBIDDEN_PUBLIC_KERNEL_PATTERNS = {
         re.escape(WINDOWS_USERS)
         + "|"
         + re.escape(WINDOWS_USERS_ALT)
-        + r"|/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+"
+        + r"|/"
+        + r"Users/[A-Za-z0-9._-]+|/"
+        + r"home/[A-Za-z0-9._-]+"
     ),
     "private source pointer": re.compile(r"Documents/brain|external-ai-route-registry", re.IGNORECASE),
     "secret-like token": re.compile(r"(sk-(proj-)?[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})"),
