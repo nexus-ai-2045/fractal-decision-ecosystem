@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.2.0...v0.3.0) (2026-08-06)
+
+
+### Features
+
+* bind autonomy intake return_path to fde.feedback.v1 ([#16](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/16)) ([9f5298f](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/9f5298ff6b5fa6aaca84296f364129c7081bcc46))
+* FDEと実装runtimeのフィードバック契約を追加 ([#13](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/13)) ([5ff7e75](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/5ff7e75a59ba6461c44e514d961e60a46153632a))
+* FDEの二本線と自走契約を定義 ([#14](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/14)) ([79f6f6f](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/79f6f6f91c9a5add2ddd7c5b70212ace1b1bc237))
+
 ## [0.2.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.1.0...v0.2.0) (2026-07-27)
 
 
