@@ -627,7 +627,14 @@
       <h2>レビュー導線</h2>
       <p class="section-lead">
         Product Design / Creative Production のレビューでは、見た目だけでなく「どこから読み、何を確認し、どこで止まるか」を見ます。
+        初見は次の4観点（MVP gate / public kernel / AI contact contract / stop line）で揃えます。
       </p>
+      <div class="review-path" id="review-four-axes" aria-label="FDEレビュー4観点">
+        <a class="review-card" href="scripts/run_mvp_gate.ps1" id="review-axis-mvp-gate"><b>A</b><strong>MVP gate</strong><span>local MVP / pytest / residual-zero が public approval なしで通るかを見る。</span></a>
+        <a class="review-card" href="PUBLIC_KERNEL_PLAN.md" id="review-axis-public-kernel"><b>B</b><strong>Public kernel</strong><span>private package と public candidate の差分・権利境界を見る。</span></a>
+        <a class="review-card" href="ai-contact-safety-contract.md" id="review-axis-ai-contact"><b>C</b><strong>AI contact contract</strong><span>identity / consent / data boundary / transport unapproved を見る。</span></a>
+        <a class="review-card" href="PUBLIC_READY.md" id="review-axis-stop-line"><b>D</b><strong>Stop line</strong><span>公開・外部送信・visibility変更は別承認まで止める。</span></a>
+      </div>
       <div class="review-path" aria-label="FDEレビュー導線">
         <a class="review-card" href="visual.html"><b>1</b><strong>visual.html</strong><span>初見で目的、発火順、停止線が分かるかを見る。</span></a>
         <a class="review-card" href="SYSTEM_OVERVIEW.md"><b>2</b><strong>SYSTEM_OVERVIEW</strong><span>判断制御面、運用面、公開境界、adapterが分かれているかを見る。</span></a>

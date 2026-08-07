@@ -23,6 +23,13 @@ REQUIRED_TEXT = (
     "AI contact safety",
     "transportは実装しない",
     "Public kernel diff",
+    # Sprint 3: four review axes (MVP gate / public kernel / AI contact / stop line)
+    "MVP gate",
+    "Public kernel",
+    "AI contact contract",
+    "Stop line",
+    "review-four-axes",
+    "public approval なし",
 )
 
 REQUIRED_HREFS = (
@@ -33,6 +40,17 @@ REQUIRED_HREFS = (
     "OPERATIONAL_GUARANTEE.md",
     "PUBLIC_KERNEL_PLAN.md",
     "ai-contact-safety-contract.md",
+    "PUBLIC_READY.md",
+    "scripts/run_mvp_gate.ps1",
+)
+
+REQUIRED_IDS = (
+    "review",
+    "review-four-axes",
+    "review-axis-mvp-gate",
+    "review-axis-public-kernel",
+    "review-axis-ai-contact",
+    "review-axis-stop-line",
 )
 
 
@@ -77,11 +95,27 @@ def evaluate() -> dict[str, object]:
         if target and not (ROOT / target).exists():
             errors.append(f"visual.html local href target is missing: {href}")
 
+    for element_id in REQUIRED_IDS:
+        if f'id="{element_id}"' not in text:
+            errors.append(f"visual.html missing required id: {element_id}")
+
+    # Visual is a local review entry, not launch / public-approval material.
+    forbidden_launch_claims = (
+        "public release approved",
+        "公開を承認済み",
+        "launch ready",
+        "now public",
+    )
+    for claim in forbidden_launch_claims:
+        if claim in text:
+            errors.append(f"visual.html must not claim launch approval: {claim}")
+
     return {
         "overall": "ok" if not errors else "error",
         "external_actions_performed": False,
         "errors": errors,
         "href_count": len(hrefs),
+        "review_axes": list(REQUIRED_IDS[2:]),
     }
 
 
