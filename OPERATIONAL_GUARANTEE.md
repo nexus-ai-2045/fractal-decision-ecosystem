@@ -43,6 +43,9 @@ patent filing 実行残務: なし（optional / approval-gated）
 | [#10](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/10) | Team Formation と残務ゼロゴール | MERGED | `57b0146c46d47be6eb6c8793df3f825fad875a11` | 2026-07-06T00:12:21+09:00 |
 | [#11](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/11) | AI contact安全契約と残務ゼロsmoke | MERGED | `075939b32de6ab5de6086adf810c919f57c2120b` | 2026-07-06T00:14:15+09:00 |
 | [#12](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/12) | 公開境界レビューpacketと差分check | MERGED | `c8404c9c0a44bbac8047ce676f260970e15dbdc2` | 2026-07-06T00:15:47+09:00 |
+| [#18](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/18) | target receipt から fde.feedback.v1 draft | MERGED | 22e5976273fc131349c4941c3410a8a2c2f2525 | 2026-08-07T12:40:10Z |
+| [#20](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/20) | local-chat composition + feedback draft harden | MERGED | 8f20504c223998b5517a6ba557582ed9cba6c0c | 2026-08-07T13:01:38Z |
+| [#21](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/pull/21) | AI contact packet fde.contact_packet.v1 | MERGED | 6f36c988f104075ace3a4d093642407a8fa2afac | 2026-08-07T13:18:46Z |
 
 Post-merge local sync evidence:
 
@@ -50,6 +53,8 @@ Post-merge local sync evidence:
 - #8 の squash merge 後、local duplicate commit は rebase skip で remote main に合わせた。
 - #10 / #11 / #12 は stacked PR として review 後に squash merge し、#11 / #12 は `main` へ retarget して GitHub Actions `public-ready` pass 後に merge した。
 - #10 / #11 / #12 の merge は当時privateだったrepository mainへの反映であり、追加のpublic action approvalではない。
+- #18 / #20 / #21 は public repository 上で required checks 通過後に squash merge した。merge commit は 22e597 / 8f2050 / 6f36c98。local では python -m pytest -q と scripts/run_mvp_gate.ps1 を再実行して green を確認した。
+- これらは public release 宣言や visibility 再変更の承認ではない。
 
 ## 必須検証
 

@@ -87,6 +87,16 @@ def evaluate() -> dict[str, object]:
                 errors.append(
                     "contact schema must pin transport_adapter_status to unapproved"
                 )
+            next_allowed = (
+                schema.get("properties", {})
+                .get("closure", {})
+                .get("properties", {})
+                .get("next_contact_allowed", {})
+            )
+            if next_allowed.get("const") is not False:
+                errors.append(
+                    "contact schema must pin closure.next_contact_allowed to false"
+                )
         except (OSError, UnicodeError, json.JSONDecodeError) as error:
             errors.append(f"contact schema unreadable: {type(error).__name__}")
 

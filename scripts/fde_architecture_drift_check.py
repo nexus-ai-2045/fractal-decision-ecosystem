@@ -62,6 +62,14 @@ CHECKS = {
         "operational_guarantee",
         "system_update",
     ),
+    "docs/local-chat-integration-map.md": (
+        "portable composition contract",
+        "chat-orchestrator",
+        "fde.feedback.v1",
+        "review_packet",
+        "fde_operational_closeout.py",
+        "operator-local-adapter",
+    ),
     "ROADMAP.md": ("## 完成図", "## 可視化マップ", "判断制御面", "ローカル運用面", "公開境界面"),
     "SYSTEM_OVERVIEW.md": (
         "FDE 全体図",
