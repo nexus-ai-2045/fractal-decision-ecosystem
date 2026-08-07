@@ -231,12 +231,15 @@ def main() -> int:
             )
         packet = json.loads(
             args.input.read_text(encoding="utf-8"),
+            parse_constant=lambda value: (_ for _ in ()).throw(
+                ValueError(f"invalid JSON constant: {value}")
+            ),
             object_pairs_hook=reject_duplicate_keys,
         )
         if not isinstance(packet, dict):
             raise ValueError("contact packet must be a JSON object")
         result = evaluate_contact_packet(packet)
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError, RecursionError) as error:
         result = {
             "overall": "error",
             "schema_version": None,
