@@ -199,7 +199,7 @@ AI同士の contact を、transport 実装ではなく `identity / consent / dat
 
 ### Sprint 2.5: Team Formation / Orchestration Gate
 
-状態: 次のFDE-native実装候補
+状態: machine schema 化済み（final decision は本線保持）
 
 目的:
 
@@ -211,10 +211,12 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 - `no_team_reason` を許可するが、tiny作業、tool不在、停止線、overhead過多など理由を必須にする。
 - delegate は証拠、diff、smoke結果、blockerを返す補助であり、final decision、publication approval、credential/auth/settings/destructive operation は本線が保持する。
 - `Team Creator` は、役割生成と回収形式を作るFDE内 role として扱い、特定外部ツール名には固定しない。
+- machine 正本: `schemas/fde_team_plan.v1.schema.json` + `scripts/fde_team_plan.py` + `tests/test_team_plan.py`。
 
 スモーク:
 
 - roadmap gate
+- `python scripts/fde_team_plan.py --input <plan.json> --json`
 - pytest
 - MVP gate
 
@@ -224,6 +226,8 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 - team を作ったのに return contract、採否条件、stopline owner がない。
 
 ### Sprint 3: Review UX / Visual Smoke
+
+状態: 次のFDE-native実装候補
 
 目的:
 
