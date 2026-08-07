@@ -452,8 +452,16 @@ def main() -> int:
                 raise ValueError("receipt must be a JSON object")
             intake: dict[str, Any] | None = None
             if args.manifest is not None:
+                manifest_size = args.manifest.stat().st_size
+                if manifest_size > MAX_FEEDBACK_PACKET_BYTES:
+                    raise ValueError(
+                        f"manifest exceeds {MAX_FEEDBACK_PACKET_BYTES} bytes"
+                    )
                 manifest = json.loads(
                     args.manifest.read_text(encoding="utf-8"),
+                    parse_constant=lambda value: (_ for _ in ()).throw(
+                        ValueError(f"invalid JSON constant: {value}")
+                    ),
                     object_pairs_hook=reject_duplicate_keys,
                 )
                 if not isinstance(manifest, dict):
@@ -467,13 +475,22 @@ def main() -> int:
                 intake=intake,
             )
             if args.write is not None:
-                write_path = args.write.resolve()
+                write_path = args.write.expanduser().resolve()
+                cwd = Path.cwd().resolve()
+                try:
+                    write_path.relative_to(cwd)
+                except ValueError as error:
+                    raise ValueError(
+                        "--write path must stay under the current working directory"
+                    ) from error
                 write_path.parent.mkdir(parents=True, exist_ok=True)
-                write_path.write_text(
+                payload = (
                     json.dumps(packet, ensure_ascii=True, indent=2, sort_keys=True)
-                    + "\n",
-                    encoding="utf-8",
+                    + "\n"
                 )
+                tmp_path = write_path.with_name(write_path.name + ".tmp")
+                tmp_path.write_text(payload, encoding="utf-8")
+                tmp_path.replace(write_path)
         else:
             packet_size = args.input.stat().st_size
             if packet_size > MAX_FEEDBACK_PACKET_BYTES:

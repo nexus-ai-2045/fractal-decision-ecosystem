@@ -733,9 +733,12 @@ def test_draft_never_emits_adopt_decision() -> None:
 
 
 def test_cli_draft_from_receipt_and_write(tmp_path: Path) -> None:
-    receipt_path = tmp_path / "receipt.json"
-    manifest_path = tmp_path / "manifest.json"
-    out_path = tmp_path / "draft.json"
+    # --write is confined to the process CWD (repo root in this test).
+    work = ROOT / ".local" / "feedback-draft-cli-test"
+    work.mkdir(parents=True, exist_ok=True)
+    receipt_path = work / "receipt.json"
+    manifest_path = work / "manifest.json"
+    out_path = work / "draft.json"
     receipt_path.write_text(json.dumps(sample_success_receipt()), encoding="utf-8")
     manifest_path.write_text(
         json.dumps(
@@ -788,3 +791,55 @@ def test_cli_requires_exactly_one_of_input_or_from_receipt() -> None:
     assert result.returncode == 1
     payload = json.loads(result.stdout)
     assert payload["overall"] == "error"
+
+def test_draft_from_trust_review_receipt_is_revise() -> None:
+    receipt = sample_success_receipt()
+    receipt["state"] = "trust_review_required"
+    packet = draft_feedback_from_target_receipt(
+        receipt,
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert validate_feedback_packet(packet) == []
+    assert packet["act"]["decision"] == "revise"
+    assert packet["act"]["failure_kind"] == "trust_or_lock"
+    assert packet["check"]["human_review"] == "pending"
+    assert packet["act"]["decision"] != "adopt"
+
+
+def test_draft_from_locked_receipt_is_revise() -> None:
+    receipt = sample_success_receipt()
+    receipt["state"] = "locked"
+    packet = draft_feedback_from_target_receipt(
+        receipt,
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert validate_feedback_packet(packet) == []
+    assert packet["act"]["decision"] == "revise"
+    assert packet["act"]["failure_kind"] == "trust_or_lock"
+
+
+def test_cli_rejects_write_outside_cwd(tmp_path: Path) -> None:
+    receipt_path = tmp_path / "receipt.json"
+    receipt_path.write_text(json.dumps(sample_success_receipt()), encoding="utf-8")
+    outside = Path.cwd().resolve().parent / "fde-feedback-draft-outside.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--from-receipt",
+            str(receipt_path),
+            "--write",
+            str(outside),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["overall"] == "error"
+    assert not outside.exists()
