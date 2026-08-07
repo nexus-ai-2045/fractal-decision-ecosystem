@@ -162,7 +162,7 @@
         "decision": {
           "enum": ["blocked", "hold", "review_ready", "reject"]
         },
-        "next_contact_allowed": { "type": "boolean" },
+        "next_contact_allowed": { "const": false },
         "evidence_pointer": {
           "type": "string",
           "minLength": 1,
