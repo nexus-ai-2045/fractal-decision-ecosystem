@@ -28,15 +28,23 @@ Autonomous Execution の target workflow は、`intake.return_path` で戻り先
 - `schema` は `fde.feedback.v1` のみ
 - workflow 側の `autonomy_contract.return_packet=fde.feedback.v1` と同じ値に揃える
 
-これは schema 上の接続契約です。runtime が feedback packet を自動生成したり、`act.decision=adopt` を自動採用したりはしません。実行停止線は従来どおり `review_packet` です。
+これは schema 上の接続契約です。実行停止線は従来どおり `review_packet` です。
+
+- **許可:** target workflow の metadata-only receipt から `fde.feedback.v1` の **draft** を生成し、validate すること。draft の `act.decision` は `hold` / `revise` のみで、`check.human_review` は `pending`、`boundaries.external_actions_performed` は false 固定です。
+- **禁止:** runtime が `act.decision=adopt` を出すこと、学習を自動適用すること、push / PR / merge / 外部送信へ進むこと。
+
+closeout の薄い `feedback` field（failure_kind 等）は **execution receipt 用の別契約**であり、`fde.feedback.v1` 本体ではありません。
+
+local chat / session からの呼び出し順は `docs/local-chat-integration-map.md` を正本とします。raw chat や raw tool output は packet に入れません。
 
 ## 検証
 
 ```powershell
 python scripts/fde_feedback_packet.py --input <feedback.json> --json
+python scripts/fde_feedback_packet.py --from-receipt <receipt.json> --manifest <manifest.json> --write <draft.json> --json
 ```
 
-検証はread-onlyです。packetの保存、外部送信、repository変更は行いません。
+`--input` 検証はread-onlyです。`--from-receipt` は metadata-only draft を組み立てて validate し、`--write` 指定時だけ local JSON を書きます。外部送信、repository visibility 変更、adopt は行いません。
 
 `act.decision=adopt`はpacket内の自己申告だけでは許可されません。公開CLIは承認contextを受け取らず、常にfail-closedです。FDE内部で採用判断する場合だけ、FDEが所有する承認状態と照合した承認済みpacketのcanonical SHA-256集合をprogrammatic validatorへ渡します。IDだけの承認は、review後の内容差し替えを防げないため使いません。
 

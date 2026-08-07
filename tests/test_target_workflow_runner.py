@@ -77,6 +77,7 @@ def test_return_packet_crosswalk_matches_feedback_schema() -> None:
     example = json.loads(
         (root / "examples/dcb_target_workflow.json").read_text(encoding="utf-8")
     )
+    docs = (root / "docs/feedback-loop-packet.md").read_text(encoding="utf-8")
 
     assert "  - return_packet=fde.feedback.v1\n" in workflow_text
     assert feedback_schema["properties"]["schema_version"]["const"] == "fde.feedback.v1"
@@ -88,6 +89,28 @@ def test_return_packet_crosswalk_matches_feedback_schema() -> None:
     )
     assert example["intake"]["return_path"]["schema"] == "fde.feedback.v1"
     assert example["intake"]["return_path"]["kind"] == "feedback_packet"
+    assert "--from-receipt" in docs
+    assert "act.decision=adopt" in docs
+
+
+def test_success_receipt_drafts_feedback_hold_not_adopt(tmp_path) -> None:
+    from scripts.fde_feedback_packet import (
+        draft_feedback_from_target_receipt,
+        validate_feedback_packet,
+    )
+
+    path = tmp_path / "m.json"
+    path.write_text(json.dumps(manifest(tmp_path)), encoding="utf-8")
+    receipt = run_workflow(load_manifest(path), state_root=tmp_path / ".local")
+    packet = draft_feedback_from_target_receipt(
+        receipt,
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert validate_feedback_packet(packet) == []
+    assert packet["act"]["decision"] == "hold"
+    assert packet["check"]["human_review"] == "pending"
+    assert "adopt" not in json.dumps(packet["act"])
 
 
 @pytest.mark.parametrize("capability", ["network", "external_write", "git_write"])

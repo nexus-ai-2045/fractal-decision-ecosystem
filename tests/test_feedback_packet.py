@@ -3,7 +3,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.fde_feedback_packet import feedback_packet_sha256, validate_feedback_packet
+from scripts.fde_feedback_packet import (
+    draft_feedback_from_target_receipt,
+    feedback_packet_sha256,
+    validate_feedback_packet,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -599,3 +603,188 @@ def test_cli_converts_excessive_json_depth_to_structured_error(tmp_path: Path) -
     assert payload["overall"] == "error"
     assert payload["errors"] == ["RecursionError: invalid feedback input"]
     assert "Traceback" not in result.stderr
+
+
+def sample_success_receipt() -> dict:
+    return {
+        "schema": "fde.target_workflow_receipt.v1",
+        "workflow_id": "unit-success",
+        "manifest_digest": "a" * 64,
+        "state": "human_review_required",
+        "approval_gate": "review_packet",
+        "checks": [
+            {
+                "name": "ok",
+                "check_digest": "b" * 64,
+                "status": "passed",
+                "exit_code": 0,
+                "duration_ms": 12,
+                "output_digest": "c" * 64,
+            }
+        ],
+        "expected_check_count": 1,
+        "implementation_residue": "none",
+        "operation_residue": "human_review_required",
+        "external_public_residue": "approval_gated",
+        "external_actions_performed": False,
+    }
+
+
+def sample_failed_receipt() -> dict:
+    return {
+        "schema": "fde.target_workflow_receipt.v1",
+        "workflow_id": "unit-failed",
+        "manifest_digest": "d" * 64,
+        "state": "blocked",
+        "approval_gate": "review_packet",
+        "checks": [
+            {
+                "name": "ok",
+                "check_digest": "e" * 64,
+                "status": "passed",
+                "exit_code": 0,
+                "duration_ms": 3,
+                "output_digest": "f" * 64,
+            },
+            {
+                "name": "bad",
+                "check_digest": "1" * 64,
+                "status": "failed",
+                "exit_code": 1,
+                "duration_ms": 4,
+                "output_digest": "2" * 64,
+            },
+        ],
+        "expected_check_count": 2,
+        "implementation_residue": "check_failed",
+        "operation_residue": "retry_required",
+        "external_public_residue": "approval_gated",
+        "external_actions_performed": False,
+    }
+
+
+def sample_intake() -> dict:
+    return {
+        "owner": "unit-test",
+        "scope": "target-workflow-draft",
+        "goal": "stop at review packet and draft feedback",
+        "external_boundary": "none",
+        "return_path": {"kind": "feedback_packet", "schema": "fde.feedback.v1"},
+    }
+
+
+def test_draft_from_success_receipt_is_valid_hold_pending() -> None:
+    packet = draft_feedback_from_target_receipt(
+        sample_success_receipt(),
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert validate_feedback_packet(packet) == []
+    assert packet["act"]["decision"] == "hold"
+    assert packet["check"]["human_review"] == "pending"
+    assert packet["check"]["outcome"] == "met"
+    assert packet["act"]["failure_kind"] == "none"
+    assert packet["act"]["update_targets"] == ["none"]
+    assert packet["boundaries"]["external_actions_performed"] is False
+    assert packet["boundaries"]["human_gate_required"] is True
+    rendered = json.dumps(packet)
+    assert "C:\\" not in rendered
+    assert "/Users/" not in rendered
+    assert "adopt" not in rendered
+
+
+def test_draft_from_failed_receipt_is_valid_revise() -> None:
+    packet = draft_feedback_from_target_receipt(
+        sample_failed_receipt(),
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert validate_feedback_packet(packet) == []
+    assert packet["act"]["decision"] == "revise"
+    assert packet["check"]["outcome"] == "not_met"
+    assert packet["act"]["failure_kind"] == "check_failed"
+    assert "none" not in packet["act"]["update_targets"]
+    assert packet["check"]["human_review"] == "pending"
+
+
+def test_draft_rejects_bad_return_path_schema() -> None:
+    intake = sample_intake()
+    intake["return_path"]["schema"] = "fde.feedback.v0"
+    try:
+        draft_feedback_from_target_receipt(sample_success_receipt(), intake=intake)
+        raised = False
+    except ValueError as error:
+        raised = True
+        assert "fde.feedback.v1" in str(error)
+    assert raised
+
+
+def test_draft_never_emits_adopt_decision() -> None:
+    packet = draft_feedback_from_target_receipt(
+        sample_success_receipt(),
+        intake=sample_intake(),
+        observed_at="2026-08-07T12:00:00+00:00",
+    )
+    assert packet["act"]["decision"] != "adopt"
+    # adopt would fail validation without approval context
+    packet["act"]["decision"] = "adopt"
+    errors = validate_feedback_packet(packet)
+    assert any("adopt" in error for error in errors)
+
+
+def test_cli_draft_from_receipt_and_write(tmp_path: Path) -> None:
+    receipt_path = tmp_path / "receipt.json"
+    manifest_path = tmp_path / "manifest.json"
+    out_path = tmp_path / "draft.json"
+    receipt_path.write_text(json.dumps(sample_success_receipt()), encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema": "fde.target_workflow.v1",
+                "intake": sample_intake(),
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--from-receipt",
+            str(receipt_path),
+            "--manifest",
+            str(manifest_path),
+            "--write",
+            str(out_path),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    payload = json.loads(result.stdout)
+    assert payload["overall"] == "ok"
+    assert payload["mode"] == "draft"
+    assert payload["act_decision"] == "hold"
+    written = json.loads(out_path.read_text(encoding="utf-8"))
+    assert written["schema_version"] == "fde.feedback.v1"
+    assert written["act"]["decision"] == "hold"
+
+
+def test_cli_requires_exactly_one_of_input_or_from_receipt() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "fde_feedback_packet.py"),
+            "--json",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["overall"] == "error"
