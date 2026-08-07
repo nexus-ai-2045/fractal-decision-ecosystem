@@ -172,7 +172,7 @@ merge 済み変更を、local main、remote main、PR receipt、gate evidence �
 
 ### Sprint 2: AI Contact Safety Contract Hardening
 
-状態: 次のFDE-native実装候補
+状態: machine schema 化済み（transport は引き続き unapproved）
 
 目的:
 
@@ -183,10 +183,13 @@ AI同士の contact を、transport 実装ではなく `identity / consent / dat
 - `ai-contact-safety-contract.md` に contact packet schema の候補を追加する。
 - `blocked` 条件、revocation、replay protection、TTL、checksum、human approval をテストで見る。
 - transport adapter を未承認のままにする check を追加する。
+- machine 正本: `schemas/fde_contact_packet.v1.schema.json` + `scripts/fde_contact_packet.py` + `tests/test_contact_packet.py`。
 
 スモーク:
 
 - contract text check
+- `python scripts/fde_contact_packet.py --input <packet.json> --json`
+- `python scripts/no_transport_contact_check.py --json`
 - pytest
 - MVP gate
 

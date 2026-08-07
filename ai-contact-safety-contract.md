@@ -55,6 +55,12 @@ contact に渡す data は、便利な文脈束ではなく、最小化された
 FDE で扱う contact packet は、transport 実装ではなく reviewable な判断入力です。
 この schema candidate は、実際に送る payload ではなく、事前レビューで不足を見つけるための最小形です。
 
+machine-readable 正本:
+
+- schema: `schemas/fde_contact_packet.v1.schema.json` (`schema_version=fde.contact_packet.v1`)
+- validator CLI: `scripts/fde_contact_packet.py --input <packet.json> --json`
+- transport 禁止 gate: `scripts/no_transport_contact_check.py`
+
 ```text
 contact_packet:
   packet_id:
@@ -90,6 +96,9 @@ contact_packet:
 `packet_id`、`verification_method`、`consent_scope`、`ttl`、`checksum`、
 `human_approved_at`、`replay_protection`、`transport_adapter_status` が未設定なら、
 contact は `blocked` とします。
+
+`transport_adapter_status` は FDE package 内では `unapproved` のみ許可します。
+packet が schema 上 complete でも `contact_action` は blocked のままです（transport 実装承認ではない）。
 
 ## transport 境界
 
