@@ -70,9 +70,10 @@
    - docs、scripts、tests が同じ required primitives を見ているか確認する
    - gate が文書化されているのにテストされていない、またはテストされているのに文書から消えている場合に落とす
 
-4. `scripts/fde_context_closeout.py`
-   - current branch、gate evidence、merged PR receipts、stop lines から dated context note を生成する
-   - chat context save を手作業の再構成にしない
+4. ~~`scripts/fde_context_closeout.py`~~ **superseded**
+   - 別 generator は作らない。正本は `scripts/fde_operational_closeout.py --write-context-receipt`
+   - historical prose note は `CHAT_CONTEXT_CLOSEOUT_*.md` として残し、現在値は closeout JSON / receipt を使う
+   - local chat 統合の composition は `docs/local-chat-integration-map.md`
 
 5. PR / merge state model
    - stacked PR、retargeting、CI、merge receipt、local sync、post-merge verification を反復可能な workflow として扱う

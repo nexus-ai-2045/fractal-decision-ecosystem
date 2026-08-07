@@ -111,6 +111,9 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | lane-queue | lane queue | operator-local-adapter | external-authority |
 | todo | 全体 todo の現在地 | operator-local-adapter | external-authority |
 | handoff-index | handoff 索引 | operator-local-adapter | external-authority |
+| local-chat-closeout | local chat / session の closeout と再開入口 | operator-local-adapter | external-authority |
+| world-absorption | past dialogue / decision の abstract absorption | operator-local-adapter | external-authority |
+| discord-context-bridge | Discord raw 読取と learning_handoff のみの橋 | operator-local-adapter | external-authority |
 | playbooks | 手順置き場 | operator-local-adapter | external-authority |
 | reports | 調査・監査・実測置き場 | operator-local-adapter | external-authority |
 | inbox | 通信 packet / 判断待ち置き場 | operator-local-adapter | external-authority |

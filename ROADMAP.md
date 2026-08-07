@@ -109,7 +109,7 @@ FDE の完成図は、次の3つが揃った状態です。
 推奨するオーケストレーション:
 
 - FDEの意思決定は、単独判断ではなく、必要な team formation を設計することまで含む。Team Creator は外部ツール名ではなく、`task -> roles -> delegates -> return contract -> adoption gate` を作るFDE内の役割として扱う。
-- まず `chat-orchestrator` で workstream を `implementation / verification / public-boundary` に分ける。
+- まず `chat-orchestrator`（新規 binary ではなく、既存 task / target-workflow / feedback / closeout の composition。正本: `docs/local-chat-integration-map.md`）で workstream を `implementation / verification / public-boundary` に分ける。
 - 非trivial作業、複数surface、設計比較、smoke/preflight、レビュー回収、分岐実装は、`team_plan` または `no_team_reason` を残す。
 - 変更が FDE routing、ADR、source pointer、保証語彙に触れる場合は、FDE skill と roadmap gate を先に使う。
 - security、secret、public kernel、AI contact、publication boundary に触れる場合は `codex-security` または threat-model 観点を併用する。
