@@ -10,6 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "ai-contact-safety-contract.md"
+CONTACT_SCHEMA = ROOT / "schemas" / "fde_contact_packet.v1.schema.json"
+CONTACT_VALIDATOR = ROOT / "scripts" / "fde_contact_packet.py"
 
 REQUIRED_CONTRACT_TERMS = (
     "contact packet schema 候補",
@@ -24,6 +26,9 @@ REQUIRED_CONTRACT_TERMS = (
     "transport_adapter_status: unapproved",
     "contact は `blocked`",
     "transport adapter は未承認",
+    "schemas/fde_contact_packet.v1.schema.json",
+    "fde.contact_packet.v1",
+    "scripts/fde_contact_packet.py",
 )
 
 FORBIDDEN_TRANSPORT_IMPLEMENTATION_TERMS = (
@@ -61,6 +66,32 @@ def evaluate() -> dict[str, object]:
     for term in REQUIRED_CONTRACT_TERMS:
         if term not in contract_text:
             errors.append(f"AI contact contract missing required term: {term}")
+
+    if not CONTACT_SCHEMA.exists():
+        errors.append("schemas/fde_contact_packet.v1.schema.json is missing")
+    else:
+        try:
+            schema = json.loads(CONTACT_SCHEMA.read_text(encoding="utf-8"))
+            if schema.get("properties", {}).get("schema_version", {}).get("const") != (
+                "fde.contact_packet.v1"
+            ):
+                errors.append("contact schema_version const must be fde.contact_packet.v1")
+            transport_const = (
+                schema.get("properties", {})
+                .get("safety", {})
+                .get("properties", {})
+                .get("transport_adapter_status", {})
+                .get("const")
+            )
+            if transport_const != "unapproved":
+                errors.append(
+                    "contact schema must pin transport_adapter_status to unapproved"
+                )
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            errors.append(f"contact schema unreadable: {type(error).__name__}")
+
+    if not CONTACT_VALIDATOR.exists():
+        errors.append("scripts/fde_contact_packet.py is missing")
 
     for path in _text_files():
         text = path.read_text(encoding="utf-8", errors="ignore")
