@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.4.0...v0.5.0) (2026-08-07)
+
+
+### Features
+
+* harden public-kernel vs private root boundary checks ([#25](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/25)) ([06cbaf8](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/06cbaf8c51957538ff2415246485d326592dbfcf))
+
 ## [0.4.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.3.0...v0.4.0) (2026-08-07)
 
 
