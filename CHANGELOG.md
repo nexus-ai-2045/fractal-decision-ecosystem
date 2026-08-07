@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.3.0...v0.4.0) (2026-08-07)
+
+
+### Features
+
+* draft fde.feedback.v1 from target workflow receipt ([#18](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/18)) ([e22e597](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/e22e5976273fc131349c4941c3410a8a2c2f2525))
+* local-chat composition and harden feedback draft bridge ([#20](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/20)) ([a8f2050](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/a8f20504c223998b5517a6ba557582ed9cba6c0c))
+* local-chat composition smoke + contact harden + merge receipts ([#23](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/23)) ([024d304](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/024d3045e6f172525757d6d54305d3e6602741bf))
+* machine-validate AI contact packet without transport ([#21](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/21)) ([6f36c98](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/6f36c988f104075ace3a4d093642407a8fa2afac))
+* machine-validate team_plan with fde.team_plan.v1 ([#22](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/22)) ([c468db6](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/c468db63afb884d3eb0d7d3bf068fd1ea9679abd))
+* strengthen visual review four-axis smoke ([#24](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/24)) ([ce9893c](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/ce9893c5de6545c945df4228f14d3c5f3497c7ab))
+
 ## [0.3.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.2.0...v0.3.0) (2026-08-06)
 
 
