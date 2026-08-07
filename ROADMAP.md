@@ -227,7 +227,7 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 
 ### Sprint 3: Review UX / Visual Smoke
 
-状態: 次のFDE-native実装候補
+状態: ローカル完了
 
 目的:
 
@@ -238,11 +238,13 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 - `visual.html` のレビュー導線を、MVP gate、public kernel、AI contact contract、stop line の4観点で整理する。
 - HTMLリンクスモークを追加する。
 - 必要ならスクリーンショット/visual QAを private artifact として残す。
+- machine: `scripts/visual_html_smoke.py` が 4観点 id / href / launch-claim 禁止を検査する。
 
 スモーク:
 
 - link existence check
 - HTML content smoke
+- `python scripts/visual_html_smoke.py --json`
 - Product Design review checklist
 
 停止ライン:
@@ -250,6 +252,8 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 - visual が public approval や launch material に見える。
 
 ### Sprint 4: Public Kernel / Rights Diff Automation
+
+状態: 次のFDE-native実装候補
 
 目的:
 
