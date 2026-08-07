@@ -69,3 +69,4 @@ stopline_owner
 - `scripts/roadmap_gate_check.py` が Team Formation / Orchestration と ADR-0004 を required term として確認する。
 - `tests/test_public_ready.py` が team formation gate の required terms を確認する。
 - MVP gate が external actions false のまま通る。
+- machine 正本: `schemas/fde_team_plan.v1.schema.json` (`fde.team_plan.v1`) と `scripts/fde_team_plan.py` で `team_plan` / `no_team_reason` を validate する。
