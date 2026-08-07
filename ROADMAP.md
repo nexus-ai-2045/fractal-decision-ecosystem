@@ -253,7 +253,7 @@ FDEの意思決定に、必要な分岐設計、team creator、delegate配役、
 
 ### Sprint 4: Public Kernel / Rights Diff Automation
 
-状態: 次のFDE-native実装候補
+状態: ローカル完了
 
 目的:
 
@@ -264,11 +264,13 @@ private operating package と public candidate の差分を、公開前に機械
 - `public-kernel/` と private root の差分 manifest を生成する。
 - patent packet、rights notice、PUBLIC_READY、SECURITY、license boundary を同じ pre-publication gate で確認する。
 - public package に入れてはいけない source pointer / personal path / secret pattern を検査する。
+- machine: `scripts/public_kernel_diff_manifest.py` が root_vs_kernel / rights boundary / private leak を検査する。
 
 スモーク:
 
 - `python scripts\pre_publication_gate_check.py --json`
 - `python scripts\public_ready_check.py`
+- `python scripts\public_kernel_diff_manifest.py --json --check`
 - secret / personal path scan
 
 停止ライン:
@@ -278,7 +280,9 @@ private operating package と public candidate の差分を、公開前に機械
 
 ### Sprint 5: Eval-Driven FDE Operations
 
-状態: closed-loop workflow contract 実装済み / 会話fixture拡張は future scope
+状態: 次のFDE-native実装候補
+
+状態補足: closed-loop workflow contract 実装済み / 会話fixture拡張は future scope
 
 目的:
 

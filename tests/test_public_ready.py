@@ -652,6 +652,48 @@ def test_public_kernel_diff_manifest_passes_without_public_action() -> None:
     assert result["external_actions_performed"] is False
     assert result["manifest"]["status"] == "local_public_kernel_diff_manifest"
     assert result["manifest"]["files"]
+    assert result["manifest"]["public_kernel_is_full_private_package"] is False
+    assert result["manifest"]["root_vs_kernel"]
+    assert result["manifest"]["rights_boundary_root_files"]
+    assert any(
+        row["path"] == "PUBLIC_READY.md" and row["present"] is True
+        for row in result["manifest"]["rights_boundary_root_files"]
+    )
+    assert any(
+        row["path"] == "SECURITY.md" and row["present"] is True
+        for row in result["manifest"]["rights_boundary_root_files"]
+    )
+    # Kernel candidate must not leak private package paths.
+    assert "operating-card.md" in result["manifest"]["private_must_not_leak"]
+
+
+def test_public_kernel_diff_detects_private_package_leak(tmp_path, monkeypatch) -> None:
+    import scripts.public_kernel_diff_manifest as kernel_diff
+
+    root = tmp_path / "repo"
+    kernel = root / "public-kernel"
+    kernel.mkdir(parents=True)
+    for name in kernel_diff.EXPECTED_PUBLIC_FILES:
+        (kernel / name).write_text("ok\n", encoding="utf-8")
+    (kernel / "operating-card.md").write_text("private leak\n", encoding="utf-8")
+    plan = root / "PUBLIC_KERNEL_PLAN.md"
+    plan.write_text(
+        "\n".join(kernel_diff.REQUIRED_PRIVATE_BOUNDARY_TERMS) + "\n",
+        encoding="utf-8",
+    )
+    for name in kernel_diff.RIGHTS_BOUNDARY_ROOT_FILES:
+        (root / name).write_text("boundary\n", encoding="utf-8")
+    (root / "fde_workflow.yaml").write_text("x\n", encoding="utf-8")
+    (root / "scripts").mkdir()
+    (root / "scripts" / "mvp_gate_check.py").write_text("x\n", encoding="utf-8")
+    (root / "operating-card.md").write_text("x\n", encoding="utf-8")
+
+    monkeypatch.setattr(kernel_diff, "ROOT", root)
+    monkeypatch.setattr(kernel_diff, "PUBLIC_KERNEL", kernel)
+    monkeypatch.setattr(kernel_diff, "PLAN", plan)
+    result = kernel_diff.evaluate()
+    assert result["overall"] == "error"
+    assert any("operating-card.md" in error for error in result["errors"])
 
 
 def test_human_review_packet_check_passes_without_public_action() -> None:
