@@ -19,3 +19,5 @@ build/
 # intentionally not tracked so it cannot be committed to the public repo again.
 PROVISIONAL_PATENT_DISCLOSURE_DRAFT.md
 patent-packet/
+
+.local/

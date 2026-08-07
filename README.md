@@ -59,6 +59,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json
 | 公開境界 | [PUBLIC_READY.md](PUBLIC_READY.md) / [PREFLIGHT.md](PREFLIGHT.md) |
 | 概念の詳細 | [docs/fde-concept-guide.md](docs/fde-concept-guide.md) |
 | feedback 契約 | [docs/feedback-loop-packet.md](docs/feedback-loop-packet.md) |
+| local chat 統合 | [docs/local-chat-integration-map.md](docs/local-chat-integration-map.md) |
 
 ## 中核ループ
 
@@ -76,7 +77,7 @@ goal_and_boundary -> capability_inventory -> roadmap -> preflight
 -> system_update -> goal_and_boundary
 ```
 
-実装runtimeから学びを戻す時は [`fde.feedback.v1`](docs/feedback-loop-packet.md) を使います。Autonomous Execution の intake は `return_path.schema=fde.feedback.v1` を必須とし、`autonomy_enforcement` は `schema_bound` です（feedback の自動生成や auto-adopt は含みません）。
+実装runtimeから学びを戻す時は [`fde.feedback.v1`](docs/feedback-loop-packet.md) を使います。Autonomous Execution の intake は `return_path.schema=fde.feedback.v1` を必須とし、`autonomy_enforcement` は `schema_bound` です（receipt からの hold/revise draft 生成は可。auto-adopt / 学習自動適用 / push・PR・merge は含みません）。
 
 ## 安全境界
 
