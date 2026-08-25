@@ -52,11 +52,14 @@ REQUIRED_TRACKED_FILES = (
     "scripts/human_review_packet_check.py",
     "scripts/pr_review_signal_check.py",
     "scripts/fde_feedback_packet.py",
+    "scripts/fde_activity_evidence.py",
     "scripts/fde_contact_packet.py",
     "scripts/fde_team_plan.py",
     "scripts/adr_next.py",
     "docs/review-signal-absorption.md",
     "docs/feedback-loop-packet.md",
+    "docs/activity-evidence-contract.md",
+    "schemas/fde_activity_evidence.v1.schema.json",
     "schemas/fde_feedback_packet.v1.schema.json",
     "schemas/fde_contact_packet.v1.schema.json",
     "schemas/fde_team_plan.v1.schema.json",
@@ -76,6 +79,8 @@ REQUIRED_TRACKED_FILES = (
     "tests/test_public_ready.py",
     "tests/test_pr_review_signal_check.py",
     "tests/test_feedback_packet.py",
+    "tests/test_activity_evidence.py",
+    "decisions/ADR-0007-activity-evidence-consumer-contract.md",
 )
 
 

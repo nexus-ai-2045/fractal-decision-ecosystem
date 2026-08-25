@@ -35,6 +35,7 @@ REQUIRED_FILES = (
     "scripts/fde_architecture_drift_check.py",
     "scripts/fde_operational_closeout.py",
     "scripts/fde_feedback_packet.py",
+    "scripts/fde_activity_evidence.py",
     "scripts/fde_contact_packet.py",
     "scripts/fde_team_plan.py",
     "scripts/residual_zero_goal_check.py",
@@ -45,16 +46,20 @@ REQUIRED_FILES = (
     "scripts/human_review_packet_check.py",
     "scripts/adr_next.py",
     "docs/feedback-loop-packet.md",
+    "docs/activity-evidence-contract.md",
+    "schemas/fde_activity_evidence.v1.schema.json",
     "schemas/fde_feedback_packet.v1.schema.json",
     "schemas/fde_contact_packet.v1.schema.json",
     "schemas/fde_team_plan.v1.schema.json",
     "tests/test_contact_packet.py",
+    "tests/test_activity_evidence.py",
     "tests/test_team_plan.py",
     "decisions/README.md",
     "decisions/ADR-0001-development-card-adr-numbering.md",
     "decisions/ADR-0002-product-creative-review-path.md",
     "decisions/ADR-0003-ai-contact-safety-contract.md",
     "decisions/ADR-0004-team-formation-orchestration-gate.md",
+    "decisions/ADR-0007-activity-evidence-consumer-contract.md",
 )
 
 PACKAGE_EXCLUDED_PARTS = (

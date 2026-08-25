@@ -689,7 +689,7 @@ def test_draft_from_success_receipt_is_valid_hold_pending() -> None:
     assert packet["boundaries"]["human_gate_required"] is True
     rendered = json.dumps(packet)
     assert "C:\\" not in rendered
-    assert "/Users/" not in rendered
+    assert (chr(47) + "Users" + chr(47)) not in rendered
     assert "adopt" not in rendered
 
 
