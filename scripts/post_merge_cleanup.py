@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -18,6 +19,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+NETWORK_TIMEOUT_SECONDS = 15
 PROTECTED_BRANCH_PATTERNS = (
     re.compile(r"^main$"),
     re.compile(r"^master$"),
@@ -64,19 +66,41 @@ def _run(
     cwd: Path = ROOT,
     allow_failure: bool = False,
 ) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(
-        args,
-        cwd=cwd,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    environment = os.environ.copy()
+    environment.pop("GH_REPO", None)
+    environment["GIT_TERMINAL_PROMPT"] = "0"
+    environment["GH_PROMPT_DISABLED"] = "1"
+    try:
+        result = subprocess.run(
+            args,
+            cwd=cwd,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            timeout=NETWORK_TIMEOUT_SECONDS,
+            env=environment,
+            check=False,
+        )
+    except FileNotFoundError:
+        result = subprocess.CompletedProcess(
+            args, 127, stdout="", stderr="command executable unavailable"
+        )
+    except subprocess.TimeoutExpired:
+        result = subprocess.CompletedProcess(
+            args, 124, stdout="", stderr="command timed out"
+        )
     if result.returncode != 0 and not allow_failure:
-        detail = result.stderr.strip() or result.stdout.strip() or "no error output"
-        raise RuntimeError(f"{' '.join(args)} failed: {detail}")
+        raise RuntimeError(_failure_summary(" ".join(args), result))
     return result
+
+
+def _failure_summary(
+    operation: str, result: subprocess.CompletedProcess[str]
+) -> str:
+    """Return bounded metadata without persisting child stdout or stderr."""
+    return f"{operation} failed (exit {result.returncode})"
 
 
 def _git(args: list[str], *, cwd: Path = ROOT, allow_failure: bool = False) -> str:
@@ -103,15 +127,6 @@ def _resolve_base_ref(cwd: Path) -> str:
     `origin/main` as a remote-tracking ref. Using bare `main` then makes
     `git branch --merged main` fail with `malformed object name main`.
     """
-    for candidate in (
-        "refs/heads/main",
-        "refs/heads/master",
-        "refs/remotes/origin/main",
-        "refs/remotes/origin/master",
-    ):
-        if _ref_exists(cwd, candidate):
-            return candidate
-
     symbolic = _git(
         ["symbolic-ref", "refs/remotes/origin/HEAD"],
         cwd=cwd,
@@ -119,6 +134,15 @@ def _resolve_base_ref(cwd: Path) -> str:
     )
     if symbolic and _ref_exists(cwd, symbolic):
         return symbolic
+
+    for candidate in (
+        "refs/remotes/origin/main",
+        "refs/remotes/origin/master",
+        "refs/heads/main",
+        "refs/heads/master",
+    ):
+        if _ref_exists(cwd, candidate):
+            return candidate
 
     raise RuntimeError(
         "no resolvable base ref "
@@ -138,41 +162,129 @@ def _short_ref_name(ref: str) -> str:
     return ref
 
 
-def _merged_local_branches(cwd: Path, base_ref: str, current: str) -> list[str]:
+def _remote_names(cwd: Path) -> set[str]:
+    result = _run(["git", "remote"], cwd=cwd, allow_failure=True)
+    if result.returncode != 0:
+        raise RuntimeError(_failure_summary("git remote", result))
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+def _local_branches(cwd: Path) -> list[tuple[str, str]]:
+    result = _run(
+        ["git", "for-each-ref", "--format=%(refname:short) %(objectname)", "refs/heads"],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(_failure_summary("git for-each-ref refs/heads", result))
+    branches: list[tuple[str, str]] = []
+    for line in result.stdout.splitlines():
+        name, separator, oid = line.strip().partition(" ")
+        if separator and re.fullmatch(r"[0-9a-f]{40}", oid):
+            branches.append((name, oid))
+    return branches
+
+
+def _github_repo_from_origin(cwd: Path) -> str | None:
+    remote_url = _git(["remote", "get-url", "origin"], cwd=cwd, allow_failure=True)
+    match = re.fullmatch(
+        r"(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
+        r"([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?",
+        remote_url,
+    )
+    if not match:
+        return None
+    return f"{match.group(1)}/{match.group(2)}"
+
+
+def _merged_pr_heads(cwd: Path, base_branch: str) -> set[tuple[str, str]]:
+    if "origin" not in _remote_names(cwd):
+        return set()
+    repo = _github_repo_from_origin(cwd)
+    if repo is None:
+        return set()
+    result = _run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--repo",
+            repo,
+            "--state",
+            "merged",
+            "--limit",
+            "1000",
+            "--json",
+            "headRefName,headRefOid,baseRefName",
+        ],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(_failure_summary("gh pr list --state merged", result))
+    try:
+        records = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("gh merged PR response was invalid JSON") from exc
+    heads: set[tuple[str, str]] = set()
+    for record in records if isinstance(records, list) else []:
+        if not isinstance(record, dict):
+            continue
+        name = record.get("headRefName")
+        oid = record.get("headRefOid")
+        if (
+            record.get("baseRefName") == base_branch
+            and isinstance(name, str)
+            and re.fullmatch(r"[0-9a-f]{40}", str(oid))
+        ):
+            heads.add((name, str(oid)))
+    return heads
+
+
+def _merged_local_branches(cwd: Path, base_ref: str) -> tuple[list[str], set[str]]:
     result = _run(
         ["git", "branch", "--format=%(refname:short)", "--merged", base_ref],
         cwd=cwd,
         allow_failure=True,
     )
     if result.returncode != 0:
-        detail = result.stderr.strip() or result.stdout.strip() or "unknown git error"
-        raise RuntimeError(
-            f"git branch --merged {base_ref} failed: {detail}"
-        )
+        raise RuntimeError(_failure_summary(f"git branch --merged {base_ref}", result))
     base_short = _short_ref_name(base_ref)
-    branches: list[str] = []
+    ancestry_merged: set[str] = set()
     for line in result.stdout.splitlines():
         name = line.strip()
         if (
             not name
-            or name == current
             or name == base_short
             or name == base_ref
             or _is_protected(name)
         ):
             continue
-        branches.append(name)
-    return branches
+        ancestry_merged.add(name)
+
+    candidates = [
+        (name, oid)
+        for name, oid in _local_branches(cwd)
+        if name not in ancestry_merged
+        and name != base_short
+        and name != base_ref
+        and not _is_protected(name)
+    ]
+    merged_pr_heads = _merged_pr_heads(cwd, base_short) if candidates else set()
+    squash_merged = {name for name, oid in candidates if (name, oid) in merged_pr_heads}
+    return sorted(ancestry_merged | squash_merged), squash_merged
 
 
 def _stale_remote_refs(cwd: Path) -> list[str]:
+    if "origin" not in _remote_names(cwd):
+        return []
     result = _run(
         ["git", "remote", "prune", "origin", "--dry-run"],
         cwd=cwd,
         allow_failure=True,
     )
     if result.returncode != 0:
-        return []
+        raise RuntimeError(_failure_summary("git remote prune origin --dry-run", result))
     stale: list[str] = []
     for line in result.stdout.splitlines():
         # e.g. * [would prune] origin/cursor/foo
@@ -186,7 +298,7 @@ def _stale_remote_refs(cwd: Path) -> list[str]:
 def _pruneable_worktrees(cwd: Path) -> list[str]:
     result = _run(["git", "worktree", "list", "--porcelain"], cwd=cwd, allow_failure=True)
     if result.returncode != 0:
-        return []
+        raise RuntimeError(_failure_summary("git worktree list --porcelain", result))
     pruneable: list[str] = []
     current_path: str | None = None
     for line in result.stdout.splitlines():
@@ -200,7 +312,7 @@ def _pruneable_worktrees(cwd: Path) -> list[str]:
     return pruneable
 
 
-def _delete_branch_on_merge_setting() -> dict[str, object]:
+def _delete_branch_on_merge_setting(cwd: Path) -> dict[str, object]:
     result = _run(
         [
             "gh",
@@ -209,6 +321,7 @@ def _delete_branch_on_merge_setting() -> dict[str, object]:
             "--jq",
             ".delete_branch_on_merge",
         ],
+        cwd=cwd,
         allow_failure=True,
     )
     if result.returncode != 0:
@@ -216,9 +329,7 @@ def _delete_branch_on_merge_setting() -> dict[str, object]:
             "checked": False,
             "enabled": None,
             "status": "unavailable",
-            "detail": _sanitize_receipt_detail(
-                (result.stderr or result.stdout).strip() or "gh api unavailable"
-            ),
+            "detail": _failure_summary("gh api delete_branch_on_merge", result),
         }
     value = result.stdout.strip().lower()
     enabled = value == "true"
@@ -240,13 +351,15 @@ def evaluate(*, apply: bool = False, cwd: Path | None = None) -> dict[str, objec
     except Exception as exc:  # fail-closed JSON, never crash closeout/CI
         return {
             "overall": "error",
-            "external_actions_performed": False,
+            "external_actions_performed": bool(actions),
             "apply": apply,
             "errors": [f"{type(exc).__name__}: {exc}"],
             "residue": {
                 "merged_local_branches": [],
+                "squash_merged_local_branches": [],
                 "stale_remote_refs": [],
                 "pruneable_worktrees": [],
+                "checked_out_merged_branch": None,
             },
             "actions": actions,
             "github_delete_branch_on_merge": {
@@ -267,21 +380,8 @@ def _evaluate_body(
     errors: list[str],
     actions: list[dict[str, object]],
 ) -> dict[str, object]:
-    current = _git(["branch", "--show-current"], cwd=root) or "HEAD"
-    base_ref = _resolve_base_ref(root)
-    base = _short_ref_name(base_ref)
-
-    merged = _merged_local_branches(root, base_ref, current)
-    stale = _stale_remote_refs(root)
-    pruneable = _pruneable_worktrees(root)
-    github_setting = _delete_branch_on_merge_setting()
-
     if apply:
-        remotes = {
-            line.strip()
-            for line in _git(["remote"], cwd=root, allow_failure=True).splitlines()
-            if line.strip()
-        }
+        remotes = _remote_names(root)
         if "origin" in remotes:
             fetch = _run(
                 ["git", "fetch", "--prune", "origin"],
@@ -292,24 +392,15 @@ def _evaluate_body(
                 {
                     "action": "git fetch --prune origin",
                     "ok": fetch.returncode == 0,
-                    "detail": _sanitize_receipt_detail(
-                        (fetch.stderr or fetch.stdout).strip() or None
+                    "detail": (
+                        None
+                        if fetch.returncode == 0
+                        else _failure_summary("git fetch --prune origin", fetch)
                     ),
                 }
             )
             if fetch.returncode != 0:
-                errors.append("git fetch --prune origin failed")
-            else:
-                stale_after_fetch = _stale_remote_refs(root)
-                if stale and not stale_after_fetch:
-                    actions.append(
-                        {
-                            "action": "prune stale remote-tracking refs",
-                            "ok": True,
-                            "removed": stale,
-                        }
-                    )
-                stale = stale_after_fetch
+                raise RuntimeError("git fetch --prune origin failed")
         else:
             actions.append(
                 {
@@ -319,24 +410,45 @@ def _evaluate_body(
                 }
             )
 
+    current = _git(["branch", "--show-current"], cwd=root) or "HEAD"
+    base_ref = _resolve_base_ref(root)
+    base = _short_ref_name(base_ref)
+    merged, squash_merged = _merged_local_branches(root, base_ref)
+    stale = _stale_remote_refs(root)
+    pruneable = _pruneable_worktrees(root)
+    github_setting = _delete_branch_on_merge_setting(root)
+    checked_out_merged_branch = current if current in merged else None
+
+    if apply:
         for branch in list(merged):
+            if branch == current:
+                errors.append(
+                    f"switch to {base} before deleting checked-out merged branch: {branch}"
+                )
+                continue
+            delete_flag = "-D" if branch in squash_merged else "-d"
             delete = _run(
-                ["git", "branch", "-d", branch],
+                ["git", "branch", delete_flag, branch],
                 cwd=root,
                 allow_failure=True,
             )
             ok = delete.returncode == 0
             actions.append(
                 {
-                    "action": f"git branch -d {branch}",
+                    "action": f"git branch {delete_flag} {branch}",
                     "ok": ok,
-                    "detail": _sanitize_receipt_detail(
-                        (delete.stderr or delete.stdout).strip() or None
+                    "detail": (
+                        None
+                        if ok
+                        else _failure_summary(
+                            f"git branch {delete_flag} {branch}", delete
+                        )
                     ),
                 }
             )
             if ok:
                 merged.remove(branch)
+                squash_merged.discard(branch)
             else:
                 errors.append(f"failed to delete merged local branch: {branch}")
 
@@ -345,8 +457,10 @@ def _evaluate_body(
             {
                 "action": "git worktree prune",
                 "ok": wt.returncode == 0,
-                "detail": _sanitize_receipt_detail(
-                    (wt.stderr or wt.stdout).strip() or None
+                "detail": (
+                    None
+                    if wt.returncode == 0
+                    else _failure_summary("git worktree prune", wt)
                 ),
             }
         )
@@ -355,10 +469,18 @@ def _evaluate_body(
         else:
             pruneable = _pruneable_worktrees(root)
 
+    if checked_out_merged_branch and not apply:
+        errors.append(
+            f"switch to {base} before deleting checked-out merged branch: "
+            f"{checked_out_merged_branch}"
+        )
+
     residue = {
         "merged_local_branches": merged,
+        "squash_merged_local_branches": sorted(squash_merged),
         "stale_remote_refs": stale,
         "pruneable_worktrees": pruneable,
+        "checked_out_merged_branch": checked_out_merged_branch,
     }
     has_local_residue = bool(merged or stale or pruneable)
     if has_local_residue:
