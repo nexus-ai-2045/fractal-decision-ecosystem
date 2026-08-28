@@ -105,3 +105,14 @@ personal absolute path、draft status、Git history author metadata、この保�
 
 現在の plan では、この repository に GitHub branch protection と GitHub native secret scanning はありません。
 その代わりに、local readiness check と CI workflow で補完します。
+
+### PR merge の安全境界
+
+この repository は、ラベルやPRコメントを起点に GitHub Actions の
+`GITHUB_TOKEN` で merge する workflow を持たない。branch protection が無い状態では、
+PR側から変更できるcheck名やworkflow定義をmerge許可の正本にできず、token起点のmergeは
+通常のpush workflowも起動しないためである。
+
+merge は人間が現在の head SHA とcheck結果を確認した後、GitHubの通常のmerge操作、または
+`gh pr merge --match-head-commit <head SHA>` を操作者自身の権限で実行する。head SHAが変わった
+場合は再レビューする。GitHub Actions の `GITHUB_TOKEN` で merge しない。
