@@ -103,15 +103,15 @@ lane、goal、evidence、gate、owner、done_when、人間目視レビュー後 
 personal absolute path、draft status、Git history author metadata、この保証 file、
 外部 review 失敗 field、GitHub Actions workflow contract を検証します。
 
-現在の plan では、この repository に GitHub branch protection と GitHub native secret scanning はありません。
-その代わりに、local readiness check と CI workflow で補完します。
+2026-08-28 の live API確認では、`main` の branch protection は
+`pr-body-hygiene` / `public-ready` の成功、管理者への適用、review conversation解決を必須とする。
+GitHub native secret scanning と push protection も有効である。設定の現行値は運用時に再実測する。
 
 ### PR merge の安全境界
 
 この repository は、ラベルやPRコメントを起点に GitHub Actions の
-`GITHUB_TOKEN` で merge する workflow を持たない。branch protection が無い状態では、
-PR側から変更できるcheck名やworkflow定義をmerge許可の正本にできず、token起点のmergeは
-通常のpush workflowも起動しないためである。
+`GITHUB_TOKEN` で merge する workflow を持たない。PR側から変更できるworkflow定義やcheck名は
+人間のmerge承認を代替せず、token起点のmergeは通常のpush workflowも起動しないためである。
 
 merge は人間が現在の head SHA とcheck結果を確認した後、GitHubの通常のmerge操作、または
 `gh pr merge --match-head-commit <head SHA>` を操作者自身の権限で実行する。head SHAが変わった
