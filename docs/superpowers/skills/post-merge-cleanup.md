@@ -27,12 +27,14 @@ python3 scripts/fde_operational_closeout.py --json --run-post-merge-cleanup
 
 ## Hard rules absorbed from incident 2026-07-18
 
-1. base ref は **resolvable ref** を使う。優先順:
-   - `refs/heads/main|master`
-   - `refs/remotes/origin/main|master`
+1. base ref は **resolvable ref** を使う。default branch 名は `origin/HEAD` から取り、次を選ぶ:
+   - local head（`refs/heads/<name>`）が存在し、remote tip より遅れてもいないとき → local
+   - remote tip（`refs/remotes/origin/<name>`）が local より厳密に先行しているとき → remote
+   - local が無い CI PR checkout → `origin/main` 等へ fallback
 2. GitHub Actions の PR checkout は local `main` が無いことが多い。`origin/main` へ fallback 必須。
 3. cleanup は JSON fail-closed。例外で pytest / MVP gate を落とさない。
-4. remote head 自動削除は GitHub `delete_branch_on_merge`（admin 設定）。script は local / tracking 掃除担当。
+4. squash 検出の `gh` probe は補助。欠落 / 未認証でも ancestry merge 検出を落とさない。
+5. remote head 自動削除は GitHub `delete_branch_on_merge`（admin 設定）。script は local / tracking 掃除担当。
 
 ## Done when
 

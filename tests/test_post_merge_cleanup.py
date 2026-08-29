@@ -230,7 +230,50 @@ def test_configured_remote_default_branch_precedes_main_guess(tmp_path: Path) ->
     _git(repo, "update-ref", "refs/remotes/origin/master", "master")
     _git(repo, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/master")
 
-    assert post_merge_cleanup._resolve_base_ref(repo) == "refs/remotes/origin/master"
+    # Default branch name comes from origin/HEAD; local head is preferred when
+    # it is not strictly behind the remote-tracking tip.
+    assert post_merge_cleanup._resolve_base_ref(repo) == "refs/heads/master"
+
+
+def test_local_default_branch_preferred_when_ahead_of_origin(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    _git(repo, "update-ref", "refs/remotes/origin/main", "main")
+    _git(repo, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
+    _git(repo, "checkout", "-b", "feature/local-ahead")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+    _git(repo, "merge", "--no-ff", "feature/local-ahead", "-m", "merge local")
+
+    assert post_merge_cleanup._resolve_base_ref(repo) == "refs/heads/main"
+
+    result = evaluate(apply=False, cwd=repo)
+
+    assert "feature/local-ahead" in result["residue"]["merged_local_branches"]
+    assert result["overall"] == "error"
+
+
+def test_remote_default_branch_used_when_strictly_ahead(tmp_path: Path) -> None:
+    bare = tmp_path / "origin.git"
+    bare.mkdir()
+    _git(bare, "init", "--bare")
+    seed_parent = tmp_path / "seed-parent"
+    seed_parent.mkdir()
+    seed = _init_repo(seed_parent)
+    _git(seed, "remote", "add", "origin", str(bare))
+    _git(seed, "push", "-u", "origin", "main")
+
+    local = tmp_path / "local"
+    _git(tmp_path, "clone", str(bare), str(local))
+    _git(local, "config", "user.email", "test@example.com")
+    _git(local, "config", "user.name", "Test")
+
+    _git(seed, "commit", "--allow-empty", "-m", "advance main")
+    _git(seed, "push", "origin", "main")
+    _git(local, "fetch", "origin")
+
+    assert post_merge_cleanup._resolve_base_ref(local) == "refs/remotes/origin/main"
 
 
 def test_checked_out_integrated_branch_is_reported_as_residue(tmp_path: Path) -> None:
@@ -282,6 +325,51 @@ def test_apply_fetches_before_recomputing_merged_branches(tmp_path: Path) -> Non
     assert _git(local, "branch", "--list", "feature/remote-merged") == ""
 
 
+def test_apply_deletes_against_fetched_base_when_upstream_gone(tmp_path: Path) -> None:
+    """After fetch --prune, local main may lag while origin/<feat> is gone."""
+    bare = tmp_path / "origin.git"
+    bare.mkdir()
+    _git(bare, "init", "--bare")
+    seed_parent = tmp_path / "seed-parent"
+    seed_parent.mkdir()
+    seed = _init_repo(seed_parent)
+    _git(seed, "remote", "add", "origin", str(bare))
+    _git(seed, "push", "-u", "origin", "main")
+    _git(seed, "checkout", "-b", "feature/pruned-upstream")
+    (seed / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(seed, "add", "feature.txt")
+    _git(seed, "commit", "-m", "feature")
+    _git(seed, "push", "-u", "origin", "feature/pruned-upstream")
+
+    local = tmp_path / "local"
+    _git(tmp_path, "clone", str(bare), str(local))
+    _git(local, "config", "user.email", "test@example.com")
+    _git(local, "config", "user.name", "Test")
+    _git(
+        local,
+        "checkout",
+        "-b",
+        "feature/pruned-upstream",
+        "origin/feature/pruned-upstream",
+    )
+    _git(local, "checkout", "main")
+
+    _git(seed, "checkout", "main")
+    _git(seed, "merge", "--no-ff", "feature/pruned-upstream", "-m", "merge")
+    _git(seed, "push", "origin", "main")
+    _git(seed, "push", "origin", "--delete", "feature/pruned-upstream")
+
+    result = evaluate(apply=True, cwd=local)
+
+    assert result["overall"] == "ok", result
+    assert any(
+        action.get("action") == "git branch -D feature/pruned-upstream"
+        and action.get("ok") is True
+        for action in result["actions"]
+    )
+    assert _git(local, "branch", "--list", "feature/pruned-upstream") == ""
+
+
 def test_squash_merged_pr_head_is_cleanup_residue(tmp_path: Path, monkeypatch) -> None:
     repo = _init_repo(tmp_path)
     _git(repo, "checkout", "-b", "feature/squashed")
@@ -296,7 +384,7 @@ def test_squash_merged_pr_head_is_cleanup_residue(tmp_path: Path, monkeypatch) -
     monkeypatch.setattr(
         post_merge_cleanup,
         "_merged_pr_heads",
-        lambda cwd, base_branch: {("feature/squashed", head)},
+        lambda cwd, base_branch, candidates=None: {("feature/squashed", head)},
     )
 
     result = evaluate(apply=False, cwd=repo)
@@ -354,16 +442,17 @@ def test_squash_probe_accepts_only_resolved_default_base(
 
     def fake_run(args, **kwargs):
         if args[:3] == ["gh", "pr", "list"]:
+            head = args[args.index("--head") + 1]
             return subprocess.CompletedProcess(
                 args,
                 0,
                 stdout=(
                     "["
-                    f'{{"headRefName":"feature/default","headRefOid":"{oid}",'
-                    '"baseRefName":"main"},'
-                    f'{{"headRefName":"feature/release","headRefOid":"{oid}",'
-                    '"baseRefName":"release"}'
+                    f'{{"headRefName":"{head}","headRefOid":"{oid}",'
+                    '"baseRefName":"main"}'
                     "]"
+                    if head == "feature/default"
+                    else "[]"
                 ),
                 stderr="",
             )
@@ -371,7 +460,14 @@ def test_squash_probe_accepts_only_resolved_default_base(
 
     monkeypatch.setattr(post_merge_cleanup, "_run", fake_run)
 
-    heads = post_merge_cleanup._merged_pr_heads(repo, "main")
+    heads = post_merge_cleanup._merged_pr_heads(
+        repo,
+        "main",
+        [
+            ("feature/default", oid),
+            ("feature/release", oid),
+        ],
+    )
 
     assert heads == {("feature/default", oid)}
 
@@ -389,6 +485,7 @@ def test_squash_probe_binds_query_to_verified_origin_repo(
     )
     observed: list[str] = []
     original_run = post_merge_cleanup._run
+    oid = "b" * 40
 
     def fake_run(args, **kwargs):
         if args[:3] == ["gh", "pr", "list"]:
@@ -398,7 +495,131 @@ def test_squash_probe_binds_query_to_verified_origin_repo(
 
     monkeypatch.setattr(post_merge_cleanup, "_run", fake_run)
 
-    assert post_merge_cleanup._merged_pr_heads(repo, "main") == set()
+    assert (
+        post_merge_cleanup._merged_pr_heads(
+            repo, "main", [("feature/candidate", oid)]
+        )
+        == set()
+    )
     assert observed[observed.index("--repo") + 1] == (
         "nexus-ai-2045/fractal-decision-ecosystem"
+    )
+    assert observed[observed.index("--head") + 1] == "feature/candidate"
+    assert "--limit" not in observed
+
+
+def test_unavailable_squash_probe_is_non_fatal(tmp_path: Path, monkeypatch) -> None:
+    repo = _init_repo(tmp_path)
+    _git(repo, "checkout", "-b", "feature/unmerged")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+    _git(
+        repo,
+        "remote",
+        "add",
+        "origin",
+        "https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git",
+    )
+    _git(repo, "update-ref", "refs/remotes/origin/main", "main")
+
+    original_run = post_merge_cleanup._run
+
+    def fake_run(args, **kwargs):
+        if args[:3] == ["gh", "pr", "list"]:
+            return subprocess.CompletedProcess(
+                args, 127, stdout="", stderr="command executable unavailable"
+            )
+        return original_run(args, **kwargs)
+
+    monkeypatch.setattr(post_merge_cleanup, "_run", fake_run)
+
+    result = evaluate(apply=False, cwd=repo)
+
+    assert result["overall"] == "ok", result
+    assert result["residue"]["merged_local_branches"] == []
+    assert result["residue"]["squash_merged_local_branches"] == []
+
+
+def test_squash_probe_queries_each_candidate_without_global_limit(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo = _init_repo(tmp_path)
+    _git(
+        repo,
+        "remote",
+        "add",
+        "origin",
+        "https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git",
+    )
+    oid_a = "a" * 40
+    oid_b = "b" * 40
+    seen_heads: list[str] = []
+    original_run = post_merge_cleanup._run
+
+    def fake_run(args, **kwargs):
+        if args[:3] == ["gh", "pr", "list"]:
+            assert "--limit" not in args
+            head = args[args.index("--head") + 1]
+            seen_heads.append(head)
+            oid = oid_a if head == "feature/a" else oid_b
+            return subprocess.CompletedProcess(
+                args,
+                0,
+                stdout=(
+                    f'[{{"headRefName":"{head}","headRefOid":"{oid}",'
+                    '"baseRefName":"main"}]'
+                ),
+                stderr="",
+            )
+        return original_run(args, **kwargs)
+
+    monkeypatch.setattr(post_merge_cleanup, "_run", fake_run)
+
+    heads = post_merge_cleanup._merged_pr_heads(
+        repo,
+        "main",
+        [("feature/a", oid_a), ("feature/b", oid_b)],
+    )
+
+    assert seen_heads == ["feature/a", "feature/b"]
+    assert heads == {("feature/a", oid_a), ("feature/b", oid_b)}
+
+
+def test_skipped_actions_do_not_count_as_external_on_error(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo = _init_repo(tmp_path)
+
+    def boom(*_args, **_kwargs):
+        raise RuntimeError("no resolvable base ref")
+
+    monkeypatch.setattr(post_merge_cleanup, "_resolve_base_ref", boom)
+
+    result = evaluate(apply=True, cwd=repo)
+
+    assert result["overall"] == "error"
+    assert result["actions"]
+    assert all(
+        str(action.get("detail") or "").startswith("skipped:")
+        for action in result["actions"]
+    )
+    assert result["external_actions_performed"] is False
+
+
+def test_github_repo_parse_tolerates_tokenized_https_remote(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    _git(
+        repo,
+        "remote",
+        "add",
+        "origin",
+        "https://x-access-token:ghs_exampletokenvalue1234567890@github.com/"
+        "nexus-ai-2045/fractal-decision-ecosystem.git",
+    )
+
+    assert (
+        post_merge_cleanup._github_repo_from_origin(repo)
+        == "nexus-ai-2045/fractal-decision-ecosystem"
     )

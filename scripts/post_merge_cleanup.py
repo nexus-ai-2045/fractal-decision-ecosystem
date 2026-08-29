@@ -120,29 +120,62 @@ def _ref_exists(cwd: Path, ref: str) -> bool:
     return result.returncode == 0
 
 
-def _resolve_base_ref(cwd: Path) -> str:
-    """Return a resolvable merge-base ref for CI and local checkouts.
+def _is_ancestor(cwd: Path, maybe_ancestor: str, maybe_descendant: str) -> bool:
+    result = _run(
+        ["git", "merge-base", "--is-ancestor", maybe_ancestor, maybe_descendant],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    return result.returncode == 0
 
-    GitHub Actions PR checkouts often have only the feature branch locally and
-    `origin/main` as a remote-tracking ref. Using bare `main` then makes
-    `git branch --merged main` fail with `malformed object name main`.
-    """
+
+def _default_branch_name(cwd: Path) -> str | None:
     symbolic = _git(
         ["symbolic-ref", "refs/remotes/origin/HEAD"],
         cwd=cwd,
         allow_failure=True,
     )
     if symbolic and _ref_exists(cwd, symbolic):
-        return symbolic
+        return _short_ref_name(symbolic)
+    for name in ("main", "master"):
+        if _ref_exists(cwd, f"refs/heads/{name}") or _ref_exists(
+            cwd, f"refs/remotes/origin/{name}"
+        ):
+            return name
+    return None
 
-    for candidate in (
-        "refs/remotes/origin/main",
-        "refs/remotes/origin/master",
-        "refs/heads/main",
-        "refs/heads/master",
-    ):
-        if _ref_exists(cwd, candidate):
-            return candidate
+
+def _resolve_base_ref(cwd: Path) -> str:
+    """Return a resolvable merge-base ref for CI and local checkouts.
+
+    Prefer the local default-branch head when it exists and is not behind its
+    remote-tracking tip. When the remote tip is strictly ahead (common after
+    `fetch --prune` while local main lags), use the remote tip so merge proof
+    matches the fetched base. GitHub Actions PR checkouts often lack local
+    main and must fall back to `refs/remotes/origin/main`.
+    """
+    name = _default_branch_name(cwd)
+    if name is None:
+        raise RuntimeError(
+            "no resolvable base ref "
+            "(tried local main/master and origin/main|master); "
+            "CI must checkout with fetch-depth that includes the base branch tip"
+        )
+
+    local_ref = f"refs/heads/{name}"
+    remote_ref = f"refs/remotes/origin/{name}"
+    local_ok = _ref_exists(cwd, local_ref)
+    remote_ok = _ref_exists(cwd, remote_ref)
+
+    if local_ok and remote_ok:
+        remote_ahead = _is_ancestor(cwd, local_ref, remote_ref) and not _is_ancestor(
+            cwd, remote_ref, local_ref
+        )
+        return remote_ref if remote_ahead else local_ref
+    if local_ok:
+        return local_ref
+    if remote_ok:
+        return remote_ref
 
     raise RuntimeError(
         "no resolvable base ref "
@@ -186,9 +219,17 @@ def _local_branches(cwd: Path) -> list[tuple[str, str]]:
 
 
 def _github_repo_from_origin(cwd: Path) -> str | None:
-    remote_url = _git(["remote", "get-url", "origin"], cwd=cwd, allow_failure=True)
+    # Prefer the stored remote URL so url.*.insteadOf rewrites (tokenized
+    # https remotes in managed agent environments) do not break owner/repo parse.
+    remote_url = _git(
+        ["config", "--local", "--get", "remote.origin.url"],
+        cwd=cwd,
+        allow_failure=True,
+    )
+    if not remote_url:
+        remote_url = _git(["remote", "get-url", "origin"], cwd=cwd, allow_failure=True)
     match = re.fullmatch(
-        r"(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
+        r"(?:https://(?:[^/\s]+@)?github\.com/|git@github\.com:|ssh://git@github\.com/)"
         r"([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?",
         remote_url,
     )
@@ -197,48 +238,78 @@ def _github_repo_from_origin(cwd: Path) -> str | None:
     return f"{match.group(1)}/{match.group(2)}"
 
 
-def _merged_pr_heads(cwd: Path, base_branch: str) -> set[tuple[str, str]]:
+def _merged_pr_heads(
+    cwd: Path,
+    base_branch: str,
+    candidates: list[tuple[str, str]] | None = None,
+) -> set[tuple[str, str]]:
+    """Return squash-merge evidence for local branch tips.
+
+    Queries each candidate head directly so evidence is not capped by a global
+    `--limit`. Missing `gh`, missing credentials, or probe errors are treated as
+    "no squash evidence" (empty set) so unauthenticated local/CI checks stay
+    usable; ancestry-merge detection remains authoritative without GitHub auth.
+    """
+    if not candidates:
+        return set()
     if "origin" not in _remote_names(cwd):
         return set()
     repo = _github_repo_from_origin(cwd)
     if repo is None:
         return set()
-    result = _run(
-        [
-            "gh",
-            "pr",
-            "list",
-            "--repo",
-            repo,
-            "--state",
-            "merged",
-            "--limit",
-            "1000",
-            "--json",
-            "headRefName,headRefOid,baseRefName",
-        ],
-        cwd=cwd,
-        allow_failure=True,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(_failure_summary("gh pr list --state merged", result))
-    try:
-        records = json.loads(result.stdout)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError("gh merged PR response was invalid JSON") from exc
+
     heads: set[tuple[str, str]] = set()
-    for record in records if isinstance(records, list) else []:
-        if not isinstance(record, dict):
+    for name, oid in candidates:
+        result = _run(
+            [
+                "gh",
+                "pr",
+                "list",
+                "--repo",
+                repo,
+                "--state",
+                "merged",
+                "--head",
+                name,
+                "--base",
+                base_branch,
+                "--json",
+                "headRefName,headRefOid,baseRefName",
+            ],
+            cwd=cwd,
+            allow_failure=True,
+        )
+        if result.returncode != 0:
+            # Unavailable probe must not fail an otherwise clean check.
             continue
-        name = record.get("headRefName")
-        oid = record.get("headRefOid")
-        if (
-            record.get("baseRefName") == base_branch
-            and isinstance(name, str)
-            and re.fullmatch(r"[0-9a-f]{40}", str(oid))
-        ):
-            heads.add((name, str(oid)))
+        try:
+            records = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            continue
+        for record in records if isinstance(records, list) else []:
+            if not isinstance(record, dict):
+                continue
+            record_name = record.get("headRefName")
+            record_oid = record.get("headRefOid")
+            if (
+                record.get("baseRefName") == base_branch
+                and record_name == name
+                and str(record_oid) == oid
+                and re.fullmatch(r"[0-9a-f]{40}", str(record_oid))
+            ):
+                heads.add((name, oid))
+                break
     return heads
+
+
+def _actions_were_performed(actions: list[dict[str, object]]) -> bool:
+    """True when a non-skipped mutating/probe action was recorded."""
+    for action in actions:
+        detail = action.get("detail")
+        if isinstance(detail, str) and detail.startswith("skipped:"):
+            continue
+        return True
+    return False
 
 
 def _merged_local_branches(cwd: Path, base_ref: str) -> tuple[list[str], set[str]]:
@@ -270,7 +341,9 @@ def _merged_local_branches(cwd: Path, base_ref: str) -> tuple[list[str], set[str
         and name != base_ref
         and not _is_protected(name)
     ]
-    merged_pr_heads = _merged_pr_heads(cwd, base_short) if candidates else set()
+    merged_pr_heads = (
+        _merged_pr_heads(cwd, base_short, candidates) if candidates else set()
+    )
     squash_merged = {name for name, oid in candidates if (name, oid) in merged_pr_heads}
     return sorted(ancestry_merged | squash_merged), squash_merged
 
@@ -351,7 +424,7 @@ def evaluate(*, apply: bool = False, cwd: Path | None = None) -> dict[str, objec
     except Exception as exc:  # fail-closed JSON, never crash closeout/CI
         return {
             "overall": "error",
-            "external_actions_performed": bool(actions),
+            "external_actions_performed": _actions_were_performed(actions),
             "apply": apply,
             "errors": [f"{type(exc).__name__}: {exc}"],
             "residue": {
@@ -426,23 +499,25 @@ def _evaluate_body(
                     f"switch to {base} before deleting checked-out merged branch: {branch}"
                 )
                 continue
-            delete_flag = "-D" if branch in squash_merged else "-d"
+            # Merge was already proven against base_ref (ancestry or exact squash
+            # head). `git branch -d` only checks HEAD/upstream, so after
+            # fetch --prune with a lagging local base and a gone upstream it
+            # refuses even when origin/<base> proof succeeded. Use -D with the
+            # established proof for both squash and ancestry-merged branches.
             delete = _run(
-                ["git", "branch", delete_flag, branch],
+                ["git", "branch", "-D", branch],
                 cwd=root,
                 allow_failure=True,
             )
             ok = delete.returncode == 0
             actions.append(
                 {
-                    "action": f"git branch {delete_flag} {branch}",
+                    "action": f"git branch -D {branch}",
                     "ok": ok,
                     "detail": (
                         None
                         if ok
-                        else _failure_summary(
-                            f"git branch {delete_flag} {branch}", delete
-                        )
+                        else _failure_summary(f"git branch -D {branch}", delete)
                     ),
                 }
             )
@@ -493,7 +568,7 @@ def _evaluate_body(
     overall = "ok" if not errors else "error"
     return {
         "overall": overall,
-        "external_actions_performed": bool(apply),
+        "external_actions_performed": _actions_were_performed(actions),
         "apply": apply,
         "base_branch": base,
         "base_ref": base_ref,
