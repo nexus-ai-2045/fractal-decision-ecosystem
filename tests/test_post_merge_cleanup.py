@@ -168,3 +168,55 @@ def test_receipt_detail_sanitizes_tokens_and_user_paths() -> None:
     assert ("C:" + "\\Users\\" + "<user>") in sanitized
     assert ("/" + "Users" + "/<user>") in sanitized
     assert ("/" + "home" + "/<user>") in sanitized
+
+
+def test_local_prune_survives_a_missing_gh_binary(tmp_path: Path, monkeypatch) -> None:
+    """gh が未インストールでも local prune は動くこと (ADR-0006)。
+
+    subprocess は実行ファイルが無いと returncode を返す前に FileNotFoundError を
+    投げる。allow_failure=True の呼び出し側はそれを握らないため、gh が無いだけで
+    evaluate() 全体が overall: error になり residue も空になっていた。
+    「gh はあるが失敗する」場合は soft-degrade するのに、「gh が無い」場合だけ
+    止まる、という非対称だった (2026-08-29 実測)。
+    """
+    repo = _init_repo(tmp_path)
+    _git(repo, "checkout", "-b", "cursor/feature-temp-9f21")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+    _git(repo, "merge", "--no-ff", "cursor/feature-temp-9f21", "-m", "merge feature")
+
+    # gh の呼び出しだけを「未インストール」にする (git は動かす)
+    real_run = subprocess.run
+
+    def without_gh(args, *a, **kw):
+        if args and args[0] == "gh":
+            raise FileNotFoundError(2, "No such file or directory", "gh")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(subprocess, "run", without_gh)
+
+    result = evaluate(apply=False, cwd=repo)
+
+    # gh の不在は soft-degrade であって、local 側の判定を止めない
+    assert result["github_delete_branch_on_merge"]["status"] == "unavailable"
+    assert "cursor/feature-temp-9f21" in result["residue"]["merged_local_branches"]
+    assert not any("FileNotFoundError" in e for e in result["errors"]), result["errors"]
+
+
+def test_missing_git_is_a_clear_error_not_a_raw_oserror(tmp_path: Path, monkeypatch) -> None:
+    """allow_failure=False 側は fail-closed のまま。ただし理由が読めること。"""
+    from scripts.post_merge_cleanup import _run
+
+    def no_git(args, *a, **kw):
+        raise FileNotFoundError(2, "No such file or directory", args[0])
+
+    monkeypatch.setattr(subprocess, "run", no_git)
+    try:
+        _run(["git", "status"], cwd=tmp_path)
+    except RuntimeError as exc:
+        assert "is not installed" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("missing git must raise")
+
