@@ -63,7 +63,20 @@ def _run(
     *,
     cwd: Path = ROOT,
     allow_failure: bool = False,
+    allow_missing: bool = False,
 ) -> subprocess.CompletedProcess[str]:
+    """外部コマンドを 1 回叩く。
+
+    `allow_failure` は「非ゼロ終了を許す」。`allow_missing` は「実行ファイルが
+    存在しないことを許す」。**別の軸なので分けてある。**
+
+    未インストールを `allow_failure` に相乗りさせると、`git` 側の
+    `allow_failure=True` 呼び出し (show-ref / branch --merged / remote prune) まで
+    黙って 127 を返すようになり、`git` が無いだけで「residue 無し・ok」という
+    fail-open になりうる。今は先に走る `allow_failure=False` の git 呼び出しが
+    止めてくれるが、それは呼び出し順序に依存した偶然でしかない。
+    `allow_missing` は `gh` の probe だけに付ける (2026-09-01 self review)。
+    """
     try:
         result = subprocess.run(
             args,
@@ -76,11 +89,10 @@ def _run(
         )
     except FileNotFoundError as exc:
         # 実行ファイルが無い場合、subprocess は returncode を返す前に例外を投げる。
-        # allow_failure=True の呼び出し側は「失敗しても soft-degrade する」意図なので、
-        # 未インストールもその経路へ寄せる。ここで例外を通すと、gh が無いだけで
-        # evaluate() 全体が overall: error になり、ADR-0006 が保証している
-        # 「GitHub 設定変更権限が無い agent でも local prune は実行できる」が破れる。
-        if not allow_failure:
+        # 素通りさせると、gh が無いだけで evaluate() 全体が overall: error になり、
+        # ADR-0006 が保証している「GitHub 設定変更権限が無い agent でも
+        # local prune は実行できる」が破れる。
+        if not allow_missing:
             raise RuntimeError(f"{args[0]} is not installed: {exc}") from exc
         # 127 は shell の「command not found」に合わせた慣例値
         return subprocess.CompletedProcess(args, 127, "", f"{args[0]}: not installed")
@@ -221,6 +233,7 @@ def _delete_branch_on_merge_setting() -> dict[str, object]:
             ".delete_branch_on_merge",
         ],
         allow_failure=True,
+        allow_missing=True,
     )
     if result.returncode != 0:
         return {

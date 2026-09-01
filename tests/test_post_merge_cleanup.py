@@ -206,7 +206,7 @@ def test_local_prune_survives_a_missing_gh_binary(tmp_path: Path, monkeypatch) -
 
 
 def test_missing_git_is_a_clear_error_not_a_raw_oserror(tmp_path: Path, monkeypatch) -> None:
-    """allow_failure=False 側は fail-closed のまま。ただし理由が読めること。"""
+    """未インストールは既定で fail-closed。ただし理由が読めること。"""
     from scripts.post_merge_cleanup import _run
 
     def no_git(args, *a, **kw):
@@ -219,4 +219,28 @@ def test_missing_git_is_a_clear_error_not_a_raw_oserror(tmp_path: Path, monkeypa
         assert "is not installed" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("missing git must raise")
+
+
+def test_allow_failure_alone_does_not_tolerate_a_missing_binary(tmp_path: Path, monkeypatch) -> None:
+    """未インストールの許容は allow_failure ではなく allow_missing の役目。
+
+    相乗りさせると git 側の allow_failure=True 呼び出しまで黙って 127 になり、
+    git が無いだけで「residue 無し・ok」という fail-open になりうる。
+    """
+    from scripts.post_merge_cleanup import _run
+
+    def nothing_installed(args, *a, **kw):
+        raise FileNotFoundError(2, "No such file or directory", args[0])
+
+    monkeypatch.setattr(subprocess, "run", nothing_installed)
+    try:
+        _run(["git", "branch", "--merged", "main"], cwd=tmp_path, allow_failure=True)
+    except RuntimeError as exc:
+        assert "is not installed" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("allow_failure alone must not tolerate a missing binary")
+
+    # allow_missing を明示した時だけ soft-degrade する
+    result = _run(["gh", "api"], cwd=tmp_path, allow_failure=True, allow_missing=True)
+    assert result.returncode == 127
 
