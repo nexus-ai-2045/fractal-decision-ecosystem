@@ -216,7 +216,7 @@ def test_missing_git_is_a_clear_error_not_a_raw_oserror(tmp_path: Path, monkeypa
     try:
         _run(["git", "status"], cwd=tmp_path)
     except RuntimeError as exc:
-        assert "is not installed" in str(exc)
+        assert "executable is not available" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("missing git must raise")
 
@@ -236,11 +236,33 @@ def test_allow_failure_alone_does_not_tolerate_a_missing_binary(tmp_path: Path, 
     try:
         _run(["git", "branch", "--merged", "main"], cwd=tmp_path, allow_failure=True)
     except RuntimeError as exc:
-        assert "is not installed" in str(exc)
+        assert "executable is not available" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("allow_failure alone must not tolerate a missing binary")
 
     # allow_missing を明示した時だけ soft-degrade する
     result = _run(["gh", "api"], cwd=tmp_path, allow_failure=True, allow_missing=True)
     assert result.returncode == 127
+
+
+def test_a_vanished_working_directory_is_not_mistaken_for_a_missing_binary(
+    tmp_path: Path,
+) -> None:
+    """cwd が消えた場合も FileNotFoundError になる。soft-degrade してはいけない。
+
+    区別しないと、対象 repository が消えていても検査が「何も無し」を返し、
+    overall: ok になりうる (2026-09-01 Codex review)。
+    """
+    from scripts.post_merge_cleanup import _run
+
+    gone = tmp_path / "gone"
+    gone.mkdir()
+    gone.rmdir()
+
+    try:
+        _run(["git", "status"], cwd=gone, allow_failure=True, allow_missing=True)
+    except RuntimeError as exc:
+        assert "working directory is not available" in str(exc), exc
+    else:  # pragma: no cover
+        raise AssertionError("a vanished cwd must raise even with allow_missing")
 

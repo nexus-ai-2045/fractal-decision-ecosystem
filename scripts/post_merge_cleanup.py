@@ -92,8 +92,15 @@ def _run(
         # 素通りさせると、gh が無いだけで evaluate() 全体が overall: error になり、
         # ADR-0006 が保証している「GitHub 設定変更権限が無い agent でも
         # local prune は実行できる」が破れる。
-        if not allow_missing:
-            raise RuntimeError(f"{args[0]} is not installed: {exc}") from exc
+        #
+        # ただし `cwd` が消えた場合も同じ FileNotFoundError になる。区別せずに
+        # soft-degrade すると、対象 repository が消えていても検査が「何も無し」を
+        # 返して overall: ok になりうる。`exc.filename` が実行ファイル名のときだけ
+        # 「未インストール」と見なす (2026-09-01 Codex review)。
+        missing_executable = exc.filename == args[0]
+        if not (allow_missing and missing_executable):
+            subject = "executable" if missing_executable else "working directory"
+            raise RuntimeError(f"{args[0]}: {subject} is not available: {exc}") from exc
         # 127 は shell の「command not found」に合わせた慣例値
         return subprocess.CompletedProcess(args, 127, "", f"{args[0]}: not installed")
     if result.returncode != 0 and not allow_failure:
