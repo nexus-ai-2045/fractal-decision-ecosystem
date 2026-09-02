@@ -32,6 +32,10 @@ EXTERNAL_AUTHORITIES = {
         "capability": "goal / decomposition / dispatch / check / act を回す shared skill",
         "resolution": "operator-local-adapter",
     },
+    "startup-boot-gate": {
+        "capability": "tier 契約を SessionStart で注入する warn-only boot gate",
+        "resolution": "operator-local-adapter",
+    },
 }
 
 PRIVATE_PATH_MARKERS = (
@@ -125,6 +129,19 @@ CHECKS = {
         "test_fde_workflow_manifest_is_machine_readable_without_external_action",
         "test_fde_architecture_drift_check_connects_docs_scripts_and_tests",
         "test_fde_operational_closeout_reports_residue_without_public_action",
+    ),
+    "schemas/fde_route_failure.v1.schema.json": (
+        "route_failure",
+        "x-definitions",
+    ),
+    "scripts/fde_route_failure_check.py": (
+        "fde_route_failure.v1.schema.json",
+        "unknown_usage",
+        "dead_entry",
+    ),
+    "tests/test_route_failure_registry.py": (
+        "fde_route_failure_check",
+        "test_route_failure_registry_matches_docs",
     ),
 }
 
