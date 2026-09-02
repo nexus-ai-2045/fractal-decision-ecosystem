@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.5.0...v0.5.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* gh未インストールでもlocal pruneを止めない ([#34](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/34)) ([d34ca15](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/d34ca152ab2f447d87e90e67d248200b0979c947))
+* 権限付きラベルマージ自動化を廃止 ([#30](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/30)) ([3c86054](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/3c860543b821e3b193fff468e6bc335897424879))
+
 ## [0.5.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.4.0...v0.5.0) (2026-08-07)
 
 
