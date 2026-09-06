@@ -3,7 +3,7 @@ title: FDE dependency registry
 type: registry
 status: active
 created: 2026-05-13
-updated_at: 2026-07-18
+updated_at: 2026-08-29
 owner: codex
 scope: fde-dependencies
 tags: [fde, dependency, registry, boundary, public]
@@ -94,6 +94,8 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | security-baseline | security baseline | absorbed → `SECURITY.md` / `ai-contact-safety-contract.md` | external-authority |
 | lane-communication | lane 間 packet の正本 | operator-local-adapter | external-authority |
 | runtime-boot | runtime 起動入口の正本 | operator-local-adapter | external-authority |
+| startup-boot-gate | tier 契約を SessionStart で注入する warn-only boot gate（canonical と runtime copy の SHA-256 drift 検査、skip 脱出口付き） | operator-local-adapter | external-authority |
+| fact-provenance | 毎turn事実来歴（segment marker / envelope / hash binding）の hook 実装と runtime drift 検査 | operator-local-adapter | external-authority |
 | codex-restart | Codex 起動・復帰 protocol | operator-local-adapter | external-authority |
 | official-capability | 新規機構前の公式機能 / 既存例確認 gate | absorbed → `README.md` capability_inventory | external-authority |
 | measurement-gate | 測定可能な claim の実測、shadow 観測、昇格判断 | operator-local-adapter | external-authority |

@@ -3,7 +3,7 @@ title: FDE 保証仕様
 type: brain
 status: active
 created: 2026-05-22
-updated: 2026-05-23
+updated: 2026-08-29
 owner: development
 scope: fde-guarantee-spec
 tags: [fde, guarantee, startup, output-mode, notification, state-ssot]
@@ -28,54 +28,91 @@ note: >
 
 ### 1.1 目的
 
-業務に入る前に必ず満たすべき条件を定義し、SessionStart hook が機械チェックできる形にする。
-Phase 1 の SessionStart hook がこの章を正本として実装する。
+業務に入る前にリスク tier を選び、通常作業へ Full 起動コストを漏らさず、
+高リスク作業だけを確実に Full boot へ上げる。SessionStart hook はこの章を
+`additionalContext` として注入し、保証 script が正本・runtime copy・出力契約の
+drift を検査する。
 
 ### 1.2 満たすべき前提条件（起動ゲート）
 
-以下の3条件を「起動ゲート」とする。すべてが `satisfied` になるまで業務命令への応答を保留し、警告を inject する。
+起動ゲートは tier ごとに分ける。Lite を Full の不足状態として扱わない。
 
-| 条件番号 | 条件名 | 満たす判定 | 未満足時の扱い |
-|---|---|---|---|
-| C-1 | FDE 3 file 読了 | セッション内で operating-card.md / dialogue-protocol.md / axis-registry.md の3件すべてを Read ツールで参照した | 警告 inject + 読了指示 |
-| C-2 | mode 宣言 | セッション出力に `mode:` フィールドが存在し、値が空でない | 警告 inject + mode 宣言要求 |
-| C-3 | closure_rule 宣言 | セッション出力に `closure_rule:` フィールドが存在し、`owner` / `next_state` / `target_file` が含まれる | 警告 inject + closure_rule 記入要求 |
+| 条件番号 | tier | 条件名 | 満たす判定 | ユーザー向け出力 |
+|---|---|---|---|---|
+| C-1 | 共通 | tier 選択 | Full trigger の有無を先に判定した | 通常は非表示 |
+| C-2L | Lite | operating card | `operating-card.md` を読み、4点 check と `mode` / `closure_rule` を内部保持した | YAML を出さず直接回答 |
+| C-2F | Full | FDE 3 file 読了 | operating-card / dialogue-protocol / axis-registry をすべて読んだ | boot check を表示 |
+| C-3F | Full | mode / closure 宣言 | `mode` と `owner / next_state / target_file` が空でない | 業務前に表示 |
+
+Full trigger は Type1 / 外部送信 / 公開 / 削除 / 課金 / auth / production / hook /
+settings / secrets / SSOT変更 / 複数lane・agent / 再発 / owner・source・closure・risk
+不明。該当しない日常会話・軽い調査・短い判断・単発小修正は Lite とする。
+
+Lite の内部判定をユーザーへ毎回表示することは `over_triage_visible` として検知対象にする。
+ただしユーザーが監査表示を求めた場合、route が曖昧な場合、または route failure 報告は例外。
 
 ### 1.3 機械チェック可能な述語
 
-hook / script が評価する述語を以下で定義する。各述語は「満たす / 満たさない」の二値で判定できること。
+SessionStart hook は会話 transcript や tool-use log を読まない warn-only injector である。
+したがって「実際に読んだ」「実際に宣言した」の判定を hook 単体の能力として記述しない。
+機械保証は静的契約・runtime drift・hook smoke を対象にし、turn 内遵守は runtime prompt
+とレビューで扱う。
 
-```
+> 棄却済み設計の記録: 旧 §1.3 の `C1_fde_files_read`（SessionStart hook が tool-use
+> ログを走査し Read 呼び出しと照合する）は、SessionStart 時点で当該セッションの
+> tool-use ログが存在しないため機械述語として成立しない。棄却済みであり再実装しない。
+> 本節を参照してこの再提案を却下する。
+
+```text
 startup_gate:
-  C1_fde_files_read:
-    target_files:
-      - operating-card.md
-      - dialogue-protocol.md
-      - axis-registry.md
-    satisfied: すべての target_file について、当セッションの tool-use ログに Read ツールの呼び出しが存在する
-    not_satisfied: 1 件以上が未参照
-    check_method: SessionStart hook が tool-use ログを走査し Read 呼び出し一覧と照合
-
-  C2_mode_declared:
-    satisfied: セッション内の assistant 出力テキストに "mode:" が含まれ、その値が空文字列でない
-    not_satisfied: "mode:" が存在しない、または値が空
-    check_method: SessionStart hook が出力バッファを正規表現 /^mode:\s*\S+/m で検索
-
-  C3_closure_rule_declared:
-    satisfied: セッション内の assistant 出力テキストに "closure_rule:" が含まれ、
-               "owner:" / "next_state:" / "target_file:" の3フィールドがすべて存在する
-    not_satisfied: closure_rule: が存在しない、またはフィールドが1件以上欠如
-    check_method: SessionStart hook が出力バッファを走査し closure_rule ブロックを解析
-
+  static_contract:
+    lite_default_present: 日常作業を Lite とする文言がある
+    lite_hidden_present: Lite は可視 YAML を出さず直接回答する文言がある
+    full_triggers_present: Full trigger 群が明記されている
+    full_boot_present: Full の 3 file と可視宣言が明記されている
+  runtime_drift:
+    canonical: fde-boot-gate.sh（dependency-registry:startup-boot-gate）
+    copies: 各 runtime（Claude / Codex）の hooks 配下へ配布した runtime copy
+    satisfied: すべての runtime copy が存在し、canonical と SHA-256 が一致
+  hook_smoke:
+    satisfied: exit 0 かつ valid JSON、additionalContext が static_contract を満たす
+    skip_satisfied: FDE_BOOT_GATE_SKIP=1 で exit 0 かつ stdout が空
   aggregate:
-    all_satisfied: C1 AND C2 AND C3 がすべて true
-    action_if_not_satisfied: 未充足の条件名を列挙した警告テキストを inject し、業務命令への実行を保留
-    action_if_satisfied: 業務命令への応答を許可
+    command: fde_boot_gate_guarantee --json（operator-local。物理 path は registry 経由で解決）
+    all_satisfied: static_contract AND runtime_drift AND hook_smoke
 ```
 
 ### 1.4 現状と移行方針
 
-現状 [事実: operating-card.md §0.0]: SessionStart hook による機械強制は「別 Type1 実装として分離予定」と明記されており、現時点では宣言ベース運用。本章は Phase 1 実装の目標仕様であり、Phase 1 が CEO GO を得て有効化されるまでは「参照仕様」として扱う。有効化前の hook / settings への書き込みは行わない。
+起動 hook は warn-only とし、hard block へ昇格しない。理由は、Lite の通常応答を
+誤停止させず、Full trigger を prompt route で上げるため。runtime copy の更新は
+Type1 として明示承認下でのみ行い、settings の登録変更は別承認境界に保つ。
+
+保証範囲は「正本とruntime hookが同じtier契約を注入する」まで。モデルが各turnで
+正しく分類したことの絶対保証ではない。誤分類は `over_triage_visible` または
+`full_trigger_missed` として記録し、再発時に trigger / detector を修復する。
+
+### 1.5 毎turn事実来歴保証
+
+実装 (hook / schema / sync script) は operator-local
+（`dependency-registry:fact-provenance`）。本節は契約の要点のみ公開する。
+
+repositoryの事実来歴SessionStart hookは非表示segment markerとenvelope契約をinjectし、
+Stop hookは全表示byteのcoverage、分類排他、metadata一致、本文全体hash binding、
+recorded metadata、session lifecycleを検証する。
+
+- envelope schema: `fact-provenance-envelope/v2`（v1 fallbackなし）
+- 保存schema: `fact-provenance/v2`
+- binding schema: `assistant-output-binding/v1`
+- 表示本文: fact labelを人間可読のまま保持する
+- 監査記録: `recorded_by` / `recorded_at`、segment hash・byte数、分類、`actor_kind` /
+  `event_time` / `scope_id`を0600のlocal JSONLへ保存し、raw本文やraw sourceは保存しない
+- stop条件: envelope欠落・複数・末尾以外・不正、marker外byte、segment metadata不一致、分類混在、
+  binding欠落、validator不在、startup marker不整合
+- live境界: `fact_provenance_install_sync.py --check --json`（operator-local。物理 path は
+  registry 経由で解決）のruntime driftが残る間はlive保証済みとしない
+- 非保証: 外部世界での真実性、意味分類の正しさ、source kindの真正性、Windows runtime互換、
+  host runtime再起動後の発火は個別証拠なしに昇格しない
 
 ---
 
@@ -388,11 +425,11 @@ SEND_PATH_GUARD_MODE=block bash ~/.claude/hooks/scripts/send-path-guard.sh
 
 | Phase | 参照する章 | Type1 要否 | 現在の状態 |
 |---|---|---|---|
-| Phase 1: 起動保証機械化 | §1 起動保証 | 要 (CEO GO 待ち) | 設計確定 / 有効化前 |
-| Phase 2: 出力モード定義・detector | §2 出力モード | 要 (CEO GO 待ち) | 設計確定 / 有効化前 |
+| Phase 1: 起動保証機械化 | §1 起動保証 | enforce 昇格は要 (CEO GO 待ち) | 検知レイヤー稼働中（`fde-boot-gate.sh` を SessionStart に登録済 / 宣言ベース・block しない）。enforce(block) 昇格のみ未 [事実: operator-local settings 2026-05-27] |
+| Phase 2: 出力モード定義・detector | §2 出力モード | enforce 昇格は要 (CEO GO 待ち) | 検知レイヤー稼働中（`cloud-code-output-gate.sh` 登録済 / `symbol-detector` は DRY_RUN=1）。enforce 昇格のみ未 [事実: operator-local settings 2026-05-27] |
 | Phase 3: 通知信頼性実装 | §3 通知保証 | 不要 | 実装可 |
 | Phase 4: cmux 状態 SSOT 原則確定 | §4 状態 SSOT | 要 (Codex-main review) | 設計確定 |
 | Phase 5: shared cmux 最適化 | §4 状態 SSOT（参考） | 不要（設計判断除く） | 未着手 |
-| Phase 6: 検索・再利用保証（MVP） | §5 検索・再利用保証 | 一部要（Class A 昇格） | Class B detector 実装済 |
+| Phase 6: 検索・再利用保証（MVP） | §5 検索・再利用保証 | 一部要（Class A 昇格） | Class B detector 実装済。Class A (#4 送信) は `send-path-guard.sh` warn 稼働中だが block 昇格は未達（Shadow 7/10件 + false-positive 1件 [git commit メッセージ文字列の誤検知] → grep 改善が昇格前提）[事実: operator-local ledger 2026-05-27] |
 
 
