@@ -193,12 +193,13 @@ def test_run_is_noninteractive_and_converts_missing_executable(monkeypatch) -> N
 
     def fake_run(*args, **kwargs):
         observed.update(kwargs)
-        raise FileNotFoundError("missing")
+        # 実行ファイル不在は filename が args[0] になる (cwd 消失と区別するため)
+        raise FileNotFoundError(2, "No such file or directory", "gh")
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
     result = post_merge_cleanup._run(
-        ["gh", "api", "repos/{owner}/{repo}"], allow_failure=True
+        ["gh", "api", "repos/{owner}/{repo}"], allow_failure=True, allow_missing=True
     )
 
     assert result.returncode == 127
@@ -414,7 +415,9 @@ def test_github_setting_query_uses_selected_cwd(tmp_path: Path, monkeypatch) -> 
     repo = _init_repo(tmp_path)
     observed: dict[str, Path] = {}
 
-    def fake_run(args, *, cwd=post_merge_cleanup.ROOT, allow_failure=False):
+    def fake_run(
+        args, *, cwd=post_merge_cleanup.ROOT, allow_failure=False, allow_missing=False
+    ):
         observed["cwd"] = cwd
         return subprocess.CompletedProcess(args, 0, stdout="true\n", stderr="")
 
@@ -623,3 +626,139 @@ def test_github_repo_parse_tolerates_tokenized_https_remote(tmp_path: Path) -> N
         post_merge_cleanup._github_repo_from_origin(repo)
         == "nexus-ai-2045/fractal-decision-ecosystem"
     )
+def test_local_prune_survives_a_missing_gh_binary(tmp_path: Path, monkeypatch) -> None:
+    """gh が未インストールでも local prune は動くこと (ADR-0006)。
+
+    subprocess は実行ファイルが無いと returncode を返す前に FileNotFoundError を
+    投げる。allow_failure=True の呼び出し側はそれを握らないため、gh が無いだけで
+    evaluate() 全体が overall: error になり residue も空になっていた。
+    「gh はあるが失敗する」場合は soft-degrade するのに、「gh が無い」場合だけ
+    止まる、という非対称だった (2026-08-29 実測)。
+    """
+    repo = _init_repo(tmp_path)
+    _git(repo, "checkout", "-b", "cursor/feature-temp-9f21")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+    _git(repo, "merge", "--no-ff", "cursor/feature-temp-9f21", "-m", "merge feature")
+
+    # gh の呼び出しだけを「未インストール」にする (git は動かす)
+    real_run = subprocess.run
+
+    def without_gh(args, *a, **kw):
+        if args and args[0] == "gh":
+            raise FileNotFoundError(2, "No such file or directory", "gh")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(subprocess, "run", without_gh)
+
+    result = evaluate(apply=False, cwd=repo)
+
+    # gh の不在は soft-degrade であって、local 側の判定を止めない
+    assert result["github_delete_branch_on_merge"]["status"] == "unavailable"
+    assert "cursor/feature-temp-9f21" in result["residue"]["merged_local_branches"]
+    assert not any("FileNotFoundError" in e for e in result["errors"]), result["errors"]
+
+
+def test_squash_probe_survives_a_missing_gh_binary(tmp_path: Path, monkeypatch) -> None:
+    """gh が無くても squash 判定は「証拠なし」に倒れ、check 全体は ok のままであること。
+
+    ancestry-merge されていない local branch があると squash probe が gh を叩く。
+    そこは `_merged_pr_heads` の docstring どおり「gh 不在は空集合」でなければ
+    ならないが、`allow_missing` を付け忘れると gh が無いだけで overall: error に
+    なる。`test_local_prune_survives_a_missing_gh_binary` は merged branch しか
+    置かないため、この経路を通らない (2026-09-05 実測)。
+    """
+    repo = _init_repo(tmp_path)
+    bare = tmp_path / "origin.git"
+    bare.mkdir()
+    _git(bare, "init", "--bare")
+    # 保存 URL は github.com 風、実体は local bare (url.insteadOf で書き換え)
+    _git(repo, "remote", "add", "origin", "https://github.com/example/repo.git")
+    _git(repo, "config", f"url.{bare}.insteadOf", "https://github.com/example/repo.git")
+    _git(repo, "push", "-u", "origin", "main")
+
+    _git(repo, "checkout", "-b", "feature/not-yet-merged")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+
+    real_run = subprocess.run
+
+    def without_gh(args, *a, **kw):
+        if args and args[0] == "gh":
+            raise FileNotFoundError(2, "No such file or directory", "gh")
+        return real_run(args, *a, **kw)
+
+    monkeypatch.setattr(subprocess, "run", without_gh)
+
+    result = evaluate(apply=False, cwd=repo)
+
+    assert result["overall"] == "ok", result
+    assert result["github_delete_branch_on_merge"]["status"] == "unavailable"
+    assert result["residue"]["squash_merged_local_branches"] == []
+    assert not any("gh" in e for e in result["errors"]), result["errors"]
+
+
+def test_missing_git_is_a_clear_error_not_a_raw_oserror(tmp_path: Path, monkeypatch) -> None:
+    """未インストールは既定で fail-closed。ただし理由が読めること。"""
+    from scripts.post_merge_cleanup import _run
+
+    def no_git(args, *a, **kw):
+        raise FileNotFoundError(2, "No such file or directory", args[0])
+
+    monkeypatch.setattr(subprocess, "run", no_git)
+    try:
+        _run(["git", "status"], cwd=tmp_path)
+    except RuntimeError as exc:
+        assert "executable is not available" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("missing git must raise")
+
+
+def test_allow_failure_alone_does_not_tolerate_a_missing_binary(tmp_path: Path, monkeypatch) -> None:
+    """未インストールの許容は allow_failure ではなく allow_missing の役目。
+
+    相乗りさせると git 側の allow_failure=True 呼び出しまで黙って 127 になり、
+    git が無いだけで「residue 無し・ok」という fail-open になりうる。
+    """
+    from scripts.post_merge_cleanup import _run
+
+    def nothing_installed(args, *a, **kw):
+        raise FileNotFoundError(2, "No such file or directory", args[0])
+
+    monkeypatch.setattr(subprocess, "run", nothing_installed)
+    try:
+        _run(["git", "branch", "--merged", "main"], cwd=tmp_path, allow_failure=True)
+    except RuntimeError as exc:
+        assert "executable is not available" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("allow_failure alone must not tolerate a missing binary")
+
+    # allow_missing を明示した時だけ soft-degrade する
+    result = _run(["gh", "api"], cwd=tmp_path, allow_failure=True, allow_missing=True)
+    assert result.returncode == 127
+
+
+def test_a_vanished_working_directory_is_not_mistaken_for_a_missing_binary(
+    tmp_path: Path,
+) -> None:
+    """cwd が消えた場合も FileNotFoundError になる。soft-degrade してはいけない。
+
+    区別しないと、対象 repository が消えていても検査が「何も無し」を返し、
+    overall: ok になりうる (2026-09-01 Codex review)。
+    """
+    from scripts.post_merge_cleanup import _run
+
+    gone = tmp_path / "gone"
+    gone.mkdir()
+    gone.rmdir()
+
+    try:
+        _run(["git", "status"], cwd=gone, allow_failure=True, allow_missing=True)
+    except RuntimeError as exc:
+        assert "working directory is not available" in str(exc), exc
+    else:  # pragma: no cover
+        raise AssertionError("a vanished cwd must raise even with allow_missing")
