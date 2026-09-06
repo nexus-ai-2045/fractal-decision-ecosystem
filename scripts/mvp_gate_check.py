@@ -19,6 +19,7 @@ from scripts.pre_publication_gate_check import evaluate as evaluate_pre_publicat
 from scripts.public_ready_check import main as public_ready_main
 from scripts.roadmap_gate_check import evaluate as evaluate_roadmap
 from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_architecture_drift
+from scripts.fde_route_failure_check import evaluate as evaluate_fde_route_failure
 from scripts.fde_workflow_check import evaluate as evaluate_fde_workflow
 from scripts.residual_zero_goal_check import evaluate as evaluate_residual_zero_goal
 from scripts.no_transport_contact_check import evaluate as evaluate_no_transport_contact
@@ -60,6 +61,9 @@ REQUIRED_TRACKED_FILES = (
     "schemas/fde_feedback_packet.v1.schema.json",
     "schemas/fde_contact_packet.v1.schema.json",
     "schemas/fde_team_plan.v1.schema.json",
+    "schemas/fde_route_failure.v1.schema.json",
+    "scripts/fde_route_failure_check.py",
+    "tests/test_route_failure_registry.py",
     "tests/test_contact_packet.py",
     "tests/test_team_plan.py",
     "ROADMAP.md",
@@ -124,6 +128,16 @@ def _run_fde_architecture_drift() -> dict[str, object]:
     ok = result["overall"] == "ok" and result["external_actions_performed"] is False
     return {
         "name": "fde_architecture_drift_check",
+        "ok": ok,
+        "result": result,
+    }
+
+
+def _run_fde_route_failure_registry() -> dict[str, object]:
+    result = evaluate_fde_route_failure()
+    ok = result["overall"] == "ok" and result["external_actions_performed"] is False
+    return {
+        "name": "fde_route_failure_check",
         "ok": ok,
         "result": result,
     }
@@ -255,6 +269,7 @@ def evaluate(run_pytest: bool = True) -> dict[str, object]:
         _run_roadmap(),
         _run_fde_workflow(),
         _run_fde_architecture_drift(),
+        _run_fde_route_failure_registry(),
         _run_residual_zero_goal(),
         _run_no_transport_contact(),
         _run_residual_zero_contract(),
