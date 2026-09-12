@@ -349,8 +349,20 @@ def _actions_were_performed(actions: list[dict[str, object]]) -> bool:
 
 
 def _merged_local_branches(cwd: Path, base_ref: str) -> tuple[list[str], set[str]]:
+    # `git branch --merged` は --format を付けても detached HEAD を
+    # "(HEAD detached at ...)" という擬似行として出す。それを branch 名として
+    # 扱うと residue に載り、--apply が存在しない branch を削除しようとする
+    # (2026-09-11 実測)。実 ref だけを列挙する for-each-ref に揃える。
+    # _local_branches と同じ道具なので、両者の名前空間も一致する。
     result = _run(
-        ["git", "branch", "--format=%(refname:short)", "--merged", base_ref],
+        [
+            "git",
+            "for-each-ref",
+            "--format=%(refname:short)",
+            "--merged",
+            base_ref,
+            "refs/heads/",
+        ],
         cwd=cwd,
         allow_failure=True,
     )

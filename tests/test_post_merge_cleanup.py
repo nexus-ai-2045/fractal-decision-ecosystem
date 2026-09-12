@@ -762,3 +762,32 @@ def test_a_vanished_working_directory_is_not_mistaken_for_a_missing_binary(
         assert "working directory is not available" in str(exc), exc
     else:  # pragma: no cover
         raise AssertionError("a vanished cwd must raise even with allow_missing")
+
+
+def test_detached_head_is_not_reported_as_a_merged_branch(tmp_path: Path) -> None:
+    """detached HEAD の擬似行を branch 名として拾わないこと。
+
+    `git branch --merged` は --format を付けても detached HEAD を
+    "(HEAD detached at ...)" という擬似行として出す。これを branch 名として
+    扱うと residue に載り、overall: error になったうえ --apply が存在しない
+    branch を削除しようとする (2026-09-11 実測: engineering-brain の
+    detached HEAD で発生)。
+
+    実 branch だけを列挙する for-each-ref に揃えることで塞ぐ。
+    """
+    repo = _init_repo(tmp_path)
+    _git(repo, "checkout", "-b", "feature/merged-and-gone")
+    (repo / "feature.txt").write_text("x\n", encoding="utf-8")
+    _git(repo, "add", "feature.txt")
+    _git(repo, "commit", "-m", "feature")
+    _git(repo, "checkout", "main")
+    _git(repo, "merge", "--no-ff", "feature/merged-and-gone", "-m", "merge feature")
+    # HEAD を detach する
+    head = _git(repo, "rev-parse", "HEAD")
+    _git(repo, "checkout", "--detach", head)
+
+    result = evaluate(apply=False, cwd=repo)
+
+    merged = result["residue"]["merged_local_branches"]
+    assert not any("detached" in name for name in merged), merged
+    assert "feature/merged-and-gone" in merged, merged
