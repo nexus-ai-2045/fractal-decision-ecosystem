@@ -698,6 +698,18 @@ def evaluate(
     }
     receipt_contract_errors: list[str] = []
     for field in ("evidence", "rollback_path", "adoption_gate", "updated_artifact"):
+        # updated_artifact は残渣あり・公開作業なしのとき空listになり得る。
+        # falsy判定だと必須field欠落と誤認するため、欠如/Noneだけを落とす。
+        if field == "updated_artifact":
+            if "updated_artifact" not in feedback_receipt or feedback_receipt["updated_artifact"] is None:
+                receipt_contract_errors.append(
+                    f"feedback receipt missing required field: {field}"
+                )
+            elif not isinstance(feedback_receipt["updated_artifact"], list):
+                receipt_contract_errors.append(
+                    "feedback receipt updated_artifact must be a list"
+                )
+            continue
         if not feedback_receipt.get(field):
             receipt_contract_errors.append(f"feedback receipt missing required field: {field}")
     target_is_valid = (
