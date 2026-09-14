@@ -19,3 +19,9 @@ FDE の repo-local ADR 置き場。
 | [ADR-0004-team-formation-orchestration-gate.md](ADR-0004-team-formation-orchestration-gate.md) | Team Formation / Orchestration Gate | 意思決定に必要なteam creator、delegate配役、return contract、adoption gate |
 | [ADR-0005-public-env-independent-pointers.md](ADR-0005-public-env-independent-pointers.md) | Public package の pointer 環境非依存化 | capability key / absorbed / operator-local-adapter。物理 path 非掲載 |
 | [ADR-0006-post-merge-cleanup-closeout.md](ADR-0006-post-merge-cleanup-closeout.md) | Post-merge cleanup を closeout 実行へ蒸留 | skill ではなく `scripts/post_merge_cleanup.py` が実行正本 |
+
+## 提案中ADR
+
+| ADR | 決定 | レビュー観点 |
+|---|---|---|
+| [ADR-0007-activity-evidence-consumer-contract.md](ADR-0007-activity-evidence-consumer-contract.md) | 本文を持たないActivity Evidence受領契約 | DB/FDE責務境界、private既定、validationと真実性の分離 |
