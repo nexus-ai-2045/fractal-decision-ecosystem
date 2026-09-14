@@ -1,6 +1,6 @@
 # ADR-0007: Activity Evidence consumer契約
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-08-10
 
 ## Context
@@ -22,4 +22,6 @@ validator成功はcontract適合だけを示す。真実性、本人性、同意
 
 ## Human review gate
 
-このADRは提案中である。PR review前に採用済みへ変更せず、merge、release、公開告知も別承認とする。
+人間承認はGitHubのレビュー状態を正本にせず、対象treeに結び付いた署名receiptで検証する。FDEが採用する公開鍵は `keys/fde-human-review-nexus_ai.pub`（指紋 `SHA256:lnzqUQWKfJisG+fpkiwNj0Sx/oJnFDOYo27MPmnn/WU`）である。秘密鍵はリポジトリへ保存しない。署名、対象tree、receipt hashのいずれかが検証できない場合は `unknown` とし、自動採用しない。
+
+このADRの採用は、外部送信、公開、release、mergeの追加承認を意味しない。
