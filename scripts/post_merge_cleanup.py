@@ -433,29 +433,39 @@ def _pruneable_worktrees(cwd: Path) -> list[str]:
     return pruneable
 
 
+def _is_caller_worktree(worktree_path: Path, caller: Path) -> bool:
+    """True when worktree_path is the checkout that invoked this script (cwd)."""
+    try:
+        return worktree_path.resolve() == caller.resolve()
+    except OSError:
+        return worktree_path == caller
+
+
 def _worktree_held_branches(cwd: Path) -> dict[str, str]:
-    """Return {branch: worktree directory name} for linked worktrees.
+    """Return {branch: worktree directory name} for other worktrees.
 
     `git branch -D` は linked worktree が checkout 中の branch を必ず拒否する。
     このスクリプトは worktree を撤去しない (撤去判断は worktree-lifecycle-control
-    の責務) ので、掴まれた branch は削除を試さず別枠で報告する。primary worktree
-    は `checked_out_merged_branch` が既に扱うため含めない。receipt に個人 path を
-    残さないよう、値は directory 名だけにする。
+    の責務) ので、掴まれた branch は削除を試さず別枠で報告する。呼び出し元の
+    worktree (cwd と path が一致するレコード) は `checked_out_merged_branch` が既に
+    扱うため含めない。`git worktree list` は常に main worktree を先頭に出すので、
+    先頭レコード除外では linked worktree から実行したときに誤る。receipt に個人
+    path を残さないよう、値は directory 名だけにする。
     """
     result = _run(["git", "worktree", "list", "--porcelain"], cwd=cwd, allow_failure=True)
     if result.returncode != 0:
         raise RuntimeError(_failure_summary("git worktree list --porcelain", result))
     held: dict[str, str] = {}
     current_path: str | None = None
-    is_primary = True
     for line in result.stdout.splitlines() + [""]:
         if line.startswith("worktree "):
             current_path = line[len("worktree ") :].strip()
-        elif line.startswith("branch refs/heads/") and current_path and not is_primary:
-            held[line[len("branch refs/heads/") :].strip()] = Path(current_path).name
+        elif line.startswith("branch refs/heads/") and current_path:
+            worktree_path = Path(current_path)
+            if _is_caller_worktree(worktree_path, cwd):
+                continue
+            held[line[len("branch refs/heads/") :].strip()] = worktree_path.name
         elif not line.strip():
-            if current_path is not None:
-                is_primary = False
             current_path = None
     return held
 

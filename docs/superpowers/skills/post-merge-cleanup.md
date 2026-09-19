@@ -40,6 +40,8 @@ python3 scripts/fde_operational_closeout.py --json --run-post-merge-cleanup
 
 6. linked worktree が checkout 中の merge 済み branch は `git branch -D` が必ず拒否する。script は削除を
    試さず `residue.worktree_held_merged_branches`（branch と worktree の directory 名）へ出す。
+   呼び出し元 worktree（cwd と path が一致するレコード）は既存の `checked_out_merged_branch`
+   が扱うため対象外。先頭レコード除外では linked worktree から実行したときに誤る。
    worktree の撤去はこの script の責務ではない。撤去可否は `worktree-lifecycle-control` の
    `scan` / `review-packet` で判定し、人間確認の後に撤去してから `--apply` を再実行する。
    掴まれた branch が残る間は `overall: error` のまま（残務を ok と偽らない）。
@@ -55,3 +57,4 @@ python3 scripts/fde_operational_closeout.py --json --run-post-merge-cleanup
 
 - `tests/test_post_merge_cleanup.py::test_ci_checkout_without_local_main_uses_origin_main`
 - `tests/test_post_merge_cleanup.py::test_branch_held_by_linked_worktree_is_reported_separately`
+- `tests/test_post_merge_cleanup.py::test_caller_linked_worktree_excludes_cwd_not_first_list_record`
