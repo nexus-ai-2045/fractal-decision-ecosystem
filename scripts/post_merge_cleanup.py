@@ -433,6 +433,43 @@ def _pruneable_worktrees(cwd: Path) -> list[str]:
     return pruneable
 
 
+def _is_caller_worktree(worktree_path: Path, caller: Path) -> bool:
+    """True when worktree_path is the checkout that invoked this script (cwd)."""
+    try:
+        return worktree_path.resolve() == caller.resolve()
+    except OSError:
+        return worktree_path == caller
+
+
+def _worktree_held_branches(cwd: Path) -> dict[str, str]:
+    """Return {branch: worktree directory name} for other worktrees.
+
+    `git branch -D` は linked worktree が checkout 中の branch を必ず拒否する。
+    このスクリプトは worktree を撤去しない (撤去判断は worktree-lifecycle-control
+    の責務) ので、掴まれた branch は削除を試さず別枠で報告する。呼び出し元の
+    worktree (cwd と path が一致するレコード) は `checked_out_merged_branch` が既に
+    扱うため含めない。`git worktree list` は常に main worktree を先頭に出すので、
+    先頭レコード除外では linked worktree から実行したときに誤る。receipt に個人
+    path を残さないよう、値は directory 名だけにする。
+    """
+    result = _run(["git", "worktree", "list", "--porcelain"], cwd=cwd, allow_failure=True)
+    if result.returncode != 0:
+        raise RuntimeError(_failure_summary("git worktree list --porcelain", result))
+    held: dict[str, str] = {}
+    current_path: str | None = None
+    for line in result.stdout.splitlines() + [""]:
+        if line.startswith("worktree "):
+            current_path = line[len("worktree ") :].strip()
+        elif line.startswith("branch refs/heads/") and current_path:
+            worktree_path = Path(current_path)
+            if _is_caller_worktree(worktree_path, cwd):
+                continue
+            held[line[len("branch refs/heads/") :].strip()] = worktree_path.name
+        elif not line.strip():
+            current_path = None
+    return held
+
+
 def _delete_branch_on_merge_setting(cwd: Path) -> dict[str, object]:
     result = _run(
         [
@@ -478,6 +515,7 @@ def evaluate(*, apply: bool = False, cwd: Path | None = None) -> dict[str, objec
             "errors": [f"{type(exc).__name__}: {exc}"],
             "residue": {
                 "merged_local_branches": [],
+                "worktree_held_merged_branches": [],
                 "squash_merged_local_branches": [],
                 "stale_remote_refs": [],
                 "pruneable_worktrees": [],
@@ -540,6 +578,12 @@ def _evaluate_body(
     pruneable = _pruneable_worktrees(root)
     github_setting = _delete_branch_on_merge_setting(root)
     checked_out_merged_branch = current if current in merged else None
+    held_by_worktree = _worktree_held_branches(root)
+    worktree_held = [
+        {"branch": branch, "worktree": held_by_worktree[branch]}
+        for branch in merged
+        if branch in held_by_worktree
+    ]
 
     if apply:
         for branch in list(merged):
@@ -547,6 +591,9 @@ def _evaluate_body(
                 errors.append(
                     f"switch to {base} before deleting checked-out merged branch: {branch}"
                 )
+                continue
+            if branch in held_by_worktree:
+                # 必ず失敗する削除を試して「failed to delete」を毎回積まない。
                 continue
             # Merge was already proven against base_ref (ancestry or exact squash
             # head). `git branch -d` only checks HEAD/upstream, so after
@@ -599,8 +646,16 @@ def _evaluate_body(
             f"{checked_out_merged_branch}"
         )
 
+    for item in worktree_held:
+        errors.append(
+            f"merged branch is held by linked worktree {item['worktree']}: "
+            f"{item['branch']} (remove the worktree first; this script never "
+            "removes worktrees)"
+        )
+
     residue = {
         "merged_local_branches": merged,
+        "worktree_held_merged_branches": worktree_held,
         "squash_merged_local_branches": sorted(squash_merged),
         "stale_remote_refs": stale,
         "pruneable_worktrees": pruneable,
@@ -658,6 +713,10 @@ def main() -> int:
         print(f"POST-MERGE CLEANUP {mode} {result['overall'].upper()}")
         residue = result["residue"]
         print(f"merged_local_branches: {residue['merged_local_branches']}")
+        print(
+            "worktree_held_merged_branches: "
+            f"{residue['worktree_held_merged_branches']}"
+        )
         print(f"stale_remote_refs: {residue['stale_remote_refs']}")
         print(f"pruneable_worktrees: {residue['pruneable_worktrees']}")
         setting = result["github_delete_branch_on_merge"]
