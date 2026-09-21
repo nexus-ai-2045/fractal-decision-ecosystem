@@ -791,3 +791,85 @@ def test_detached_head_is_not_reported_as_a_merged_branch(tmp_path: Path) -> Non
     merged = result["residue"]["merged_local_branches"]
     assert not any("detached" in name for name in merged), merged
     assert "feature/merged-and-gone" in merged, merged
+
+
+def test_branch_held_by_linked_worktree_is_reported_separately(tmp_path: Path) -> None:
+    # 2026-09-19 実測: nexus_ai で merge 済み 16 本中 9 本を linked worktree が
+    # 掴んでいた。このスクリプトは worktree を撤去しないので、`git branch -D` は
+    # 必ず失敗し、--apply を何度回しても同じ error が残り続けた。
+    repo = _init_repo(tmp_path)
+    _git(repo, "branch", "held")
+    _git(repo, "branch", "free")
+    _git(repo, "worktree", "add", str(tmp_path / "wt-held"), "held")
+
+    check = evaluate(apply=False, cwd=repo)
+
+    assert check["residue"]["worktree_held_merged_branches"] == [
+        {"branch": "held", "worktree": "wt-held"}
+    ]
+    assert "held" in check["residue"]["merged_local_branches"]
+
+    result = evaluate(apply=True, cwd=repo)
+
+    # 消せるものは消す。掴まれているものは試さずに、理由付きで残す。
+    assert _git(repo, "branch", "--list", "free") == ""
+    assert _git(repo, "branch", "--list", "held")
+    assert not any(a["action"] == "git branch -D held" for a in result["actions"])
+    assert "failed to delete merged local branch: held" not in result["errors"]
+    assert any("linked worktree" in e and "held" in e for e in result["errors"])
+    # 残務は残務。ok と偽らない。
+    assert result["overall"] == "error"
+    assert result["residue"]["worktree_held_merged_branches"] == [
+        {"branch": "held", "worktree": "wt-held"}
+    ]
+
+
+def test_caller_linked_worktree_excludes_cwd_not_first_list_record(
+    tmp_path: Path,
+) -> None:
+    # Codex P2: `git worktree list --porcelain` は常に main worktree を先頭に出す。
+    # linked worktree から実行したとき先頭除外だと、main が掴む merge 済み branch が
+    # held から抜けて `git branch -D` を試し、呼び出し側 branch は checked-out と
+    # linked-worktree の二重報告になる。除外は cwd path 一致で判定する。
+    repo = _init_repo(tmp_path)
+    _git(repo, "branch", "held-in-main")
+    _git(repo, "branch", "free")
+    _git(repo, "branch", "caller")
+    linked = tmp_path / "wt-caller"
+    _git(repo, "worktree", "add", str(linked), "caller")
+    _git(repo, "checkout", "held-in-main")
+
+    check = evaluate(apply=False, cwd=linked)
+
+    assert check["current_branch"] == "caller"
+    assert check["residue"]["checked_out_merged_branch"] == "caller"
+    assert check["residue"]["worktree_held_merged_branches"] == [
+        {"branch": "held-in-main", "worktree": "repo"}
+    ]
+    # 呼び出し元の linked worktree 自身は held に入れない。
+    assert not any(
+        entry["branch"] == "caller"
+        for entry in check["residue"]["worktree_held_merged_branches"]
+    )
+
+    result = evaluate(apply=True, cwd=linked)
+
+    assert _git(repo, "branch", "--list", "free") == ""
+    assert _git(repo, "branch", "--list", "held-in-main")
+    assert _git(repo, "branch", "--list", "caller")
+    assert not any(
+        a["action"] == "git branch -D held-in-main" for a in result["actions"]
+    )
+    assert "failed to delete merged local branch: held-in-main" not in result["errors"]
+    assert any(
+        "linked worktree" in e and "held-in-main" in e for e in result["errors"]
+    )
+    assert any(
+        "switch to" in e and "caller" in e for e in result["errors"]
+    )
+    # 呼び出し元 branch に linked-worktree 報告を二重に積まない。
+    assert not any("linked worktree" in e and "caller" in e for e in result["errors"])
+    assert result["overall"] == "error"
+    assert result["residue"]["worktree_held_merged_branches"] == [
+        {"branch": "held-in-main", "worktree": "repo"}
+    ]
