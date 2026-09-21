@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.6.0...v0.7.0) (2026-09-21)
+
+
+### Features
+
+* Activity Evidence受領契約を追加 ([#38](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/38)) ([631fdbb](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/631fdbb65d44f67b61a713c0f34226a0015ebc3f))
+
+
+### Bug Fixes
+
+* linked worktree が掴む merge 済み branch を別枠で報告する ([#41](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/41)) ([cc33008](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/cc330081e392928d15b6568d5bd8fc85ca1ca371))
+
 ## [0.6.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.5.0...v0.6.0) (2026-09-12)
 
 
