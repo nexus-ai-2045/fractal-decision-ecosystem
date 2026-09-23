@@ -115,6 +115,9 @@ CHECKS = {
     "dependency-registry.md": (
         "startup-boot-gate",
         "fact-provenance",
+        "ADR-0006-fact-output-enforcement.md",
+        "dependency-registry:fact-gate",
+        "not_enforced",
         "measurement-gate",
         "operational-command-smoke",
         "runtime-guarantee-matrix",
