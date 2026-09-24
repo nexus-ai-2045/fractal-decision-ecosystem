@@ -76,6 +76,8 @@ Token rule: FDE / local notes は全文再読しない。まずこの card + sou
 - `完了` / `送信済み` / `レビュー済み` / `採用` は、対応する evidence と fact label がない場合は言わない。
 - fact tag を忘れた応答は `route_failure: fact_output_gate_missed` として扱い、次 turn で運用ミスではなく entry route の穴として修復する。
 
+機械検証との責務分担は `dependency-registry.md`（`fact-gate` / `ai-ratchet-gate`）を、runtime の保証条件は `guarantee-spec.md`（§1.5 live 境界）と `dependency-registry:runtime-guarantee-matrix` を参照する。表示前接続が未検証の runtime は強制済みと扱わない。
+
 ```text
 fact_output_gate:
 - fact_label: [事実: source] | [推測] | [不明]
