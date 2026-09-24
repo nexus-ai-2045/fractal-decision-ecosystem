@@ -50,6 +50,11 @@ EXTERNAL_AUTHORITIES = {
         "resolution": "operator-local-adapter",
         "mode": "external-authority",
     },
+    "ai-ratchet-gate": {
+        "capability": "structured claim/source の汎用検証契約",
+        "resolution": "operator-local-adapter",
+        "mode": "external-authority",
+    },
 }
 
 PRIVATE_PATH_MARKERS = (
@@ -115,7 +120,8 @@ CHECKS = {
     "dependency-registry.md": (
         "startup-boot-gate",
         "fact-provenance",
-        "ADR-0006-fact-output-enforcement.md",
+        "ai-ratchet-gate",
+        "dependency-registry:ai-ratchet-gate",
         "dependency-registry:fact-gate",
         "not_enforced",
         "measurement-gate",

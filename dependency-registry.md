@@ -180,9 +180,10 @@ FDE 関連の外部 source / report / inbox / lane rule は、採用前に次の
 | claude-api-key-skill | API key lifecycle skill | operator-local-adapter | external-authority |
 | claude-optimization-guide | Claude Code optimization guide | operator-local-adapter | external-authority |
 | claude-code-reference | Claude Code official reference digest | operator-local-adapter | external-authority |
+| ai-ratchet-gate | structured claim/source の汎用検証契約（agent.fact_output） | operator-local-adapter | external-authority |
 
 `dependency-registry:fact-gate` が事実ラベルと unknown の意味論を所有する。
-構造化された claim/source の汎用検証は [ai-ratchet-gate の `agent.fact_output` 契約](https://github.com/nexus-ai-2045/ai-ratchet-gate/blob/main/docs/adr/ADR-0006-fact-output-enforcement.md)を参照する。
+構造化された claim/source の汎用検証は `dependency-registry:ai-ratchet-gate` を参照する（未解決なら hold / skip。FDE ラベル意味論は複製しない）。
 `dependency-registry:fact-provenance` と `dependency-registry:cross-runtime-primitives` の operator-local adapter が runtime ごとの差を扱い、FDE のラベル意味論を validator 側へ複製しない。
 各 runtime は表示前の接続、検証対象と表示内容の一致、無効な claim を表示しない negative smoke が確認されるまで `not_enforced` とする。
 
