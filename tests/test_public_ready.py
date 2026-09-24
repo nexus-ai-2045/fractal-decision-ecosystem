@@ -9,6 +9,7 @@ import pytest
 
 from scripts import fde_operational_closeout
 from scripts import public_ready_check
+from scripts import adr_next
 from scripts.adr_next import next_adr_filename
 from scripts.mvp_gate_check import evaluate as evaluate_mvp_gate
 from scripts.fde_architecture_drift_check import evaluate as evaluate_fde_architecture_drift
@@ -799,6 +800,37 @@ def test_adr_auto_numbering_uses_next_repo_local_number(tmp_path) -> None:
     (tmp_path / "notes.md").write_text("not an ADR\n", encoding="utf-8")
 
     assert next_adr_filename(decisions_dir=tmp_path) == "ADR-0002-short-title.md"
+
+
+def test_adr_numbering_empty_decisions_dir_starts_at_one(tmp_path) -> None:
+    assert adr_next.next_adr_number(decisions_dir=tmp_path) == 1
+
+
+def test_adr_numbering_missing_decisions_dir_raises(tmp_path) -> None:
+    missing = tmp_path / "decisons"
+    with pytest.raises(FileNotFoundError):
+        adr_next.next_adr_filename(decisions_dir=missing)
+
+
+def test_adr_numbering_decisions_path_that_is_a_file_raises(tmp_path) -> None:
+    not_a_dir = tmp_path / "decisions"
+    not_a_dir.write_text("not a directory\n", encoding="utf-8")
+    with pytest.raises(NotADirectoryError):
+        adr_next.next_adr_filename(decisions_dir=not_a_dir)
+
+
+def test_adr_next_cli_exits_nonzero_for_missing_decisions_dir(tmp_path, capsys) -> None:
+    missing = tmp_path / "decisons"
+    assert adr_next.main(["--decisions-dir", str(missing)]) != 0
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "decisions directory not found" in captured.err
+    assert str(missing) in captured.err
+
+
+def test_adr_next_cli_prints_next_filename_for_empty_dir(tmp_path, capsys) -> None:
+    assert adr_next.main(["--decisions-dir", str(tmp_path)]) == 0
+    assert capsys.readouterr().out.strip() == "ADR-0001-short-title.md"
 
 
 def test_mvp_axis_operating_card_has_13_items_and_boundaries() -> None:
