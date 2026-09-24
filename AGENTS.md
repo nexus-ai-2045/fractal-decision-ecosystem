@@ -45,6 +45,8 @@ FDE（Fractal Decision Ecosystem）は Python + Markdown による AI ガバナ�
 
 作業前に `REPO_GOAL.md` と `.repo-operating-contracts/manifest.json` を読み、このリポジトリの現在の目標と運用契約を確認します。
 
+- expected remote: `nexus-ai-2045/fractal-decision-ecosystem`
+- 書き込み前にrepo root、remote、branch、upstream、ahead / behind、dirty stateを確認する。
 - 作業の前後に `python .repo-operating-contracts/check.py` を実行し、契約ファイルが欠落・改変されていないことを確認します。
 - 契約ファイル（`.repo-operating-contracts/` 配下）は org 共通の正本から配布されたものです。このリポジトリで直接書き換えず、変更は正本側で行います。
 - この節は既存の安全規則を置き換えません。公開・可視性変更には引き続き上記の人間レビューと明示承認が必要です。
