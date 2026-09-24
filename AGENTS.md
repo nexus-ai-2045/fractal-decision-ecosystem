@@ -40,3 +40,11 @@ FDE（Fractal Decision Ecosystem）は Python + Markdown による AI ガバナ�
 - 複数のゲートが `git ls-files`/diff を実行するため、実行時は git working tree をクリーンに保ちます（未追跡の必須ファイルは `required_files_tracked` に引っかかります）。
 - 視覚エントリポイント: `visual.html` は静的ファイルです。プレビューはリポジトリを配信して（例: `python3 -m http.server 8099`）`http://localhost:8099/visual.html` を開きます。
 - 環境によって `pip install` は `--user` install になり、`pytest` の console script が PATH 外（`~/.local/bin`）に入ることがあります。その場合は `pytest` ではなく `python3 -m pytest` で起動します。
+
+## リポジトリ運用契約（repo-operating-contracts）
+
+作業前に `REPO_GOAL.md` と `.repo-operating-contracts/manifest.json` を読み、このリポジトリの現在の目標と運用契約を確認します。
+
+- 作業の前後に `python .repo-operating-contracts/check.py` を実行し、契約ファイルが欠落・改変されていないことを確認します。
+- 契約ファイル（`.repo-operating-contracts/` 配下）は org 共通の正本から配布されたものです。このリポジトリで直接書き換えず、変更は正本側で行います。
+- この節は既存の安全規則を置き換えません。公開・可視性変更には引き続き上記の人間レビューと明示承認が必要です。
