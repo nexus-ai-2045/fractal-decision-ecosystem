@@ -44,13 +44,25 @@ AIができるはずの判断・検証・停止・学習が、実運用で毎回
 
 ## クイックスタート
 
-必要なものは Python 3、git、PowerShell（Windows）または同等の shell です。
+必要なものは Python 3、git、および shell です。Windows では PowerShell ラッパー、Linux / macOS では既存の Python 入口を使えます。
+
+Windows（PowerShell）:
 
 ```powershell
 git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
 cd fractal-decision-ecosystem
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json
 ```
+
+Linux / macOS（bash など）:
+
+```bash
+git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
+cd fractal-decision-ecosystem
+python scripts/mvp_gate_check.py --json
+```
+
+追加の検査（`pytest` / `public_ready_check` / `fde_workflow_check`）は、後述の「貢献と検査」にクロスプラットフォームの Python 例があります。
 
 | 目的 | 入口 |
 |---|---|
