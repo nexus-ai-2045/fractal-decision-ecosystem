@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.7.0...v0.7.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* decisions dir が無いとき adr_next を失敗させる ([#43](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/43)) ([e966904](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/e966904c2c0cdafb515f47241fb8ee048b1673bc))
+
 ## [0.7.0](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.6.0...v0.7.0) (2026-09-21)
 
 
