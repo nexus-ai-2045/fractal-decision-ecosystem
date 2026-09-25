@@ -51,6 +51,9 @@ Windows（PowerShell）:
 ```powershell
 git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
 cd fractal-decision-ecosystem
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json
 ```
 
@@ -59,8 +62,13 @@ Linux / macOS（bash など）:
 ```bash
 git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
 cd fractal-decision-ecosystem
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
 python scripts/mvp_gate_check.py --json
 ```
+
+`mvp_gate_check` は pytest / jsonschema を使う。未インストールだと欠落で落ちる。依存は既存の `requirements-dev.txt` のみ。
 
 追加の検査（`pytest` / `public_ready_check` / `fde_workflow_check`）は、後述の「貢献と検査」にクロスプラットフォームの Python 例があります。
 
