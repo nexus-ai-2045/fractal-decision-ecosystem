@@ -327,6 +327,42 @@ def test_public_ready_ci_installs_declared_project_dependencies() -> None:
     assert "python -m pip install -r requirements-dev.txt" in workflow
 
 
+def test_unpinned_action_refs_flags_tag_and_branch_refs() -> None:
+    text = "\n".join(
+        [
+            "    steps:",
+            "      - name: Checkout",
+            "        uses: actions/checkout@v6",
+            "      - uses: googleapis/release-please-action@main",
+            "      - uses: actions/setup-python@ece7cb0",
+        ]
+    )
+    assert public_ready_check.unpinned_action_refs(text) == [
+        "actions/checkout@v6",
+        "googleapis/release-please-action@main",
+        "actions/setup-python@ece7cb0",
+    ]
+
+
+def test_unpinned_action_refs_accepts_full_sha_and_local_refs() -> None:
+    sha = "d23441a48e516b6c34aea4fa41551a30e30af803"
+    text = "\n".join(
+        [
+            f"        uses: actions/checkout@{sha} # v6.1.0",
+            f"      - uses: 'actions/setup-python@{sha}'",
+            "      - uses: ./.github/actions/local",
+            "      - uses: docker://alpine:3.20",
+        ]
+    )
+    assert public_ready_check.unpinned_action_refs(text) == []
+
+
+def test_repository_workflows_pin_every_action_to_full_sha() -> None:
+    errors: list[str] = []
+    public_ready_check.check_actions_pinned(errors)
+    assert errors == []
+
+
 def test_fde_architecture_drift_check_connects_docs_scripts_and_tests() -> None:
     result = evaluate_fde_architecture_drift()
     assert result["overall"] == "ok", result["errors"]

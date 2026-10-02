@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  # full commit SHA で固定した GitHub Actions の更新を、SHA と版コメントごと PR で受け取る。
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+
+  # requirements-dev.txt と pyproject.toml の Python 依存を、週次で人が見られる量だけ更新する。
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
