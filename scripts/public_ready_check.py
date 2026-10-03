@@ -246,8 +246,8 @@ def check_workflow_contract(errors: list[str]) -> None:
         "scripts/run_mvp_gate.ps1",
         "shell: pwsh",
         "python -m pip install -r requirements-dev.txt",
-        "actions/checkout@v6",
-        "actions/setup-python@v6",
+        "uses: actions/checkout@",
+        "uses: actions/setup-python@",
         "pull_request:",
         "workflow_dispatch:",
         "contents: read",
@@ -255,6 +255,34 @@ def check_workflow_contract(errors: list[str]) -> None:
     for term in required_terms:
         if term not in text:
             errors.append(f"workflow に必須用語がありません: {term}")
+
+
+WORKFLOW_USES = re.compile(r"^\s*(?:-\s*)?uses:\s*['\"]?([^\s'\"#]+)", re.MULTILINE)
+FULL_COMMIT_SHA = re.compile(r"[0-9a-f]{40}")
+
+
+def unpinned_action_refs(text: str) -> list[str]:
+    """workflow 本文から、full commit SHA で固定されていない action 参照を返す。
+
+    tag や branch への参照は、参照先を差し替えられると別のコードが走る。
+    GitHub の sha_pinning_required を有効にした repo では、そうした workflow は起動時に失敗する。
+    同一 repo の action (`./`) と container image (`docker://`) は対象外とする。
+    """
+    unpinned: list[str] = []
+    for ref in WORKFLOW_USES.findall(text):
+        if ref.startswith(("./", "docker://")):
+            continue
+        _, _, version = ref.partition("@")
+        if not FULL_COMMIT_SHA.fullmatch(version):
+            unpinned.append(ref)
+    return unpinned
+
+
+def check_actions_pinned(errors: list[str]) -> None:
+    for workflow in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
+        rel = workflow.relative_to(ROOT).as_posix()
+        for ref in unpinned_action_refs(workflow.read_text(encoding="utf-8")):
+            errors.append(f"{rel}: action が full commit SHA で固定されていません: {ref}")
 
 
 def check_forbidden_patterns(errors: list[str]) -> None:
@@ -334,6 +362,7 @@ def main() -> int:
     check_operational_guarantee(errors)
     check_failure_postmortem_contract(errors)
     check_workflow_contract(errors)
+    check_actions_pinned(errors)
     check_forbidden_patterns(errors)
     check_local_markdown_links(errors)
     check_git_history(errors)
