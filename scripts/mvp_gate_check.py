@@ -319,6 +319,12 @@ def main() -> int:
         for check in result["checks"]:
             state = "ok" if check["ok"] else "error"
             print(f"- {check['name']}: {state}")
+            if check["name"] == "pytest" and not check["ok"]:
+                output_lines = check.get("output") or []
+                if isinstance(output_lines, list) and output_lines:
+                    print("  pytest output (tail):")
+                    for line in output_lines[-80:]:
+                        print(f"  {line}")
     return 0 if result["overall"] == "ok" else 1
 
 

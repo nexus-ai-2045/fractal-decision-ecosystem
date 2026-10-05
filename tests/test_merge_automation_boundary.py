@@ -6,9 +6,9 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github" / "workflows"
 EXPECTED_WORKFLOW_SHA256 = {
     "conventional-pr-title.yml": "a97c336f8df35de4d4b3765280da1392e65047d8debab40075d90d234277efdf",
-    "pr-hygiene.yml": "fc114ad2fdf7845343c1a821f03730e11138a873474fa46ea9cefc88179d54e7",
-    "public-ready.yml": "e72e48a0c894db97ca64ec68b0a7f3bc7551188581c67064f35bf519512262e6",
-    "release-please.yml": "1ef6fbd55c93aeddf72eecb7d6c57837f3886f85652c2c00663fec530b510cde",
+    "pr-hygiene.yml": "7c871a1b7cf1d8acb3ea02cc7de1c927bc68983d2ecf8c1eb0735ecdc76728f1",
+    "public-ready.yml": "c80e1745070cac06ae17a60175637559d0df1d3c8c2136f37a2182caa5dc0380",
+    "release-please.yml": "dc0451a6353283a7fb1a0b8d3a43ccd667d2a7693b168863e68bef281370f5c7",
 }
 
 
