@@ -732,10 +732,30 @@ def test_draft_never_emits_adopt_decision() -> None:
     assert any("adopt" in error for error in errors)
 
 
+def _repo_status_with_ignored() -> str | None:
+    # Snapshot of the repo working tree, ignored files included. None when git
+    # is unavailable (e.g. an unpacked sdist), in which case the check is skipped.
+    try:
+        result = subprocess.run(
+            ["git", "status", "--short", "--ignored"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
 def test_cli_draft_from_receipt_and_write(tmp_path: Path) -> None:
-    # --write is confined to the process CWD (repo root in this test).
-    work = ROOT / ".local" / "feedback-draft-cli-test"
-    work.mkdir(parents=True, exist_ok=True)
+    # --write is confined to the process CWD, so the CLI runs with a CWD inside
+    # tmp_path and every input/output stays there. Writing under the repo root
+    # left ignored residue that blocked worktree cleanup.
+    work = tmp_path / "cwd"
+    work.mkdir()
     receipt_path = work / "receipt.json"
     manifest_path = work / "manifest.json"
     out_path = work / "draft.json"
@@ -749,6 +769,7 @@ def test_cli_draft_from_receipt_and_write(tmp_path: Path) -> None:
         ),
         encoding="utf-8",
     )
+    status_before = _repo_status_with_ignored()
     result = subprocess.run(
         [
             sys.executable,
@@ -761,11 +782,13 @@ def test_cli_draft_from_receipt_and_write(tmp_path: Path) -> None:
             str(out_path),
             "--json",
         ],
-        cwd=ROOT,
+        cwd=work,
         capture_output=True,
         text=True,
         check=False,
     )
+    if status_before is not None:
+        assert _repo_status_with_ignored() == status_before
     assert result.returncode == 0, result.stderr + result.stdout
     payload = json.loads(result.stdout)
     assert payload["overall"] == "ok"
@@ -821,9 +844,13 @@ def test_draft_from_locked_receipt_is_revise() -> None:
 
 
 def test_cli_rejects_write_outside_cwd(tmp_path: Path) -> None:
-    receipt_path = tmp_path / "receipt.json"
+    # The CLI CWD and the outside target are siblings under tmp_path, so the
+    # target is outside the CWD and a regression cannot write outside tmp_path.
+    work = tmp_path / "cwd"
+    work.mkdir()
+    receipt_path = work / "receipt.json"
     receipt_path.write_text(json.dumps(sample_success_receipt()), encoding="utf-8")
-    outside = Path.cwd().resolve().parent / "fde-feedback-draft-outside.json"
+    outside = tmp_path / "fde-feedback-draft-outside.json"
     result = subprocess.run(
         [
             sys.executable,
