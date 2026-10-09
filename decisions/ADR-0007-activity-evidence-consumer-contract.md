@@ -1,7 +1,7 @@
 # ADR-0007: Activity Evidence consumer契約
 
-- Status: accepted
-- Date: 2026-08-10
+Status: accepted
+Date: 2026-08-10
 
 ## Context
 

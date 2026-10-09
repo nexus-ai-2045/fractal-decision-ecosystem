@@ -1,6 +1,6 @@
 # ADR-0005: Public package の pointer を環境非依存にする
 
-Status: accepted  
+Status: accepted
 Date: 2026-07-18
 
 ## Context
