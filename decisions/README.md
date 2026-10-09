@@ -6,6 +6,8 @@ FDE の repo-local ADR 置き場。
 
 - ADR は `decisions/ADR-NNNN-short-title.md` 形式で保存する。
 - 次番号は `python scripts\adr_next.py` で確認する。
+- 見出しの下に `Status: accepted` か `Status: proposed` と、`Date: YYYY-MM-DD` を 1 行ずつ書く。行頭の `- ` や行末の空白は付けない。
+- この一覧は、ADR の `Status` に合わせて「採用済み」か「提案中」の表に 1 回だけ載せる。ずれは `tests/test_decisions_index.py` が止める。
 - 採用判断、採番ルール、公開境界、長期運用に残す決定をここへ置く。
 - ADR は local evidence であり、public release、GitHub visibility 変更、外部送信、特許出願の承認ではない。
 
@@ -19,10 +21,9 @@ FDE の repo-local ADR 置き場。
 | [ADR-0004-team-formation-orchestration-gate.md](ADR-0004-team-formation-orchestration-gate.md) | Team Formation / Orchestration Gate | 意思決定に必要なteam creator、delegate配役、return contract、adoption gate |
 | [ADR-0005-public-env-independent-pointers.md](ADR-0005-public-env-independent-pointers.md) | Public package の pointer 環境非依存化 | capability key / absorbed / operator-local-adapter。物理 path 非掲載 |
 | [ADR-0006-post-merge-cleanup-closeout.md](ADR-0006-post-merge-cleanup-closeout.md) | Post-merge cleanup を closeout 実行へ蒸留 | skill ではなく `scripts/post_merge_cleanup.py` が実行正本 |
+| [ADR-0007-activity-evidence-consumer-contract.md](ADR-0007-activity-evidence-consumer-contract.md) | 本文を持たないActivity Evidence受領契約 | DB/FDE責務境界、private既定、validationと真実性の分離 |
 | [ADR-0008-actions-supply-chain-and-repository-settings.md](ADR-0008-actions-supply-chain-and-repository-settings.md) | GitHub Actions の供給網とリポジトリ設定を repo-preflight の推奨に寄せる | アクションの `SHA` 固定、権限、必須チェック、変えない設定とその理由 |
 
 ## 提案中ADR
 
-| ADR | 決定 | レビュー観点 |
-|---|---|---|
-| [ADR-0007-activity-evidence-consumer-contract.md](ADR-0007-activity-evidence-consumer-contract.md) | 本文を持たないActivity Evidence受領契約 | DB/FDE責務境界、private既定、validationと真実性の分離 |
+今は無い。
