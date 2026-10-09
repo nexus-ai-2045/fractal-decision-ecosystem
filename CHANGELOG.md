@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.7.1...v0.7.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* ADR の状態行の書き方を 1 つに揃え、一覧と状態のずれをテストで止める ([#56](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/56)) ([92b56c3](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/92b56c308bd5b34d4458762d0fb3d44cf26a0ff0))
+
 ## [0.7.1](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.7.0...v0.7.1) (2026-09-24)
 
 
