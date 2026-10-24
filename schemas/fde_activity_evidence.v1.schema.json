@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nexus-ai-2045/fractal-decision-ecosystem/blob/main/schemas/fde_activity_evidence.v1.schema.json",
+  "title": "FDE activity evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_id",
+    "content_hash",
+    "actor_type",
+    "identity_status",
+    "source",
+    "occurred_at",
+    "provenance"
+  ],
+  "properties": {
+    "schema": { "const": "fde.activity-evidence.v1" },
+    "event_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "content_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "actor_type": {
+      "enum": ["human", "ai", "tool", "system", "unknown"]
+    },
+    "identity_status": {
+      "enum": ["verified", "asserted", "inferred", "unknown"]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generated_by",
+        "derived_from",
+        "parent_event_id",
+        "trace_id"
+      ],
+      "properties": {
+        "generated_by": {
+          "anyOf": [
+            { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$" },
+            { "type": "null" }
+          ]
+        },
+        "derived_from": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          }
+        },
+        "parent_event_id": {
+          "anyOf": [
+            { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            { "type": "null" }
+          ]
+        },
+        "trace_id": {
+          "anyOf": [
+            { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$" },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}

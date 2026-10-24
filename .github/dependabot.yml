@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+  # full commit SHA で固定した GitHub Actions の更新を、SHA と版コメントごと PR で受け取る。
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    # 同じ workflow を触る更新を 1 本にまとめる。workflow の中身のハッシュ記録の更新も 1 回で済む。
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # requirements-dev.txt の Python 依存を、週次で人が見られる量だけ更新する。
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nexus-ai-2045/fractal-decision-ecosystem/blob/main/schemas/fde_team_plan.v1.schema.json",
+  "title": "FDE team formation plan v1",
+  "description": "Machine form of ADR-0004 team_plan / no_team_reason. Does not approve external send or final decision delegation.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "task",
+        "roles",
+        "delegate_plan",
+        "return_contract",
+        "adoption_gate",
+        "stopline_owner"
+      ],
+      "properties": {
+        "schema_version": { "const": "fde.team_plan.v1" },
+        "kind": { "const": "team_plan" },
+        "task": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+          }
+        },
+        "delegate_plan": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "returns"],
+            "properties": {
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+              },
+              "returns": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 16,
+                "items": {
+                  "enum": [
+                    "evidence",
+                    "diff",
+                    "smoke",
+                    "blocker",
+                    "candidate_option",
+                    "review_packet"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "return_contract": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "adoption_gate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "stopline_owner": {
+          "enum": ["main_runtime", "human"]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "task",
+        "reason_code",
+        "reason",
+        "stopline_owner"
+      ],
+      "properties": {
+        "schema_version": { "const": "fde.team_plan.v1" },
+        "kind": { "const": "no_team_reason" },
+        "task": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "reason_code": {
+          "enum": [
+            "tiny_task",
+            "tool_absent",
+            "stopline",
+            "overhead_too_high",
+            "single_surface"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": ".*\\S.*"
+        },
+        "stopline_owner": {
+          "enum": ["main_runtime", "human"]
+        }
+      }
+    }
+  ]
+}

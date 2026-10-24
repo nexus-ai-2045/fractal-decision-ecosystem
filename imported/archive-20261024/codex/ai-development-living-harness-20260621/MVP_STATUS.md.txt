@@ -1,0 +1,35 @@
+# FDE MVP Status
+
+MVP status: complete for private local gate
+
+## Current Decision
+
+- Repository visibility: private
+- No external publication action performed
+- （特許関連の記述は除外）
+- No connector write action performed
+- （特許関連の記述は除外）
+- Owner decision: user retains ownership
+- Assignee decision: none / unassigned
+- （特許関連の記述は除外）
+- （特許関連の記述は除外）
+- Local MVP gate command: `python scripts\mvp_gate_check.py`
+
+## Completed Local Gate
+
+- Public readiness check is part of the MVP gate.
+- Pre-publication gate check is part of the MVP gate.
+- Pytest is part of the MVP gate.
+- The public kernel remains a sanitized candidate, not a release action.
+
+## Remaining Human / External Blockers
+
+- （特許関連の記述は除外）
+- If filing is later chosen, perform it only with explicit current-conversation approval.
+- If filing happens later, save filing receipt / application number / submitted PDF / file hash after filing.
+- （特許関連の記述は除外）
+- Keep GitHub repository visibility private unless exact repo-specific approval is given.
+
+## Next
+
+Next milestone: publication approval only if public release is requested

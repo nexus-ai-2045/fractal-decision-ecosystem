@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nexus-ai-2045/fractal-decision-ecosystem/blob/main/schemas/fde_route_failure.v1.schema.json",
+  "title": "FDE route_failure vocabulary v1",
+  "description": "route_failure 名の機械可読な正本。文書 (operating-card.md / guarantee-spec.md ほか) に散在していた固有名を enum として一元化する。名前の追加・削除は必ず本 schema と文書を同じ commit で更新する (scripts/fde_route_failure_check.py が同期を検査する)。下流 repo は本 schema を hash 検証付き配布物として取り込み、独自の正本を作らない。",
+  "type": "string",
+  "enum": [
+    "none",
+    "fde_boot_unread",
+    "over_triage_visible",
+    "full_trigger_missed",
+    "human_judgment_ignored",
+    "safety_gate_missed",
+    "main_thread_drift",
+    "ssot_first_missed",
+    "prior_art_missed",
+    "resource_gate_missed",
+    "required_sufficient_gate_missed",
+    "evidence_loop_skipped",
+    "verification_missing",
+    "semantic_triage_missing",
+    "fact_output_gate_missed",
+    "thin_source_route_missed",
+    "execution_assurance_missing",
+    "type1_wait_contract_missing",
+    "waiting_contract_missing",
+    "cmux_send_gate_missed",
+    "send_gate_missed",
+    "send_path_unconfirmed",
+    "liveness_stale",
+    "role_mismatch",
+    "new_surface_blocked"
+  ],
+  "x-definitions": {
+    "none": {
+      "summary": "route failure なし。packet の既定値",
+      "source": "operating-card.md §0.0 ほか packet 雛形"
+    },
+    "fde_boot_unread": {
+      "summary": "FDE boot gate を通らずに業務へ入った",
+      "source": "operating-card.md §0.0"
+    },
+    "over_triage_visible": {
+      "summary": "Lite の内部判定 (YAML / 起動宣言) をユーザーへ毎回表示した",
+      "source": "guarantee-spec.md §1.2"
+    },
+    "full_trigger_missed": {
+      "summary": "Full trigger 該当作業を Lite のまま進めた",
+      "source": "guarantee-spec.md §1.4"
+    },
+    "human_judgment_ignored": {
+      "summary": "ユーザーの補正・違和感・目的判断を取り込まず下層作業を続けた",
+      "source": "operating-card.md §0.2 rank 0 / §0.3"
+    },
+    "safety_gate_missed": {
+      "summary": "safety / Type1 / destructive / secret の判定を飛ばした",
+      "source": "operating-card.md §0.2 rank 1"
+    },
+    "main_thread_drift": {
+      "summary": "main thread / return_to / parent anchor から逸れたまま進めた",
+      "source": "operating-card.md §0.2 rank 2"
+    },
+    "ssot_first_missed": {
+      "summary": "SSOT / route authority を確認せず経路選択・新規実装へ入った",
+      "source": "operating-card.md §0.2 rank 3 / §1.0.2 SSOT / Prior-Art First Gate"
+    },
+    "prior_art_missed": {
+      "summary": "既存資産 (prior art) を探さず再生産した",
+      "source": "operating-card.md §1.0.2 SSOT / Prior-Art First Gate packet"
+    },
+    "resource_gate_missed": {
+      "summary": "token / time / weekly / context の資源判定を飛ばした",
+      "source": "operating-card.md §0.2 rank 4"
+    },
+    "required_sufficient_gate_missed": {
+      "summary": "required-sufficient (やりすぎ・足りなすぎ・抱え込み) の判定を飛ばした",
+      "source": "operating-card.md §0.2 rank 5 / §1.2 Required-Sufficient Orchestration Gate"
+    },
+    "evidence_loop_skipped": {
+      "summary": "delivery / evidence / fact label の確認 loop を省いた",
+      "source": "operating-card.md §0.2 rank 6 / §0.3 / §2.1.2 Communication Evidence Loop"
+    },
+    "verification_missing": {
+      "summary": "implementation / smoke / commit の検証を閉じずに完了扱いした",
+      "source": "operating-card.md §0.2 rank 7"
+    },
+    "semantic_triage_missing": {
+      "summary": "意味・本線・既存資産・実行順の triage を経ずに次の 1 手へ進んだ",
+      "source": "operating-card.md §0.3"
+    },
+    "fact_output_gate_missed": {
+      "summary": "fact tag (事実 / 推測 / 不明) なしで応答した",
+      "source": "core.md fact_label / operating-card.md §0.1 Fact Output Gate"
+    },
+    "thin_source_route_missed": {
+      "summary": "thin_source route の選択を誤った",
+      "source": "operating-card.md §1.0.1 Thin Source Routing Gate"
+    },
+    "execution_assurance_missing": {
+      "summary": "gate / lint / wrapper への修復 cycle を忘れ文書だけで閉じた",
+      "source": "operating-card.md §1.1 Execution Assurance Cycle"
+    },
+    "type1_wait_contract_missing": {
+      "summary": "解除条件 (wake_trigger / check_owner) の無い Type1 待ちを accepted / done にした",
+      "source": "operating-card.md §0.2 運用"
+    },
+    "waiting_contract_missing": {
+      "summary": "waiting_contract なしで待機に入った",
+      "source": "search-orchestration.md §4.0.1 Delivery receipt gate"
+    },
+    "cmux_send_gate_missed": {
+      "summary": "cmux 送信の失敗形 (not_found / Enter 未投入等) で同じ経路を繰り返した",
+      "source": "operating-card.md §2.1.0 CMUX Lane Send Gate"
+    },
+    "send_gate_missed": {
+      "summary": "pre_send_decision (判断根拠) なしで送信した",
+      "source": "operating-card.md §2.1.1 External Review Gate の pre_send_decision"
+    },
+    "send_path_unconfirmed": {
+      "summary": "submit 意図の送信で verify-submit / read-screen 確認を省いた",
+      "source": "guarantee-spec.md §3.6"
+    },
+    "liveness_stale": {
+      "summary": "相手 surface の生存確認が古いまま送信・判断した",
+      "source": "operating-card.md §2.1.0 CMUX Lane Send Gate packet"
+    },
+    "role_mismatch": {
+      "summary": "宛先 surface の role が想定と不一致のまま進めた",
+      "source": "operating-card.md §2.1.0 CMUX Lane Send Gate packet"
+    },
+    "new_surface_blocked": {
+      "summary": "新規面 5 条件を満たさない file / rule / SSOT / workflow / axis / layer 作成",
+      "source": "axis-registry.md §対応づけ前に新規面を作らない"
+    }
+  }
+}

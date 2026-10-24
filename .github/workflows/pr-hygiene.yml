@@ -1,0 +1,36 @@
+name: PR Hygiene
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-body-hygiene:
+    name: pr-body-hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      # PR title/body は攻撃者が制御できる untrusted input。run: の shell
+      # 文字列へ ${{ github.event.pull_request.title/body }} を直接埋め込むと
+      # script injection の典型的な穴になるため、env: 経由で渡す。
+      - name: Scan PR title and body for PII / local paths
+        env:
+          PR_HYGIENE_TITLE: ${{ github.event.pull_request.title }}
+          PR_HYGIENE_BODY: ${{ github.event.pull_request.body }}
+          PR_HYGIENE_DENYLIST: ${{ secrets.PR_HYGIENE_DENYLIST }}
+          PR_HYGIENE_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git diff --name-only HEAD^1 HEAD > changed-files.txt
+          python scripts/pr_body_hygiene_check.py --changed-files-file changed-files.txt
