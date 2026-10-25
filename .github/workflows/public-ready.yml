@@ -1,8 +1,9 @@
 name: Public Ready
 
 on:
+  # PR の上では pull_request で走る。push は main だけにして、PR 枝の二重実行をやめる。
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
