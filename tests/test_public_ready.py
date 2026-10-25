@@ -1152,3 +1152,106 @@ def test_run_mvp_gate_accepts_json_output_with_diagnostic_prefix(tmp_path) -> No
 
     assert result.returncode == 0, result.stdout
     assert "diagnostic line before json" in result.stdout
+
+
+# --- scripts/run_mvp_gate.sh（bash 版）の回帰テスト。ps1 の Windows 用テストと同じ判定を POSIX で確かめる。
+_PROBE_OK_LINE = '{"marker":"fde-mvp-gate-python-probe","ok":true,"version":[3,13,1],"executable":"/fake/python"}'
+
+
+def _write_fake_python(path: Path, body: str) -> None:
+    path.write_text("#!/bin/sh\n" + body, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def _run_mvp_gate_sh(fake_bin: Path, *args: str) -> subprocess.CompletedProcess:
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    return subprocess.run(
+        ["bash", str(public_ready_check.ROOT / "scripts" / "run_mvp_gate.sh"), *args],
+        cwd=public_ready_check.ROOT,
+        env=env,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+
+
+def _fake_gate_python(gate_lines: list[str], gate_exit: int) -> str:
+    echoes = "".join(f"echo '{line}'\n" for line in gate_lines)
+    return (
+        'if [ "$1" = "-c" ]; then\n'
+        f"  echo '{_PROBE_OK_LINE}'\n"
+        "  exit 0\n"
+        "fi\n"
+        f"{echoes}"
+        f"exit {gate_exit}\n"
+    )
+
+
+@pytest.mark.skipif(os.name == "nt", reason="bash 版の POSIX 回帰テスト")
+def test_run_mvp_gate_sh_rejects_broken_pyenv_shim(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    _write_fake_python(fake_bin / "python3", "echo 'python3 unavailable' 1>&2\nexit 1\n")
+    _write_fake_python(fake_bin / "python", "echo 'pyenv: python: command not found'\nexit 0\n")
+
+    result = _run_mvp_gate_sh(fake_bin, "--skip-pytest")
+
+    assert result.returncode != 0, result.stdout
+    assert "pyenv shim is not usable for the MVP gate" in result.stdout
+    assert "FDE MVP GATE CHECK" not in result.stdout
+
+
+@pytest.mark.skipif(os.name == "nt", reason="bash 版の POSIX 回帰テスト")
+def test_run_mvp_gate_sh_requires_mvp_gate_output_even_when_python_exits_zero(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    body = _fake_gate_python(["python shim returned without running the MVP gate"], 0)
+    _write_fake_python(fake_bin / "python3", body)
+    _write_fake_python(fake_bin / "python", body)
+
+    result = _run_mvp_gate_sh(fake_bin, "--skip-pytest")
+
+    assert result.returncode != 0, result.stdout
+    assert "MVP gate did not produce the expected gate output" in result.stdout
+
+
+@pytest.mark.skipif(os.name == "nt", reason="bash 版の POSIX 回帰テスト")
+def test_run_mvp_gate_sh_accepts_json_output_with_diagnostic_prefix(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    body = _fake_gate_python(["diagnostic line before json", '{"overall":"ok","checks":[]}'], 0)
+    _write_fake_python(fake_bin / "python3", body)
+
+    result = _run_mvp_gate_sh(fake_bin, "--json")
+
+    assert result.returncode == 0, result.stdout
+    assert "diagnostic line before json" in result.stdout
+
+
+@pytest.mark.skipif(os.name == "nt", reason="bash 版の POSIX 回帰テスト")
+def test_run_mvp_gate_sh_rejects_exit_zero_without_success(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    body = _fake_gate_python(['{"overall":"error","checks":[]}'], 0)
+    _write_fake_python(fake_bin / "python3", body)
+
+    result = _run_mvp_gate_sh(fake_bin, "--json")
+
+    assert result.returncode == 1, result.stdout
+    assert "MVP gate did not report success" in result.stdout
+
+
+@pytest.mark.skipif(os.name == "nt", reason="bash 版の POSIX 回帰テスト")
+def test_run_mvp_gate_sh_passes_through_gate_exit_code(tmp_path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    body = _fake_gate_python(["FDE MVP GATE CHECK ERROR"], 3)
+    _write_fake_python(fake_bin / "python3", body)
+
+    result = _run_mvp_gate_sh(fake_bin)
+
+    assert result.returncode == 3, result.stdout
+    assert "FDE MVP GATE CHECK ERROR" in result.stdout

@@ -35,7 +35,7 @@ FDE（Fractal Decision Ecosystem）は Python + Markdown による AI ガバナ�
 
 - テスト: `python3 -m pytest -q`（config は `pyproject.toml`、`pythonpath=["."]`）。
 - 集約ゲート（コアの end-to-end チェック、クロスプラットフォーム）: `python3 -m scripts.mvp_gate_check`（`--json` で機械可読出力、`--skip-pytest` でテスト省略）。全サブゲート + pytest を実行し、各チェックの OK/FAIL を出力します。
-- 正本ラッパー `scripts/run_mvp_gate.ps1` は PowerShell（`pwsh`）を必要とします。`pwsh` が無い環境では不要で、`python3 -m scripts.mvp_gate_check` を代替として使います。
+- 正本ラッパー `scripts/run_mvp_gate.ps1` は PowerShell（`pwsh`）を必要とします。`pwsh` が無い環境では、同じ判定をする bash 版 `scripts/run_mvp_gate.sh` を使います（Python の探索、ゲート出力の有無の確認、終了コードは ps1 と同じ）。
 - 専用リンターは未設定です。「verify」層はゲートスクリプトが担い、コードリンターではありません。Python 構文チェックが必要なら `python3 -m compileall scripts tests`。
 - 複数のゲートが `git ls-files`/diff を実行するため、実行時は git working tree をクリーンに保ちます（未追跡の必須ファイルは `required_files_tracked` に引っかかります）。
 - 視覚エントリポイント: `visual.html` は静的ファイルです。プレビューはリポジトリを配信して（例: `python3 -m http.server 8099`）`http://localhost:8099/visual.html` を開きます。

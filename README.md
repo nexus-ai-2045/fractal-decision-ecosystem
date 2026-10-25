@@ -44,12 +44,18 @@ AIができるはずの判断・検証・停止・学習が、実運用で毎回
 
 ## クイックスタート
 
-必要なものは Python 3、git、PowerShell（Windows）または同等の shell です。
+必要なものは Python 3.11 以上と git です。MVP ゲートの入口は、Windows では PowerShell 版 `scripts/run_mvp_gate.ps1`、macOS・Linux では bash 版 `scripts/run_mvp_gate.sh` です。どちらも同じ検査（`python -m scripts.mvp_gate_check`）を流し、同じ終了コードを返します。
 
 ```powershell
 git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
 cd fractal-decision-ecosystem
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json
+```
+
+```bash
+git clone https://github.com/nexus-ai-2045/fractal-decision-ecosystem.git
+cd fractal-decision-ecosystem
+bash scripts/run_mvp_gate.sh --json
 ```
 
 | 目的 | 入口 |
