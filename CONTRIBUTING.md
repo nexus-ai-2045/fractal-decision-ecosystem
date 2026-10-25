@@ -7,10 +7,14 @@ python -m pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-Windows では MVP gate も使えます。
+MVP gate は、Windows では PowerShell 版、macOS・Linux では bash 版を使えます（同じ検査・同じ終了コード）。
 
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_mvp_gate.ps1 --json
+```
+
+```bash
+bash scripts/run_mvp_gate.sh --json
 ```
 
 ## 開発ルール

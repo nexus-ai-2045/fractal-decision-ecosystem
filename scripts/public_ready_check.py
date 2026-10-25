@@ -31,6 +31,7 @@ REQUIRED_FILES = (
     "mvp-axis-operating-card.md",
     "scripts/mvp_gate_check.py",
     "scripts/run_mvp_gate.ps1",
+    "scripts/run_mvp_gate.sh",
     "scripts/roadmap_gate_check.py",
     "scripts/fde_workflow_check.py",
     "scripts/fde_architecture_drift_check.py",
