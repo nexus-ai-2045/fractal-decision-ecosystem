@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.7.1...v0.7.2) (2026-10-26)
+
+
+### Bug Fixes
+
+* MVP ゲートの bash 版 run_mvp_gate.sh を足し、README を実物に合わせる ([#1](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/issues/1)) ([4ce189f](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/commit/4ce189f0246b4286eb0cc8151eb91de7e61c97a0))
+
 ## [0.7.1](https://github.com/nexus-ai-2045/fractal-decision-ecosystem/compare/v0.7.0...v0.7.1) (2026-09-24)
 
 
