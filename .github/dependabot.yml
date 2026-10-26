@@ -10,6 +10,9 @@ updates:
       time: "09:00"
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
+    # nexus-ai-2045 の自前 workflow（preflight-gate など）は固定先を人が上げるので、ここでは上げない。
+    ignore:
+      - dependency-name: "nexus-ai-2045/*"
     # 同じ workflow を触る更新を 1 本にまとめる。workflow の中身のハッシュ記録の更新も 1 回で済む。
     groups:
       github-actions:
