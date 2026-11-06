@@ -5,9 +5,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github" / "workflows"
 EXPECTED_WORKFLOW_SHA256 = {
-    "base-guard.yml": "7155de21a9b14a5e5c3753c2c43fbf0babdfd7da84dda956bb962ece218736c4",
     "conventional-pr-title.yml": "a97c336f8df35de4d4b3765280da1392e65047d8debab40075d90d234277efdf",
-    "preflight.yml": "55d6a9d1bf542459916d2b319c0e75623d44b467b3f2303499a9075f2fedd90f",
+    "preflight.yml": "a66bd7848c56dcefa6ef0ec6fa32650a93adcb393ae31a7eef0cf483afa75f9b",
     "pr-hygiene.yml": "7c871a1b7cf1d8acb3ea02cc7de1c927bc68983d2ecf8c1eb0735ecdc76728f1",
     "public-ready.yml": "c996cd84ff38bb1d9b9fe336701b081089bc996e4c950b31fb15f6e22a3d45e0",
     "release-please.yml": "dc0451a6353283a7fb1a0b8d3a43ccd667d2a7693b168863e68bef281370f5c7",

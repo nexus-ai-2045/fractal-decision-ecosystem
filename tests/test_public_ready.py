@@ -4,7 +4,7 @@ import json
 import os
 import re
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -54,7 +54,7 @@ def _fake_windows_path_fragment() -> str:
 
 
 def _fake_posix_path_fragment() -> str:
-    return "".join(('/User', 's/exa', 'mple/', 'Proje', 'cts/s', 'hared', '/scri', 'pts/p', 'refli', 'ght.p', 'y',))
+    return str(PurePosixPath('/', 'Users', 'example', 'Projects', 'shared', 'scripts', 'preflight.py'))
 
 
 def test_git_history_scan_passes_on_clean_log_text() -> None:

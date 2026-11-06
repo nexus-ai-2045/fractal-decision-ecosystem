@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from scripts import post_merge_cleanup
 from scripts.post_merge_cleanup import evaluate
@@ -146,9 +146,9 @@ def test_protected_branches_are_not_deleted(tmp_path: Path) -> None:
 def test_receipt_detail_sanitizes_tokens_and_user_paths() -> None:
     github_token = "gh" + "p_" + ("a" * 24)
     openai_token = "sk-" + ("b" * 24)
-    windows_user_path = "".join(('C:\\Us', 'ers\\e', 'xampl', 'e\\Pro', 'jects', '\\FDE',))
-    mac_user_path = "".join(('/User', 's/exa', 'mple/', 'Proje', 'cts/F', 'DE',))
-    linux_user_path = "".join(('/home', '/exam', 'ple/P', 'rojec', 'ts/FD', 'E',))
+    windows_user_path = str(PureWindowsPath('C:\\', 'Users', 'example', 'Projects', 'FDE'))
+    mac_user_path = str(PurePosixPath('/', 'Users', 'example', 'Projects', 'FDE'))
+    linux_user_path = str(PurePosixPath('/', 'home', 'example', 'Projects', 'FDE'))
     detail = (
         f"remote: {github_token}\n"
         f"Authorization: Bearer {openai_token}\n"
@@ -166,9 +166,9 @@ def test_receipt_detail_sanitizes_tokens_and_user_paths() -> None:
     assert mac_user_path not in sanitized
     assert linux_user_path not in sanitized
     assert "<redacted-token>" in sanitized
-    assert ("".join(('C:\\Us', 'ers\\<', 'user>',))) in sanitized
-    assert ("".join(('/User', 's/<us', 'er>',))) in sanitized
-    assert ("".join(('/home', '/<use', 'r>',))) in sanitized
+    assert (str(PureWindowsPath('C:\\', 'Users', '<user>'))) in sanitized
+    assert (str(PurePosixPath('/', 'Users', '<user>'))) in sanitized
+    assert (str(PurePosixPath('/', 'home', '<user>'))) in sanitized
 
 
 def test_failure_receipt_keeps_only_bounded_metadata() -> None:

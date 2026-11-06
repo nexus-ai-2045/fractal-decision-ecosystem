@@ -12,7 +12,7 @@ import json
 import os
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from scripts import public_ready_check
 from scripts.pr_body_hygiene_check import evaluate
@@ -30,7 +30,7 @@ def _dummy_windows_verification_line() -> str:
 
 
 def _dummy_macos_path_fragment() -> str:
-    return "".join(('/User', 's/exa', 'mple-', 'user/', 'Proje', 'cts/s', 'hared', '/scri', 'pts/p', 'refli', 'ght.p', 'y',))
+    return str(PurePosixPath('/', 'Users', 'example-user', 'Projects', 'shared', 'scripts', 'preflight.py'))
 
 
 def _dummy_co_author_trailer() -> str:

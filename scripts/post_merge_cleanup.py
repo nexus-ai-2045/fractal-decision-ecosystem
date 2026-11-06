@@ -15,7 +15,7 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,8 +33,8 @@ SECRET_PATTERNS = (
 )
 USER_PATH_PATTERNS = (
     re.compile(r"([A-Za-z]:[\\/]+Users[\\/]+)[^\\/\s]+"),
-    re.compile(r"(/" + r"Users/)[^/\s]+"),
-    re.compile(r"(/" + r"home/)[^/\s]+"),
+    re.compile('(' + str(PurePosixPath('/', 'Users')) + '/)[^/\\s]+'),
+    re.compile('(' + str(PurePosixPath('/', 'home')) + '/)[^/\\s]+'),
 )
 
 
