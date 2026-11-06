@@ -1,7 +1,7 @@
 import json
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -87,7 +87,7 @@ def test_rejects_invalid_identity_or_time_fields(field: str, value: str) -> None
 @pytest.mark.parametrize(
     "value",
     [
-        "".join(('C:\\Us', 'ers\\s', 'omeon', 'e\\pri', 'vate.', 'txt',)),
+        str(PureWindowsPath('C:\\', 'Users', 'someone', 'private.txt')),
         "ghp_" + "a" * 24,
         "\ud800",
     ],

@@ -25,7 +25,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Iterable, Sequence
 
 
@@ -43,10 +43,10 @@ WINDOWS_FORWARDSLASH_PATH = re.compile(
     r"(?P<prefix>[A-Za-z]:/+Users/+)(?P<user>[^/\s]+)(?P<rest>/[^\s`'\"]*)?"
 )
 MACOS_PATH = re.compile(
-    r"(?P<prefix>/" + r"Users/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?"
+    '(?P<prefix>' + str(PurePosixPath('/', 'Users')) + '/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\\s`\'\\"]*)?'
 )
 LINUX_HOME_PATH = re.compile(
-    r"(?P<prefix>/" + r"home/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\s`'\"]*)?"
+    '(?P<prefix>' + str(PurePosixPath('/', 'home')) + '/)(?P<user>[A-Za-z0-9._-]+)(?P<rest>/[^\\s`\'\\"]*)?'
 )
 
 LOCAL_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
